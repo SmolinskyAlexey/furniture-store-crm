@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Попап Заказа</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .modal-container {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 24px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .order-number {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            height: calc(90vh - 96px);
+            overflow: hidden;
+        }
+        
+        .main-content {
+            padding: 32px;
+            overflow-y: auto;
+            background: #fafbfc;
+        }
+        
+        .sidebar {
+            background: white;
+            border-left: 1px solid #e5e7eb;
+            padding: 32px 24px;
+            overflow-y: auto;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .icon {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .form-input:disabled {
+            background: #f9fafb;
+            color: #6b7280;
+        }
+        
+        .product-item {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        
+        .product-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 16px;
+        }
+        
+        .product-total {
+            background: #10b981;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .product-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            accent-color: #6366f1;
+        }
+        
+        .supplier-badge {
+            background: #fef3c7;
+            color: #d97706;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .payment-summary {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        
+        .payment-row:last-child {
+            margin-bottom: 0;
+            font-weight: 600;
+            font-size: 18px;
+            color: #1f2937;
+            padding-top: 12px;
+            border-top: 2px solid #d1d5db;
+        }
+        
+        .amount {
+            font-weight: 600;
+        }
+        
+        .amount.positive {
+            color: #10b981;
+        }
+        
+        .amount.negative {
+            color: #ef4444;
+        }
+        
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .status-draft {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .status-active {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .status-completed {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        .status-cancelled {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .delivery-types {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .delivery-type {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .delivery-type.active {
+            border-color: #6366f1;
+            background: #eef2ff;
+            color: #6366f1;
+            font-weight: 600;
+        }
+        
+        .file-upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+        }
+        
+        .file-upload-area:hover {
+            border-color: #6366f1;
+            background: #f8faff;
+        }
+        
+        .file-list {
+            margin-top: 16px;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding: 24px 32px;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5856eb;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .view-mode .form-input {
+            border: none;
+            background: #f9fafb;
+            padding: 8px 12px;
+        }
+        
+        .view-mode .product-item {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .view-mode .delivery-type {
+            cursor: default;
+        }
+        
+        .toggle-mode {
+            position: absolute;
+            top: 24px;
+            right: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .toggle-mode:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .meta-info {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+        
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .meta-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="modal-container" id="orderModal">
+        <div class="modal-header">
+            <div class="modal-title">
+                📦 Заказ 
+                <span class="order-number">#ORD-2024-001234</span>
+            </div>
+            <button class="toggle-mode" onclick="toggleMode()">👁️ Режим просмотра</button>
+            <button class="close-btn">×</button>
+        </div>
+        
+        <div class="modal-content">
+            <div class="main-content">
+                <!-- Информация о клиенте -->
+                <div class="section">
+                    <h3 class="section-title">
+                        <span class="icon">👤</span>
+                        Информация о клиенте
+                    </h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Имя клиента</label>
+                            <input type="text" class="form-input" value="Иванов Иван Иванович" placeholder="Введите имя клиента">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Телефон</label>
+                            <input type="tel" class="form-input" value="+7 (999) 123-45-67" placeholder="+7 (___) ___-__-__">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Email (опционально)</label>
+                            <input type="email" class="form-input" value="ivanov@example.com" placeholder="email@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Комментарий</label>
+                            <input type="text" class="form-input" value="Постоянный клиент" placeholder="Дополнительная информация">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Список товаров -->
+                <div class="section">
+                    <h3 class="section-title">
+                        <span class="icon">🛋️</span>
+                        Список товаров
+                    </h3>
+                    
+                    <div class="product-item">
+                        <div class="product-header">
+                            <div class="product-name">Диван-кровать "Комфорт Люкс"</div>
+                            <div class="product-total">89 990 ₽</div>
+                        </div>
+                        <div class="product-details">
+                            <div class="form-group">
+                                <label class="form-label">Количество</label>
+                                <input type="number" class="form-input" value="1" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Цена за единицу</label>
+                                <input type="number" class="form-input" value="89990" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Общая сумма</label>
+                                <input type="number" class="form-input" value="89990" readonly>
+                            </div>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" class="checkbox" checked>
+                            <label>Создать запрос поставщику</label>
+                            <span class="supplier-badge">Запрос отправлен</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Комментарий к товару</label>
+                            <input type="text" class="form-input" value="Доставка через 2 недели" placeholder="Особые пожелания">
+                        </div>
+                    </div>
+                    
+                    <div class="product-item">
+                        <div class="product-header">
+                            <div class="product-name">Кресло "Релакс Премиум"</div>
+                            <div class="product-total">24 990 ₽</div>
+                        </div>
+                        <div class="product-details">
+                            <div class="form-group">
+                                <label class="form-label">Количество</label>
+                                <input type="number" class="form-input" value="1" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Цена за единицу</label>
+                                <input type="number" class="form-input" value="24990" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Общая сумма</label>
+                                <input type="number" class="form-input" value="24990" readonly>
+                            </div>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" class="checkbox">
+                            <label>Создать запрос поставщику</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Комментарий к товару</label>
+                            <input type="text" class="form-input" value="В наличии на складе" placeholder="Особые пожелания">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-secondary">
+                        <span>➕</span>
+                        Добавить товар
+                    </button>
+                </div>
+                
+                <!-- Доставка -->
+                <div class="section">
+                    <h3 class="section-title">
+                        <span class="icon">🚛</span>
+                        Доставка
+                    </h3>
+                    <div class="delivery-types">
+                        <div class="delivery-type active">🚛 Доставка</div>
+                        <div class="delivery-type">🏪 Самовывоз</div>
+                        <div class="delivery-type">📋 Без доставки</div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Дата доставки</label>
+                            <input type="date" class="form-input" value="2024-07-15">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Комментарий</label>
+                            <input type="text" class="form-input" value="Подъезд 2, домофон 25" placeholder="Особые условия доставки">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Адрес доставки</label>
+                        <input type="text" class="form-input" value="г. Москва, ул. Пушкина, д. 15, кв. 42" placeholder="Полный адрес доставки">
+                    </div>
+                </div>
+                
+                <!-- Файлы и вложения -->
+                <div class="section">
+                    <h3 class="section-title">
+                        <span class="icon">📎</span>
+                        Файлы и вложения
+                    </h3>
+                    <div class="file-upload-area">
+                        <div style="font-size: 48px; margin-bottom: 12px;">📤</div>
+                        <div style="font-weight: 600; margin-bottom: 8px;">Перетащите файлы сюда</div>
+                        <div style="color: #6b7280; font-size: 14px;">или нажмите для выбора</div>
+                    </div>
+                    <div class="file-list">
+                        <div class="file-item">
+                            <span>📷 Фото_дивана_до_доставки.jpg</span>
+                            <span style="margin-left: auto; color: #6b7280;">2.1 MB</span>
+                        </div>
+                        <div class="file-item">
+                            <span>📄 Договор_поставки.pdf</span>
+                            <span style="margin-left: auto; color: #6b7280;">856 KB</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Дополнительно -->
+                <div class="section">
+                    <h3 class="section-title">
+                        <span class="icon">📝</span>
+                        Дополнительная информация
+                    </h3>
+                    <div class="form-group">
+                        <label class="form-label">Общий комментарий к заказу</label>
+                        <textarea class="form-input textarea" placeholder="Дополнительные заметки к заказу">Клиент просил перенести доставку с утра на вечерние часы. Согласовано время: 18:00-20:00</textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Боковая панель -->
+            <div class="sidebar">
+                <!-- Информация о заказе -->
+                <div class="meta-info">
+                    <div class="meta-row">
+                        <span>Номер заказа:</span>
+                        <strong>#ORD-2024-001234</strong>
+                    </div>
+                    <div class="meta-row">
+                        <span>Дата создания:</span>
+                        <span>15.06.2024 14:30</span>
+                    </div>
+                    <div class="meta-row">
+                        <span>Продавец:</span>
+                        <span>Петрова А.С.</span>
+                    </div>
+                    <div class="meta-row">
+                        <span>Салон:</span>
+                        <span>ТЦ "Мега" - Склад №2</span>
+                    </div>
+                </div>
+                
+                <!-- Статус заказа -->
+                <div class="status-badge status-active">📋 В работе</div>
+                
+                <!-- Оплата -->
+                <div class="payment-summary">
+                    <h4 style="margin-bottom: 16px; color: #1f2937;">💳 Оплата</h4>
+                    <div class="payment-row">
+                        <span>Сумма заказа:</span>
+                        <span class="amount">114 980 ₽</span>
+                    </div>
+                    <div class="payment-row">
+                        <span>Внесено:</span>
+                        <span class="amount positive">50 000 ₽</span>
+                    </div>
+                    <div class="payment-row">
+                        <span>Остаток:</span>
+                        <span class="amount negative">64 980 ₽</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Способ оплаты</label>
+                    <select class="form-input">
+                        <option>Наличные</option>
+                        <option selected>Банковская карта</option>
+                        <option>Банковский перевод</option>
+                        <option>Рассрочка</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Комментарий к оплате</label>
+                    <textarea class="form-input" placeholder="Условия оплаты">Предоплата 50% при заказе, оставшаяся сумма при доставке</textarea>
+                </div>
+                
+                <!-- Действия -->
+                <div style="margin-top: 32px;">
+                    <button class="btn btn-primary" style="width: 100%; margin-bottom: 12px;">
+                        <span>🖨️</span>
+                        Печать накладной
+                    </button>
+                    <button class="btn btn-success" style="width: 100%; margin-bottom: 12px;">
+                        <span>💾</span>
+                        Сохранить заказ
+                    </button>
+                    <button class="btn btn-secondary" style="width: 100%;">
+                        <span>❌</span>
+                        Отменить изменения
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function toggleMode() {
+            const modal = document.getElementById('orderModal');
+            const button = document.querySelector('.toggle-mode');
+            const inputs = document.querySelectorAll('.form-input, .checkbox');
+            const buttons = document.querySelectorAll('.btn:not(.close-btn):not(.toggle-mode)');
+            
+            if (modal.classList.contains('view-mode')) {
+                // Переключение в режим редактирования
+                modal.classList.remove('view-mode');
+                button.innerHTML = '👁️ Режим просмотра';
+                inputs.forEach(input => input.disabled = false);
+                buttons.forEach(btn => btn.style.display = 'flex');
+            } else {
+                // Переключение в режим просмотра
+                modal.classList.add('view-mode');
+                button.innerHTML = '✏️ Режим редактирования';
+                inputs.forEach(input => input.disabled = true);
+                buttons.forEach(btn => {
+                    if (!btn.classList.contains('btn-primary') || !btn.textContent.includes('Печать')) {
+                        btn.style.display = 'none';
+                    }
+                });
+            }
+        }
+        
+        // Симуляция интерактивности
+        document.querySelectorAll('.delivery-type').forEach(type => {
+            type.addEventListener('click', function() {
+                document.querySelectorAll('.delivery-type').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Автоматический расчет суммы
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.getAttribute('placeholder') !== 'Общая сумма') {
+                    const productItem = this.closest('.product-item');
+                    if (productItem) {
+                        const quantity = productItem.querySelector('input[type="number"]').value || 0;
+                        const price = productItem.querySelectorAll('input[type="number"]')[1].value || 0;
+                        const totalField = productItem.querySelectorAll('input[type="number"]')[2];
+                        totalField.value = quantity * price;
+                        
+                        // Обновление отображения общей суммы
+                        const totalDisplay = productItem.querySelector('.product-total');
+                        totalDisplay.textContent = new Intl.NumberFormat('ru-RU').format(quantity * price) + ' ₽';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

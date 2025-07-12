@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Заказ - Мебельный Салон</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            width: 95%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow: hidden;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mode-switch {
+            position: absolute;
+            right: 80px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .mode-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            max-height: calc(90vh - 140px);
+        }
+
+        .order-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .section {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-input:disabled {
+            background: #f9fafb;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-select:disabled {
+            background: #f9fafb;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .payment-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .payment-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .payment-card.positive {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        }
+
+        .payment-card.negative {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, #fee2e2, #fca5a5);
+        }
+
+        .payment-card-value {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .payment-card-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .delivery-types {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .delivery-type {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-size: 14px;
+        }
+
+        .delivery-type.active {
+            border-color: #4f46e5;
+            background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+            color: #4f46e5;
+            font-weight: 600;
+        }
+
+        .products-section {
+            grid-column: 1 / -1;
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .product-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #e2e8f0;
+            display: grid;
+            grid-template-columns: 2fr 100px 120px 120px 120px 80px;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .add-product-btn {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-product-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: #4f46e5;
+        }
+
+        .files-section {
+            grid-column: 1 / -1;
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: white;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-area:hover {
+            border-color: #4f46e5;
+            background: #fafbff;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-draft { background: #fef3c7; color: #92400e; }
+        .status-active { background: #dbeafe; color: #1e40af; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
+
+        .modal-footer {
+            padding: 20px 30px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .readonly-field {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .order-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .product-item {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .modal {
+                width: 100%;
+                margin: 10px;
+                max-height: 95vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    📋 Заказ #12345
+                </div>
+                <div class="mode-switch">
+                    <button class="mode-btn active" data-mode="edit">Редактирование</button>
+                    <button class="mode-btn" data-mode="view">Просмотр</button>
+                </div>
+                <button class="close-btn">×</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="order-grid">
+                    <!-- Информация о клиенте -->
+                    <div class="section">
+                        <h3 class="section-title">👤 Информация о клиенте</h3>
+                        <div class="form-group">
+                            <label class="form-label">Имя клиента</label>
+                            <input type="text" class="form-input" value="Иванов Иван Иванович" placeholder="Введите имя или найдите в базе">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Телефон</label>
+                            <input type="tel" class="form-input" value="+7 (999) 123-45-67" placeholder="+7 (___) ___-__-__">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email (опционально)</label>
+                            <input type="email" class="form-input" value="ivanov@email.com" placeholder="email@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Комментарий</label>
+                            <textarea class="form-input" rows="3" placeholder="Дополнительная информация о клиенте">Постоянный клиент, предпочитает доставку до подъезда</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Оплата -->
+                    <div class="section">
+                        <h3 class="section-title">💳 Оплата</h3>
+                        <div class="payment-cards">
+                            <div class="payment-card">
+                                <div class="payment-card-value">89 500 ₽</div>
+                                <div class="payment-card-label">Сумма заказа</div>
+                            </div>
+                            <div class="payment-card positive">
+                                <div class="payment-card-value">45 000 ₽</div>
+                                <div class="payment-card-label">Внесено</div>
+                            </div>
+                            <div class="payment-card negative">
+                                <div class="payment-card-value">44 500 ₽</div>
+                                <div class="payment-card-label">Долг</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Способ оплаты</label>
+                            <select class="form-select">
+                                <option>Наличные</option>
+                                <option selected>Банковская карта</option>
+                                <option>Банковский перевод</option>
+                                <option>Рассрочка</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Комментарий к оплате</label>
+                            <input type="text" class="form-input" value="Аванс 50%, остаток при доставке" placeholder="Условия оплаты">
+                        </div>
+                    </div>
+
+                    <!-- Доставка -->
+                    <div class="section">
+                        <h3 class="section-title">🚚 Доставка</h3>
+                        <div class="form-group">
+                            <label class="form-label">Тип доставки</label>
+                            <div class="delivery-types">
+                                <div class="delivery-type active">Доставка</div>
+                                <div class="delivery-type">Самовывоз</div>
+                                <div class="delivery-type">Без доставки</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Дата доставки</label>
+                            <input type="date" class="form-input" value="2025-06-25">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Адрес доставки</label>
+                            <textarea class="form-input" rows="2" placeholder="Полный адрес доставки">г. Москва, ул. Тверская, д. 15, кв. 42</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Комментарий к доставке</label>
+                            <input type="text" class="form-input" value="Подъем на 5 этаж, лифт работает" placeholder="Особенности доставки">
+                        </div>
+                    </div>
+
+                    <!-- Информация о заказе -->
+                    <div class="section">
+                        <h3 class="section-title">📄 Информация о заказе</h3>
+                        <div class="form-group">
+                            <label class="form-label">Номер заказа</label>
+                            <div class="readonly-field">#12345</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Дата создания</label>
+                            <div class="readonly-field">19.06.2025 14:30</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Продавец (менеджер)</label>
+                            <select class="form-select">
+                                <option selected>Петрова Анна</option>
+                                <option>Сидоров Петр</option>
+                                <option>Козлова Мария</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Салон (склад)</label>
+                            <select class="form-select">
+                                <option selected>Салон "Центральный"</option>
+                                <option>Салон "Северный"</option>
+                                <option>Склад "Подольск"</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Статус заказа</label>
+                            <select class="form-select">
+                                <option>Черновик</option>
+                                <option selected>В работе</option>
+                                <option>Завершен</option>
+                                <option>Отменен</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Общий комментарий</label>
+                            <textarea class="form-input" rows="3" placeholder="Дополнительные заметки по заказу">Клиент просил созвониться за день до доставки</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Список товаров -->
+                    <div class="products-section">
+                        <h3 class="section-title">🛋️ Список товаров</h3>
+                        
+                        <div class="product-item">
+                            <div>
+                                <div class="form-group">
+                                    <label class="form-label">Название товара</label>
+                                    <select class="form-select">
+                                        <option selected>Диван угловой "Комфорт" (арт. 12345)</option>
+                                        <option>Кресло "Релакс" (арт. 12346)</option>
+                                        <option>Стол журнальный "Модерн" (арт. 12347)</option>
+                                    </select>
+                                </div>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" class="checkbox" id="supplier1" checked>
+                                    <label for="supplier1">Создать запрос поставщику</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label">Кол-во</label>
+                                <input type="number" class="form-input" value="1" min="1">
+                            </div>
+                            <div>
+                                <label class="form-label">Цена за ед.</label>
+                                <input type="number" class="form-input" value="65000" step="100">
+                            </div>
+                            <div>
+                                <label class="form-label">Сумма</label>
+                                <div class="readonly-field">65 000 ₽</div>
+                            </div>
+                            <div>
+                                <label class="form-label">Комментарий</label>
+                                <input type="text" class="form-input" value="Ткань: синий велюр" placeholder="Особенности">
+                            </div>
+                            <div>
+                                <button class="btn-secondary" style="padding: 8px; border-radius: 6px;">🗑️</button>
+                            </div>
+                        </div>
+
+                        <div class="product-item">
+                            <div>
+                                <div class="form-group">
+                                    <label class="form-label">Название товара</label>
+                                    <select class="form-select">
+                                        <option>Диван угловой "Комфорт" (арт. 12345)</option>
+                                        <option selected>Кресло "Релакс" (арт. 12346)</option>
+                                        <option>Стол журнальный "Модерн" (арт. 12347)</option>
+                                    </select>
+                                </div>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" class="checkbox" id="supplier2">
+                                    <label for="supplier2">Создать запрос поставщику</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label">Кол-во</label>
+                                <input type="number" class="form-input" value="2" min="1">
+                            </div>
+                            <div>
+                                <label class="form-label">Цена за ед.</label>
+                                <input type="number" class="form-input" value="12250" step="100">
+                            </div>
+                            <div>
+                                <label class="form-label">Сумма</label>
+                                <div class="readonly-field">24 500 ₽</div>
+                            </div>
+                            <div>
+                                <label class="form-label">Комментарий</label>
+                                <input type="text" class="form-input" value="Цвет: коричневый" placeholder="Особенности">
+                            </div>
+                            <div>
+                                <button class="btn-secondary" style="padding: 8px; border-radius: 6px;">🗑️</button>
+                            </div>
+                        </div>
+
+                        <button class="add-product-btn">
+                            ➕ Добавить товар
+                        </button>
+                    </div>
+
+                    <!-- Файлы и вложения -->
+                    <div class="files-section">
+                        <h3 class="section-title">📎 Файлы и вложения</h3>
+                        
+                        <div class="file-upload-area">
+                            <div style="font-size: 48px; margin-bottom: 16px;">📁</div>
+                            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Перетащите файлы сюда или нажмите для выбора</div>
+                            <div style="font-size: 14px; color: #6b7280;">Фото изделия, документы, заметки (до 10 МБ каждый)</div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                            <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0;">
+                                <div style="font-weight: 600; margin-bottom: 8px;">📷 Фото перед отправкой</div>
+                                <div style="font-size: 14px; color: #6b7280; margin-bottom: 12px;">photo_before_delivery.jpg (2.3 МБ)</div>
+                                <input type="text" class="form-input" placeholder="Подпись к фото" value="Диван в упаковке">
+                            </div>
+                            
+                            <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0;">
+                                <div style="font-weight: 600; margin-bottom: 8px;">📷 Фото после установки</div>
+                                <div style="font-size: 14px; color: #6b7280; margin-bottom: 12px;">Файл не загружен</div>
+                                <input type="text" class="form-input" placeholder="Подпись к фото">
+                            </div>
+                            
+                            <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0;">
+                                <div style="font-weight: 600; margin-bottom: 8px;">📄 Общие файлы</div>
+                                <div style="font-size: 14px; color: #6b7280; margin-bottom: 12px;">contract_scan.pdf (1.8 МБ)</div>
+                                <input type="text" class="form-input" placeholder="Подпись к файлу" value="Скан договора">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="status-badge status-active">В работе</span>
+                    <button class="btn btn-secondary">
+                        🖨️ Печать накладной
+                    </button>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-secondary">Отмена</button>
+                    <button class="btn btn-primary">
+                        💾 Сохранить заказ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Переключение между режимами
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const formInputs = document.querySelectorAll('.form-input, .form-select, .checkbox');
+        const deliveryTypes = document.querySelectorAll('.delivery-type');
+        const buttons = document.querySelectorAll('.add-product-btn, .btn-secondary:not(:last-child)');
+
+        modeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modeButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const isEditMode = btn.dataset.mode === 'edit';
+                
+                formInputs.forEach(input => {
+                    input.disabled = !isEditMode;
+                });
+                
+                deliveryTypes.forEach(dt => {
+                    dt.style.pointerEvents = isEditMode ? 'auto' : 'none';
+                    dt.style.opacity = isEditMode ? '1' : '0.6';
+                });
+                
+                buttons.forEach(button => {
+                    button.style.display = isEditMode ? 'flex' : 'none';
+                });
+
+                // Изменяем заголовок
+                const title = document.querySelector('.modal-title');
+                if (isEditMode) {
+                    title.innerHTML = '✏️ Редактирование заказа #12345';
+                } else {
+                    title.innerHTML = '👁️ Просмотр заказа #12345';
+                }
+
+                // Изменяем кнопку сохранения
+                const saveBtn = document.querySelector('.btn-primary');
+                if (isEditMode) {
+                    saveBtn.innerHTML = '💾 Сохранить заказ';
+                } else {
+                    saveBtn.innerHTML = '📋 Перейти к редактированию';
+                }
+            });
+        });
+
+        //

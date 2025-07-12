@@ -1,0 +1,17 @@
+{
+    "name": "sirian/yandex-market-language-parser",
+    "description": "Yandex Market Language parser",
+    "minimum-stability": "stable",
+    "authors": [
+        {
+            "name": "Vasily Khayrulin",
+            "email": "sirianru@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": ">=4.0"
+    },
+    "autoload": {
+        "psr-4": { "Sirian\\YMLParser\\": "src/" }
+    }
+}

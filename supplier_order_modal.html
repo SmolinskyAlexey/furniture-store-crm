@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказ поставщику</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Модальное окно заказа поставщику -->
+    <div class="modal active" id="supplierOrderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i class="fas fa-truck"></i>
+                    Заказ поставщику
+                </h2>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Информация о клиентском заказе -->
+                <div class="content-grid">
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="fas fa-receipt"></i>
+                            Информация о клиентском заказе
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">№ заказа клиента</label>
+                                <input type="text" class="form-input" value="ORD-2024-001" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Дата заказа</label>
+                                <input type="date" class="form-input" value="2024-06-20" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Клиент</label>
+                            <input type="text" class="form-input" value="Иванов Иван Иванович" disabled>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Менеджер</label>
+                                <input type="text" class="form-input" value="Петрова А.В." disabled>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Салон-заказчик</label>
+                                <input type="text" class="form-input" value="Салон красоты 'Элегант'" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="fas fa-warehouse"></i>
+                            Информация о заказе поставщику
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Дата создания</label>
+                            <input type="datetime-local" class="form-input" value="2024-06-20T14:30" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">ID менеджера</label>
+                            <input type="text" class="form-input" value="USER_123" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Общий комментарий</label>
+                            <textarea class="form-input" rows="3" placeholder="Дополнительные комментарии по заказу..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Товары в заказе поставщику -->
+                <div class="products-section">
+                    <div class="section-title">
+                        <i class="fas fa-boxes"></i>
+                        Товары в заказе поставщику
+                    </div>
+
+                    <!-- Товар 1 -->
+                    <div class="section" style="margin-bottom: 16px;">
+                        <div class="section-title" style="margin-bottom: 12px; font-size: 14px;">
+                            <i class="fas fa-cube"></i>
+                            Товар #1
+                            <span class="status-badge status-draft" style="margin-left: auto;">Ожидает</span>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Название товара</label>
+                                <input type="text" class="form-input" value="Шампунь профессиональный L'Oreal 250ml" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Количество</label>
+                                <input type="number" class="form-input" value="5" disabled>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Поставщик *</label>
+                                <select class="form-input form-select" required>
+                                    <option value="">Выберите поставщика</option>
+                                    <option value="1" selected>ООО "Красота Плюс"</option>
+                                    <option value="2">ТД "Профессионал"</option>
+                                    <option value="3">Дистрибьютор L'Oreal</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Дата ожидаемой поставки *</label>
+                                <input type="date" class="form-input" value="2024-06-25" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Склад назначения *</label>
+                                <select class="form-input form-select" required>
+                                    <option value="">Выберите склад</option>
+                                    <option value="1" selected>Основной склад</option>
+                                    <option value="2">Склад филиала №1</option>
+                                    <option value="3">Склад филиала №2</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Закупочная цена (опционально)</label>
+                                <input type="number" class="form-input" placeholder="0.00" step="0.01">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Комментарий к товару</label>
+                            <textarea class="form-input" rows="2" placeholder="Особые требования к товару..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Статус заказа</label>
+                            <div class="delivery-options">
+                                <div class="delivery-option active">
+                                    <i class="fas fa-clock"></i>
+                                    Ожидает
+                                </div>
+                                <div class="delivery-option">
+                                    <i class="fas fa-check-circle"></i>
+                                    Завершён
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Товар 2 -->
+                    <div class="section" style="margin-bottom: 16px;">
+                        <div class="section-title" style="margin-bottom: 12px; font-size: 14px;">
+                            <i class="fas fa-cube"></i>
+                            Товар #2
+                            <span class="status-badge status-completed" style="margin-left: auto;">Завершён</span>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Название товара</label>
+                                <input type="text" class="form-input" value="Краска для волос Matrix 60ml" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Количество</label>
+                                <input type="number" class="form-input" value="3" disabled>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Поставщик *</label>
+                                <select class="form-input form-select" required>
+                                    <option value="">Выберите поставщика</option>
+                                    <option value="1">ООО "Красота Плюс"</option>
+                                    <option value="2" selected>ТД "Профессионал"</option>
+                                    <option value="3">Дистрибьютор L'Oreal</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Дата ожидаемой поставки *</label>
+                                <input type="date" class="form-input" value="2024-06-22" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Склад назначения *</label>
+                                <select class="form-input form-select" required>
+                                    <option value="">Выберите склад</option>
+                                    <option value="1" selected>Основной склад</option>
+                                    <option value="2">Склад филиала №1</option>
+                                    <option value="3">Склад филиала №2</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Закупочная цена (опционально)</label>
+                                <input type="number" class="form-input" value="1250.00" step="0.01">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Комментарий к товару</label>
+                            <textarea class="form-input" rows="2">Срочно! Нужен оттенок 6.1</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Статус заказа</label>
+                            <div class="delivery-options">
+                                <div class="delivery-option">
+                                    <i class="fas fa-clock"></i>
+                                    Ожидает
+                                </div>
+                                <div class="delivery-option active">
+                                    <i class="fas fa-check-circle"></i>
+                                    Завершён
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Кнопка добавления товара -->
+                    <button class="add-product-btn" onclick="addProductToSupplierOrder()">
+                        <i class="fas fa-plus"></i>
+                        Добавить товар в заказ поставщику
+                    </button>
+                </div>
+
+                <!-- Сводка по заказу -->
+                <div class="payment-summary">
+                    <div class="section-title" style="color: white; margin-bottom: 12px;">
+                        <i class="fas fa-calculator"></i>
+                        Сводка по заказу поставщику
+                    </div>
+                    <div class="payment-item">
+                        <span>Количество товаров:</span>
+                        <span>2 позиции</span>
+                    </div>
+                    <div class="payment-item">
+                        <span>Статус "Ожидает":</span>
+                        <span>1 позиция</span>
+                    </div>
+                    <div class="payment-item">
+                        <span>Статус "Завершён":</span>
+                        <span>1 позиция</span>
+                    </div>
+                    <div class="payment-item">
+                        <span>Общая сумма закупки:</span>
+                        <span class="total-amount">1 250.00 ₽</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <div class="modal-footer-buttons">
+                    <button class="btn btn-secondary" onclick="closeModal()">
+                        <i class="fas fa-times"></i>
+                        Отмена
+                    </button>
+                    <button class="btn btn-success" onclick="saveSupplierOrder()">
+                        <i class="fas fa-save"></i>
+                        Сохранить заказ поставщику
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Функции для работы с модальным окном
+        function closeModal() {
+            document.getElementById('supplierOrderModal').classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        function saveSupplierOrder() {
+            // Здесь будет логика сохранения заказа поставщику
+            alert('Заказ поставщику сохранен!');
+            closeModal();
+        }
+
+        function addProductToSupplierOrder() {
+            // Здесь будет логика добавления нового товара
+            alert('Функция добавления товара в разработке');
+        }
+
+        // Обработка выбора статуса заказа
+        document.addEventListener('DOMContentLoaded', function() {
+            const deliveryOptions = document.querySelectorAll('.delivery-option');
+            
+            deliveryOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Убираем активный класс у всех опций в той же группе
+                    const group = this.parentElement;
+                    group.querySelectorAll('.delivery-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    
+                    // Добавляем активный класс к выбранной опции
+                    this.classList.add('active');
+                    
+                    // Обновляем бейдж статуса
+                    const productSection = this.closest('.section');
+                    const statusBadge = productSection.querySelector('.status-badge');
+                    
+                    if (this.textContent.trim().includes('Ожидает')) {
+                        statusBadge.className = 'status-badge status-draft';
+                        statusBadge.textContent = 'Ожидает';
+                    } else if (this.textContent.trim().includes('Завершён')) {
+                        statusBadge.className = 'status-badge status-completed';
+                        statusBadge.textContent = 'Завершён';
+                    }
+                });
+            });
+        });
+
+        // Добавляем класс для блокировки скролла при открытом модальном окне
+        document.body.classList.add('modal-open');
+    </script>
+</body>
+</html>

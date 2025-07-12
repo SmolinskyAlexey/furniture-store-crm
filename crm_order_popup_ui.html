@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRM — Оформление заказа</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f1f5f9;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .modal {
+      background: white;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 1280px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .modal-header {
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: white;
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-body {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      padding: 30px;
+    }
+    .section {
+      background: #f9fafb;
+      padding: 24px;
+      margin-bottom: 24px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+    }
+    .section h3 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: 18px;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background-color: white;
+      margin-bottom: 12px;
+    }
+    textarea { resize: vertical; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .product-item {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+      gap: 12px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+    .status {
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+    }
+    .status.draft { background: #fef3c7; color: #92400e; }
+    .status.work { background: #dbeafe; color: #1d4ed8; }
+    .status.done { background: #d1fae5; color: #065f46; }
+    .status.cancel { background: #fee2e2; color: #991b1b; }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+      padding: 16px 30px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn-primary { background: #3b82f6; color: white; }
+    .btn-secondary { background: #e5e7eb; color: #111827; }
+    .file-block {
+      background: white;
+      padding: 12px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="modal">
+    <div class="modal-header">
+      <div><strong>🧾 Заказ #123456</strong></div>
+      <div class="status work">В работе</div>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="section">
+          <h3>👤 Клиент</h3>
+          <label>Имя</label>
+          <input type="text" placeholder="ФИО клиента">
+          <label>Телефон</label>
+          <input type="tel" placeholder="+7 (___) ___-__-__">
+          <label>Email</label>
+          <input type="email" placeholder="email@example.com">
+          <label>Комментарий</label>
+          <textarea rows="2"></textarea>
+        </div>
+        <div class="section">
+          <h3>🛋️ Товары</h3>
+          <div class="product-item">
+            <select><option>Диван "Комфорт" арт.123</option></select>
+            <input type="number" value="1">
+            <input type="number" value="45000">
+            <input type="text" value="45000 ₽" disabled>
+            <input type="text" placeholder="Комментарий">
+            <input type="checkbox" checked>
+          </div>
+          <button class="btn-secondary">➕ Добавить товар</button>
+        </div>
+        <div class="section">
+          <h3>🚚 Доставка</h3>
+          <select>
+            <option>Доставка</option>
+            <option>Самовывоз</option>
+            <option>Без доставки</option>
+          </select>
+          <label>Дата</label>
+          <input type="date">
+          <label>Адрес</label>
+          <textarea rows="2"></textarea>
+          <label>Комментарий</label>
+          <input type="text">
+        </div>
+        <div class="section">
+          <h3>📎 Файлы</h3>
+          <div class="file-block">Перетащите фото и документы сюда</div>
+        </div>
+      </div>
+      <div>
+        <div class="section">
+          <h3>💳 Оплата</h3>
+          <label>Сумма</label>
+          <input type="text" value="90 000 ₽" disabled>
+          <label>Внесено</label>
+          <input type="number" value="50000">
+          <label>Долг</label>
+          <input type="text" value="40000 ₽" disabled>
+          <label>Способ</label>
+          <select>
+            <option>Наличные</option>
+            <option selected>Карта</option>
+            <option>Перевод</option>
+          </select>
+          <label>Комментарий</label>
+          <textarea rows="2"></textarea>
+        </div>
+        <div class="section">
+          <h3>🧾 Заказ</h3>
+          <label>Продавец</label>
+          <select><option>Менеджер A</option></select>
+          <label>Салон</label>
+          <select><option>Склад 1</option></select>
+          <label>Комментарий</label>
+          <textarea rows="2"></textarea>
+          <label>Статус</label>
+          <select>
+            <option>Черновик</option>
+            <option selected>В работе</option>
+            <option>Завершен</option>
+            <option>Отменен</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <button class="btn-secondary">Отменить</button>
+      <div>
+        <button class="btn-secondary">🖨 Печать</button>
+        <button class="btn-primary">💾 Сохранить</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

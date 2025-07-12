@@ -1,0 +1,46 @@
+{
+    "packages": [
+        {
+            "name": "sirian/yandex-market-language-parser",
+            "version": "v3.0.2",
+            "version_normalized": "3.0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sirian/php-yml-parser.git",
+                "reference": "0051b9f44b8dc2c573c130cabd29f6a9d5b39c8b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sirian/php-yml-parser/zipball/0051b9f44b8dc2c573c130cabd29f6a9d5b39c8b",
+                "reference": "0051b9f44b8dc2c573c130cabd29f6a9d5b39c8b",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=4.0"
+            },
+            "time": "2016-07-15T07:46:15+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Sirian\\YMLParser\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Vasily Khayrulin",
+                    "email": "sirianru@gmail.com"
+                }
+            ],
+            "description": "Yandex Market Language parser",
+            "support": {
+                "issues": "https://github.com/sirian/php-yml-parser/issues",
+                "source": "https://github.com/sirian/php-yml-parser/tree/master"
+            },
+            "install-path": "../sirian/yandex-market-language-parser"
+        }
+    ],
+    "dev": true,
+    "dev-package-names": []
+}

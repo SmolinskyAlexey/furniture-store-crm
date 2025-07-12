@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Модальное окно возврата товаров</title>
+    <style>
+        /* Используем существующие стили из файла style.css */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .modal {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 1100px;
+            height: 95vh;
+            max-height: 95vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e1e5e9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            width: 35px;
+            height: 35px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 24px;
+            max-height: calc(95vh - 140px);
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
+        }
+
+        .section-title i {
+            color: #4f46e5;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-input:disabled {
+            background: #f9fafb;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .info-card {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-card-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .info-card-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .returns-section {
+            grid-column: 1 / -1;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .returns-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .returns-table th,
+        .returns-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .returns-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        .returns-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 4px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+            border: 1px solid #e1e5e9;
+            border-radius: 4px;
+            padding: 5px;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .photo-upload {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .photo-btn {
+            width: 32px;
+            height: 32px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 4px;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            transition: all 0.2s;
+        }
+
+        .photo-btn:hover {
+            border-color: #4f46e5;
+            color: #4f46e5;
+        }
+
+        .payment-summary {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .payment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .payment-item:last-child {
+            margin-bottom: 0;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #e1e5e9;
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            background: #f8f9fa;
+            flex-shrink: 0;
+        }
+
+        .modal-footer-buttons {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                height: 98vh;
+                max-height: 98vh;
+            }
+
+            .modal-body {
+                padding: 16px;
+            }
+
+            .returns-table {
+                font-size: 12px;
+            }
+
+            .returns-table th,
+            .returns-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i>↩️</i>
+                    Возврат товаров - Заказ №2024-0156
+                </h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Информация о заказе -->
+                <div class="content-grid">
+                    <div class="section">
+                        <div class="section-title">
+                            <i>📋</i>
+                            Информация о заказе
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-card">
+                                <div class="info-card-label">Номер заказа</div>
+                                <div class="info-card-value">№2024-0156</div>
+                            </div>
+                            <div class="info-card">
+                                <div class="info-card-label">Дата покупки</div>
+                                <div class="info-card-value">15.11.2024</div>
+                            </div>
+                            <div class="info-card">
+                                <div class="info-card-label">Продавец</div>
+                                <div class="info-card-value">Иванов И.И.</div>
+                            </div>
+                            <div class="info-card">
+                                <div class="info-card-label">Салон</div>
+                                <div class="info-card-value">Мебель-Сити Центр</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">
+                            <i>👤</i>
+                            Клиент
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">ФИО</label>
+                            <input type="text" class="form-input" value="Петров Петр Петрович" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Телефон</label>
+                            <input type="text" class="form-input" value="+7 (999) 123-45-67" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Возвращаемые товары -->
+                <div class="returns-section">
+                    <div class="section-title">
+                        <i>📦</i>
+                        Возвращаемые товары
+                    </div>
+                    <table class="returns-table">
+                        <thead>
+                            <tr>
+                                <th>Товар</th>
+                                <th>Количество</th>
+                                <th>Цена</th>
+                                <th>Сумма</th>
+                                <th>Причина</th>
+                                <th>Комментарий</th>
+                                <th>Фото</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600;">Диван угловой "Комфорт"</div>
+                                    <div style="font-size: 12px; color: #666;">Артикул: DIV-001-BLU</div>
+                                </td>
+                                <td>
+                                    <div class="quantity-control">
+                                        <button class="quantity-btn">-</button>
+                                        <input type="number" class="quantity-input" value="1" min="0" max="1">
+                                        <button class="quantity-btn">+</button>
+                                        <span style="font-size: 12px; color: #666;">/1</span>
+                                    </div>
+                                </td>
+                                <td>89 500 ₽</td>
+                                <td style="font-weight: 600;">89 500 ₽</td>
+                                <td>
+                                    <select class="form-select">
+                                        <option value="">Выберите причину</option>
+                                        <option value="defect">Брак</option>
+                                        <option value="not_fit" selected>Не подошло</option>
+                                        <option value="other">Другая причина</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-input" placeholder="Комментарий" 
+                                           value="Не подошел по размеру">
+                                </td>
+                                <td>
+                                    <div class="photo-upload">
+                                        <button class="photo-btn" title="Добавить фото">📷</button>
+                                        <span style="font-size: 12px; color: #666;">0 фото</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600;">Стол журнальный "Лофт"</div>
+                                    <div style="font-size: 12px; color: #666;">Артикул: TBL-102-OAK</div>
+                                </td>
+                                <td>
+                                    <div class="quantity-control">
+                                        <button class="quantity-btn">-</button>
+                                        <input type="number" class="quantity-input" value="0" min="0" max="2">
+                                        <button class="quantity-btn">+</button>
+                                        <span style="font-size: 12px; color: #666;">/2</span>
+                                    </div>
+                                </td>
+                                <td>15 200 ₽</td>
+                                <td style="font-weight: 600;">0 ₽</td>
+                                <td>
+                                    <select class="form-select">
+                                        <option value="">Выберите причину</option>
+                                        <option value="defect">Брак</option>
+                                        <option value="not_fit">Не подошло</option>
+                                        <option value="other">Другая причина</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-input" placeholder="Комментарий">
+                                </td>
+                                <td>
+                                    <div class="photo-upload">
+                                        <button class="photo-btn" title="Добавить фото">📷</button>
+                                        <span style="font-size: 12px; color: #666;">0 фото</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Финансы и статус -->
+                <div class="content-grid">
+                    <div class="section">
+                        <div class="section-title">
+                            <i>💰</i>
+                            Возврат денежных средств
+                        </div>
+                        
+                        <div class="payment-summary">
+                            <div class="payment-item">
+                                <span>Сумма к возврату:</span>
+                                <span>89 500 ₽</span>
+                            </div>
+                            <div class="payment-item">
+                                <span>Комиссия:</span>
+                                <span>0 ₽</span>
+                            </div>
+                            <div class="payment-item">
+                                <span>Итого к возврату:</span>
+                                <span>89 500 ₽</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Способ возврата</label>
+                            <select class="form-select">
+                                <option value="cash">Наличные</option>
+                                <option value="card" selected>Карта</option>
+                                <option value="transfer">Банковский перевод</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Комментарий к возврату</label>
+                            <textarea class="form-input" rows="3" 
+                                placeholder="Дополнительная информация о возврате"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">
+                            <i>📊</i>
+                            Статус возврата
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Текущий статус</label>
+                            <div style="margin-bottom: 16px;">
+                                <span class="status-badge status-pending">Ожидает возврата</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Дата возврата</label>
+                            <input type="date" class="form-input" value="2024-06-20">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Ответственный</label>
+                            <select class="form-select">
+                                <option value="ivanov">Иванов И.И.</option>
+                                <option value="petrov">Петров П.П.</option>
+                                <option value="sidorov">Сидоров С.С.</option>
+                            </select>
+                        </div>
+
+                        <div class="info-grid" style="margin-top: 20px;">
+                            <div class="info-card">
+                                <div class="info-card-label">Создан</div>
+                                <div class="info-card-value">20.06.2024 14:30</div>
+                            </div>
+                            <div class="info-card">
+                                <div class="info-card-label">Автор</div>
+                                <div class="info-card-value">Иванов И.И.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <div class="modal-footer-buttons">
+                    <button class="btn btn-secondary">❌ Отмена</button>
+                    <button class="btn btn-primary">💾 Сохранить возврат</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Простая функциональность для демонстрации
+        document.addEventListener('DOMContentLoaded', function() {
+            // Обработка кнопок количества
+            document.querySelectorAll('.quantity-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const input = this.parentNode.querySelector('.quantity-input');
+                    const isPlus = this.textContent === '+';
+                    const currentValue = parseInt(input.value) || 0;
+                    const max = parseInt(input.getAttribute('max'));
+                    const min = parseInt(input.getAttribute('min'));
+                    
+                    if (isPlus && currentValue < max) {
+                        input.value = currentValue + 1;
+                    } else if (!isPlus && currentValue > min) {
+                        input.value = currentValue - 1;
+                    }
+                    
+                    // Обновление суммы (упрощенно)
+                    updateRowSum(input.closest('tr'));
+                });
+            });
+
+            // Обработка изменения количества в инпуте
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', function() {
+                    updateRowSum(this.closest('tr'));
+                });
+            });
+
+            // Закрытие модалки
+            document.querySelector('.modal-close').addEventListener('click', function() {
+                document.querySelector('.modal').style.display = 'none';
+            });
+
+            function updateRowSum(row) {
+                const quantityInput = row.querySelector('.quantity-input');
+                const quantity = parseInt(quantityInput.value) || 0;
+                const priceText = row.cells[2].textContent;
+                const price = parseInt(priceText.replace(/[^\d]/g, ''));
+                const sum = quantity * price;
+                
+                row.cells[3].innerHTML = `<span style="font-weight: 600;">${sum.toLocaleString()} ₽</span>`;
+                
+                // Обновление общей суммы
+                updateTotalSum();
+            }
+
+            function updateTotalSum() {
+                let total = 0;
+                document.querySelectorAll('.returns-table tbody tr').forEach(row => {
+                    const sumText = row.cells[3].textContent;
+                    const sum = parseInt(sumText.replace(/[^\d]/g, ''));
+                    total += sum;
+                });
+                
+                // Обновление в блоке финансов
+                const paymentItems = document.querySelectorAll('.payment-item span:last-child');
+                paymentItems[0].textContent = `${total.toLocaleString()} ₽`;
+                paymentItems[2].textContent = `${total.toLocaleString()} ₽`;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Заказ - Мебельный Салон</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 95%;
+            max-width: 1200px;
+            max-height: 95vh;
+            overflow: hidden;
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .order-number {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .modal-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .mode-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .mode-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .mode-toggle.active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: 24px;
+            max-height: calc(95vh - 140px);
+            overflow-y: auto;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
+        }
+
+        .section-title i {
+            color: #4f46e5;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-input:disabled {
+            background: #f9fafb;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .payment-summary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .payment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .payment-item:last-child {
+            margin-bottom: 0;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .delivery-options {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .delivery-option {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .delivery-option:hover {
+            border-color: #4f46e5;
+        }
+
+        .delivery-option.active {
+            border-color: #4f46e5;
+            background: #f0f4ff;
+            color: #4f46e5;
+        }
+
+        .products-section {
+            grid-column: 1 / -1;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .products-table th,
+        .products-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .products-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        .add-product-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .add-product-btn:hover {
+            background: #4338ca;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-draft {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-active {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .files-section {
+            grid-column: 1 / -1;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .file-upload-areas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            border-color: #4f46e5;
+            background: #f8fafc;
+        }
+
+        .file-upload-area i {
+            font-size: 32px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e2e8f0;
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #d1d5db;
+            color: #374151;
+        }
+
+        .btn-outline:hover {
+            background: #f9fafb;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .info-card {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-card-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .info-card-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            accent-color: #4f46e5;
+        }
+
+        .total-amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: #059669;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal {
+                width: 100%;
+                max-width: none;
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .modal-body {
+                max-height: calc(100vh - 140px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-shopping-cart"></i>
+                    Заказ
+                    <span class="order-number">#2024-001547</span>
+                </div>
+                <div class="modal-controls">
+                    <button class="mode-toggle active" id="editMode">
+                        <i class="fas fa-edit"></i> Редактирование
+                    </button>
+                    <button class="mode-toggle" id="viewMode">
+                        <i class="fas fa-eye"></i> Просмотр
+                    </button>
+                    <button class="close-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="content-grid">
+                    <!-- Информация о клиенте -->
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="fas fa-user"></i>
+                            Информация о клиенте
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Имя клиента</label>
+                            <input type="text" class="form-input" value="Иванов Иван Иванович" placeholder="Введите имя или найдите клиента">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Телефон</label>
+                                <input type="tel" class="form-input" value="+7 (999) 123-45-67" placeholder="+7 (___) ___-__-__">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email (опционально)</label>
+                                <input type="email" class="form-input" value="ivan@example.com" placeholder="email@example.com">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Комментарий</label>
+                            <textarea class="form-input" rows="2" placeholder="Дополнительная информация о клиенте">Постоянный клиент, предпочитает доставку по выходным</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Оплата -->
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="fas fa-credit-card"></i>
+                            Оплата
+                        </div>
+                        <div class="payment-summary">
+                            <div class="payment-item">
+                                <span>Сумма заказа:</span>
+                                <span class="total-amount">89 500 ₽</span>
+                            </div>
+                            <div class="payment-item">
+                                <span>Внесено:</span>
+                                <span>30 000 ₽</span>
+                            </div>
+                            <div class="payment-item">
+                                <span>Остаток к доплате:</span>
+                                <span>59 500 ₽</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Способ оплаты</label>
+                            <select class="form-input">
+                                <option>Наличные</option>
+                                <option selected>Банковская карта</option>
+                                <option>Банковский перевод</option>
+                                <option>Электронные деньги</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Комментарий к оплате</label>
+                            <textarea class="form-input" rows="2" placeholder="Особенности оплаты">Аванс 30% внесен картой, остальную сумму доплатит при доставке</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Доставка -->
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="fas fa-truck"></i>
+                            Доставка
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Тип доставки</label>
+                            <div class="delivery-options">
+                                <div class="delivery-option active">
+                                    <i class="fas fa-shipping-fast"></i><br>
+                                    Доставка
+                                </div>
+                                <div class="delivery-option">
+                                    <i class="fas fa-store"></i><br>
+                                    Самовывоз
+                                </div>
+                                <div class="delivery-option">
+                                    <i class="fas fa-times"></i><br>
+                                    Без доставки
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Дата доставки</label>
+                                <input type="date" class="form-input" value="2024-02-15">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Время доставки</label>
+                                <input type="time" class="form-input" value="14:00">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Адрес доставки</label>
+                            <textarea class="form-input" rows="2" placeholder="Полный адрес доставки">г. Москва, ул. Ленина, д. 15, кв. 42, 3 этаж, код домофона 42</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Комментарий к доставке</label>
+                            <textarea class="form-input" rows="2" placeholder="Особенности доставки">Подъем на 3 этаж без лифта, есть грузовой лифт с задней стороны здания</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Информация о заказе -->
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            Информация о заказе
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-card">
+                                <div class="info-card-label">Дата создания</div>
+                                <div class="info-card-value">08.02.2024 14:32</div>
+                            </div>
+                            <div class="info-card">
+                                <div class="info-card-label">Продавец</div>
+                                <div class="info-card-value">Петрова А.С.</div>
+                            </div>
+                            <div class="info-card">
+                                <div class="info-card-label">Салон</div>
+                                <div class="info-card-value">Мебельный Рай (Центр)</div>
+                            </div>
+                            <div class="info-card">
+                                <div class="info-card-label">Статус</div>
+                                <div class="info-card-value">
+                                    <span class="status-badge status-active">В работе</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 16px;">
+                            <label class="form-label">Общий комментарий к заказу</label>
+                            <textarea class="form-input" rows="3" placeholder="Дополнительные заметки по заказу">Клиент хочет согласовать цвет фасадов перед производством. Образцы покажет дизайнер 10.02.2024</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Товары -->
+                    <div class="products-section">
+                        <div class="section-title">
+                            <i class="fas fa-couch"></i>
+                            Список товаров
+                        </div>
+                        <table class="products-table">
+                            <thead>
+                                <tr>
+                                    <th>Название товара</th>
+                                    <th>Кол-во</th>
+                                    <th>Цена за ед.</th>
+                                    <th>Сумма</th>
+                                    <th>Заказать у поставщика</th>
+                                    <th>Комментарий</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <select class="form-input">
+                                            <option selected>Диван угловой "Комфорт" (серый)</option>
+                                            <option>Кресло "Релакс" (бежевый)</option>
+                                            <option>Стол журнальный "Модерн"</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-input" value="1" min="1" style="width: 70px;">
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-input" value="67500" step="100" style="width: 90px;">
+                                    </td>
+                                    <td style="font-weight: 600;">67 500 ₽</td>
+                                    <td>
+                                        <div class="checkbox-group">
+                                            <input type="checkbox" class="checkbox" checked>
+                                            <span style="font-size: 12px; color: #059669;">Заказано</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-input" value="Серый велюр" placeholder="Особенности" style="width: 120px;">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <select class="form-input">
+                                            <option>Диван угловой "Комфорт" (серый)</option>
+                                            <option selected>Кресло "Релакс" (бежевый)</option>
+                                            <option>Стол журнальный "Модерн"</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-input" value="2" min="1" style="width: 70px;">
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-input" value="11000" step="100" style="width: 90px;">
+                                    </td>
+                                    <td style="font-weight: 600;">22 000 ₽</td>
+                                    <td>
+                                        <div class="checkbox-group">
+                                            <input type="checkbox" class="checkbox">
+                                            <span style="font-size: 12px; color: #6b7280;">На складе</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-input" value="" placeholder="Особенности" style="width: 120px;">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class="add-product-btn">
+                            <i class="fas fa-plus"></i>
+                            Добавить товар
+                        </button>
+                    </div>
+
+                    <!-- Файлы и вложения -->
+                    <div class="files-section">
+                        <div class="section-title">
+                            <i class="fas fa-paperclip"></i>
+                            Файлы и вложения
+                        </div>
+                        <div class="file-upload-areas">
+                            <div class="file-upload-area">
+                                <i class="fas fa-camera"></i>
+                                <div style="font-weight: 600; margin-bottom: 4px;">Фото перед отправкой</div>
+                                <div style="font-size: 12px; color: #6b7280;">Нажмите для загрузки фото</div>
+                            </div>
+                            <div class="file-upload-area">
+                                <i class="fas fa-image"></i>
+                                <div style="font-weight: 600; margin-bottom: 4px;">Фото после установки</div>
+                                <div style="font-size: 12px; color: #6b7280;">Нажмите для загрузки фото</div>
+                            </div>
+                            <div class="file-upload-area">
+                                <i class="fas fa-file"></i>
+                                <div style="font-weight: 600; margin-bottom: 4px;">Общие файлы</div>
+                                <div style="font-size: 12px; color: #6b7280;">Документы, сканы, заметки</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-outline">
+                        <i class="fas fa-print"></i>
+                        Печать накладной
+                    </button>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        Отмена
+                    </button>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Сохранить заказ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Переключение между режимами
+        const editMode = document.getElementById('editMode');
+        const viewMode = document.getElementById('viewMode');
+        const inputs = document.querySelectorAll('.form-input, .checkbox');
+        const buttons = document.querySelectorAll('.add-product-btn');
+
+        function toggleMode(isEditMode) {
+            inputs.forEach(input => {
+                input.disabled = !isEditMode;
+            });
+            
+            buttons.forEach(button => {
+                button.style.display = isEditMode ? 'flex' : 'none';
+            });
+
+            editMode.classList.toggle('active', isEditMode);
+            viewMode.classList.toggle('active', !isEditMode);
+        }
+
+        editMode.addEventListener('click', () => toggleMode(true));
+        viewMode.addEventListener('click', () => toggleMode(false));
+
+        // Выбор типа доставки
+        document.querySelectorAll('.delivery-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.delivery-option').forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Автоматический расчет сумм
+        function updateTotals() {
+            let total = 0;
+            document.querySelectorAll('.products-table tbody tr').forEach(row => {
+                const qty = parseInt(row.querySelector('input[type="number"]').value) || 0;
+                const price = parseInt(row.querySelectorAll('input[type="number"]')[1].value) || 0;
+                const sum = qty * price;
+                row.querySelector('td:nth-child(4)').textContent = sum.toLocaleString() + ' ₽';
+                total += sum;
+            });
+            
+            // Обновляем итоговую сумму в блоке оплаты
+            document.querySelector('.total-amount').textContent = total.toLocaleString() + ' ₽';
+        }
+
+        // Добавляем обработчики на изменение количества и цены
+        document.querySelectorAll('.products-table input[type="number"]').forEach(input => {
+            input.addEventListener('input', updateTotals);
+        });
+
+        // Инициализация в режиме редактирования
+        toggleMode(true);
+        updateTotals();
+    </script>
+</body>
+</html>

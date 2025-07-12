@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Макеты мебельного магазина</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .mockup-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .mockup {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+            border: 1px solid #e1e5e9;
+        }
+        
+        .mockup-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .phone-frame {
+            max-width: 375px;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 25px;
+            padding: 8px;
+        }
+        
+        .screen {
+            background: white;
+            border-radius: 20px;
+            min-height: 600px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .status-bar {
+            background: #000;
+            color: white;
+            padding: 8px 20px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .content {
+            padding: 20px;
+            flex: 1;
+        }
+        
+        .big-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            margin: 10px 0;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .secondary-button {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            width: 100%;
+            margin: 8px 0;
+            cursor: pointer;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            margin: 8px 0;
+        }
+        
+        .input-field:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .card {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .product-card {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        
+        .product-image {
+            width: 60px;
+            height: 60px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .badge {
+            background: #4CAF50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge.warning {
+            background: #FF9800;
+        }
+        
+        .badge.danger {
+            background: #f44336;
+        }
+        
+        .tab-bar {
+            display: flex;
+            background: #f8f9fa;
+            border-top: 1px solid #e1e5e9;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 25px;
+            font-size: 16px;
+        }
+        
+        .filter-btn {
+            padding: 12px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+        
+        .shift-info {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .order-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e1e5e9;
+        }
+        
+        .order-info h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+        }
+        
+        .order-info p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .order-total {
+            font-weight: bold;
+            color: #4CAF50;
+            font-size: 16px;
+        }
+        
+        h1, h2, h3 {
+            margin: 0 0 15px 0;
+        }
+        
+        .form-group {
+            margin: 15px 0;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .customer-type {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .type-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .type-btn.active {
+            border-color: #667eea;
+            background: #f0f3ff;
+            color: #667eea;
+        }
+        
+        .payment-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .total-summary {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+        }
+        
+        .summary-total {
+            font-weight: bold;
+            font-size: 18px;
+            color: #4CAF50;
+            border-top: 1px solid #ddd;
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-container">
+        
+        <!-- 1. Экран входа -->
+        <div class="mockup">
+            <div class="mockup-header">1. Экран входа</div>
+            <div class="phone-frame">
+                <div class="screen">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>🔋100%</span>
+                    </div>
+                    <div class="content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🏪</div>
+                        <h2 style="color: #667eea; margin-bottom: 30px;">Мебельный салон</h2>
+                        <input type="text" class="input-field" placeholder="Логин продавца" />
+                        <input type="password" class="input-field" placeholder="Пароль" />
+                        <button class="big-button">Войти</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Главная страница -->
+        <div class="mockup">
+            <div class="mockup-header">2. Главная страница</div>
+            <div class="phone-frame">
+                <div class="screen">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>🔋100%</span>
+                    </div>
+                    <div class="header">
+                        <span>Главная</span>
+                        <span>👤 Иван П.</span>
+                    </div>
+                    <div class="content">
+                        <div class="shift-info">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-size: 14px; opacity: 0.9;">Смена открыта</div>
+                                    <div style="font-weight: bold;">25.05.2025 с 9:00</div>
+                                </div>
+                                <div style="font-size: 24px;">✅</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number">12</div>
+                                <div class="stat-label">Заказов</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">284к</div>
+                                <div class="stat-label">Сумма</div>
+                            </div>
+                        </div>
+                        
+                        <button class="big-button">🛒 Новый заказ</button>
+                        <button class="secondary-button">📋 Мои заказы (3)</button>
+                        <button class="secondary-button">📦 Остатки товаров</button>
+                        <button class="secondary-button">📊 Отчеты</button>
+                    </div>
+                    <div class="tab-bar">
+                        <div class="tab active">🏠<br>Главная</div>
+                        <div class="tab">🛒<br>Заказы</div>
+                        <div class="tab">📦<br>Товары</div>
+                        <div class="tab">⚙️<br>Еще</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Управление сменой -->
+        <div class="mockup">
+            <div class="mockup-header">3. Управление сменой</div>
+            <div class="phone-frame">
+                <div class="screen">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>🔋100%</span>
+                    </div>
+                    <div class="header">
+                        <span>← Смена</span>
+                        <span>📅</span>
+                    </div>
+                    <div class="content">
+                        <div class="card">
+                            <h3>Текущая смена</h3>
+                            <p><strong>Дата:</strong> 25.05.2025</p>
+                            <p><strong>Продавец:</strong> Иван Петров</p>
+                            <p><strong>Салон:</strong> ТЦ Мега</p>
+                            <p><strong>Начало:</strong> 9:00</p>
+                            <div class="badge">Активна</div>
+                        </div>
+                        
+                        <div class="card">
+                            <h4>Остатки на начало смены</h4>
+                            <p>💰 Касса: 5,000 ₽</p>
+                            <p>📦 Товары: учтены</p>
+                        </div>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number">12</div>
+                                <div class="stat-label">Заказов</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">284к</div>
+                                <div class="stat-label">Выручка</div>
+                            </div>
+                        </div>
+                        
+                        <button class="secondary-button">📊 Отчет по смене</button>
+                        <button class="big-button" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);">
+                            🔒 Закрыть смену
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Создание заказа -->
+        <div class="mockup">
+            <div class="mockup-header">4. Создание заказа</div>
+            <div class="phone-frame">
+                <div class="screen">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>🔋100%</span>
+                    </div>
+                    <div class="header">
+                        <span>← Новый заказ</span>
+                        <span>💾</span>
+                    </div>
+                    <div class="content">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3>Заказ #1234</h3>
+                            <div class="badge">Черновик</div>
+                        </div>
+                        
+                        <!-- Шаги -->
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 12px;">
+                            <div style="text-align: center; color: #4CAF50;">
+                                <div style="width: 30px; height: 30px; background: #4CAF50; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px;">✓</div>
+                                Товары
+                            </div>
+                            <div style="text-align: center; color: #667eea;">
+                                <div style="width: 30px; height: 30px; background: #667eea; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px;">2</div>
+                                Клиент
+                            </div>
+                            <div style="text-align: center; color: #ccc;">
+                                <div style="width: 30px; height: 30px; background: #ccc; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px;">3</div>
+                                Оплата
+                            </div>
+                        </div>
+                        
+                        <h4>Выберите клиента</h4>
+                        <div class="customer-type">
+                            <button class="type-btn active">👤 Постоянный</button>
+                            <button class="type-btn">🔄 Разовый</button>
+                        </div>
+                        
+                        <div class="search-bar">
+                            <input type="text" class="search-input" placeholder="Поиск клиента..." />
+                            <button class="filter-btn">🔍</button>
+                        </div>
+                        
+                        <div class="card">
+                            <h4>Иван Петров</h4>
+                            <p>+7 (999) 123-45-67</p>
+                            <p>ivan@email.com</p>
+                            <small style="color: #666;">Последний заказ: 15.05.2025</small>
+                        </div>
+                        
+                        <button class="secondary-button">+ Добавить нового клиента</button>
+                        <button class="big-button">Далее →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Список заказов -->
+        <div class="mockup">
+            <div class="mockup-header">5. Список моих заказов</div>
+            <div class="phone-frame">
+                <div class="screen">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>🔋100%</span>
+                    </div>
+                    <div class="header">
+                        <span>← Мои заказы</span>
+                        <span>🔍</span>
+                    </div>
+                    <div class="content">
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <button class="type-btn active" style="flex: none; padding: 8px 12px;">Сегодня</button>
+                            <button class="type-btn" style="flex: none; padding: 8px 12px;">Неделя</button>
+                            <button class="type-btn" style="flex: none; padding: 8px 12px;">Месяц</button>
+                        </div>
+                        
+                        <div class="order-list">
+                            <div class="order-item">
+                                <div class="order-info">
+                                    <h4>Заказ #1234</h4>
+                                    <p>Иван Петров • 14:30</p>
+                                    <p>Диван угловой, Стол журнальный</p>
+                                </div>
+                                <div>
+                                    <div class="order-total">45,000 ₽</div>
+                                    <div class="badge">Оплачен</div>
+                                </div>
+                            </div>
+                            
+                            <div class="order-item">
+                                <div class="order-info">
+                                    <h4>Заказ #1235</h4>
+                                    <p>Мария Сидорова • 15:45</p>
+                                    <p>Шкаф-купе</p>
+                                </div>
+                                <div>
+                                    <div class="order-total">78,000 ₽</div>
+                                    <div class="badge warning">Аванс</div>
+                                </div>
+                            </div>
+                            
+                            <div class="order-item">
+                                <div class="order-info">
+                                    <h4>Заказ #1236</h4>
+                                    <p>Разовый клиент • 16:20</p>
+                                    <p>Кресло</p>
+                                </div>
+                                <div>
+                                    <div class="order-total">12,500 ₽</div>
+                                    <div class="badge">Готов</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="total-summary">
+                            <div class="summary-row">
+                                <span>Заказов сегодня:</span>
+                                <span>12</span>
+                            </div>
+                            <div class="summary-row summary-total">
+                                <span>Общая сумма:</span>
+                                <span>284,500 ₽</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Поиск товаров -->
+        <div class="mockup">
+            <div class="mockup-header">6. Поиск товаров</div>
+            <div class="phone-frame">
+                <div class="screen">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>🔋100%</span>
+                    </div>
+                    <div class="header">
+                        <span>← Товары</span>
+                        <span>📋</span>
+                    </div>
+                    <div class="content">
+                        <div class="search-bar">
+                            <input type="text" class="search-input" placeholder="Поиск товаров..." />
+                            <button class="filter-btn">🔍</button>
+                        </div>
+                        
+                        <div style="display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto;">
+                            <button class="type-btn active" style="flex: none; padding: 6px 12px; font-size: 14px;">Все</button>
+                            <button class="type-btn" style="flex: none; padding: 6px 12px; font-size: 14px;">Диваны</button>
+                            <button class="type-btn" style="flex: none; padding: 6px 12px; font-size: 14px;">Столы</button>
+                            <button class="type-btn" style="flex: none; padding: 6px 12px; font-size: 14px;">Шкафы</button>
+                        </div>
+                        
+                        <div class="product-card">
+                            <div class="product-image">🛋️</div>
+                            <div style="flex: 1;">
+                                <h4>Диван угловой "Комфорт"</h4>
+                                <p style="color: #666; font-size: 14px;">Артикул: DIV-001</p>
+                                <p style="color: #4CAF50; font-weight: bold;">от 45,000 ₽</p>
+                                <div style="display: flex; gap: 5px; margin-top: 5px;">
+                                    <span class="badge" style="font-size: 10px;">В наличии</span>
+                                    <span style="font-size: 12px; color: #666;">3 варианта</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="product-card">
+                            <div class="product-image">📚</div>
+                            <div style="flex: 1;">
+                                <h4>Стол журнальный</h4>
+                                <p style="color: #666; font-size: 14px;">Артикул: TBL-005</p>
+                                <p style="color: #4CAF50; font-weight: bold;">12,500 ₽</p>
+                                <div style="display: flex; gap: 5px; margin-top: 5px;">
+                                    <span class="badge warning" style="font-size: 10px;">Мало</span>
+                                    <span style="font-size: 12px; color: #666;">1 шт</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="product-card">
+                            <div class="product-image">🚪</div>
+                            <div style="flex: 1;">
+                                <h4>Шкаф-купе "Стиль"</h4>
+                                <p style="color: #666; font-size: 14px;">Артикул: CAB-012</p>
+                                <p style="color: #4CAF50; font-weight: bold;">78,000 ₽</p>
+                                <div style="display: flex; gap: 5px; margin-top: 5px;">
+                                    <span class="badge danger" style="font-size: 10px;">Нет в наличии</span>
+                                    <span style="font-size: 12px; color: #666;">В других салонах</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Карточка товара -->
+        <div class="mockup">
+            <div class="mockup-header">7. Карточка товара</div>
+            <div class="phone-frame">
+                <div class="screen">
+                    <div class="status-bar">
+                        <span>9:41</span>
+                        <span>🔋100%</span>
+                    </div>
+                    <div class="header">
+                        <span>← Диван угловой</span>
+                        <span>⭐</span>
+                    </div>
+                    <div class="content">

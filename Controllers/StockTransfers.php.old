@@ -1,0 +1,235 @@
+<?php
+
+namespace Controllers;
+
+use System\Core;
+
+class StockTransfers extends _Base_ {
+
+    public static $tableSettingsKey = 'stocktransfers';
+    public static $current_object   = 'stocktransfer';
+    
+    protected const MODEL_CLASS = \Models\StockTransfers::class;
+    protected const CHILD_MODEL_CLASS = \Models\StockTransferItems::class;
+
+    public static function getTableHead($only_values = false, $show_all = false, $filters = [])
+    {
+        $table_head = array();
+
+        $table_head['id'] = array(
+            'name' => '№',
+            'column_td' => 'id'
+        );
+        
+        $table_head['from_warehouse_id'] = array(
+            'name' => 'Склад отправитель',
+            'column_td' => 'from_warehouse_id'
+        );
+        $table_head['to_warehouse_id'] = array(
+            'name' => 'Склад получатель',
+            'column_td' => 'to_warehouse_id'
+        );
+        $table_head['manager_id'] = array(
+            'name' => 'ID менеджера',
+            'column_td' => 'manager_id'
+        );
+        $table_head['status'] = array(
+            'name' => 'Статус',
+            'column_td' => 'status'
+        );
+        $table_head['comment'] = array(
+            'name' => 'Комментарий',
+            'column_td' => 'comment'
+        );
+        $table_head['created_at'] = array(
+            'name' => 'Дата создания',
+            'column_td' => 'created_at'
+        );
+        $table_head['actions'] = array(
+            'name' => 'Действия',
+            'column_td' => 'actions'
+        );
+        return self::getTableHeadHtml($table_head, $only_values, $show_all);
+    }
+    
+    public function list(): void {
+        
+		$data = self::getDataForTemplate_List();
+        
+		$data['is_big_popup'] = true;
+        $data['page-id'] = 'stocktransfers-page';
+
+        $data["filters"] = '
+			<div class="search-bar">
+				<input type="text" class="search-input-with-clear search-input" placeholder="Поиск...">
+				<button class="clear-btn" type="button">
+					<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+						<path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+					</svg>
+				</button>
+				<button class="search-btn" type="submit">🔍</button>
+			</div>
+		';
+
+        $DataList = self::MODEL_CLASS::getList(0,0);
+        foreach ($DataList as $key => $dataforHTML) {
+            $data["tbody_html"].='<tr>';
+            foreach ($data["table_head"] as $col_name => $head_data):
+                if($col_name != 'actions'):
+                    $colName = $col_name;
+                    $colData = $dataforHTML[$colName];
+                    if($colName == "created_at"){
+                        if(!empty($colData)){
+                            $colData = date("d.m.Y H:i", strtotime($colData));
+                        }
+                    }
+                    if($colName == "from_warehouse_id" || $colName == "to_warehouse_id"){
+                        $colData = \Models\Warehouses::getNameById((int)$colData);
+                    }
+                    if($colName == "status"){
+                        switch ($colData) {
+                            case 'draft': $colData = 'Черновик'; break;
+                            case 'sent': $colData = 'Перемещено'; break;
+                            case 'received': $colData = 'Принято'; break;
+                            case 'cancelled': $colData = 'Отменено'; break;
+                            default: $colData = $colData;
+                        }
+                    }
+                    $data["tbody_html"].="<td>{$colData}</td>";
+                endif;
+            endforeach;
+            $data["tbody_html"].='                <td class="actions-cell">
+                <div class="actions-wrapper">
+                    <button class="btn btn-icon btn-secondary" onclick="window.showUniversalModal(\''.self::$tableSettingsKey.'\','.$dataforHTML["id"].')" title="Редактировать">✏️</button> 
+                </div>
+            </td>';
+            $data["tbody_html"].='</tr>';
+        }
+        
+        Core::$template_obj->loadTemplate('_default_', $data);
+        Core::$template_obj->showHtml();
+    }
+    
+    public function ajax(): void {
+        
+		if (!isset($_POST['action'])) {
+            \System\Core::exit('error _POST action');
+        }
+        
+        if ($_POST['action'] == 'get_list') {
+            
+			$offset = (isset($_POST['offset']) ? $_POST['offset'] : 0);
+            $limit  = (isset($_POST['limit'])  ? $_POST['limit']  : 5);
+            $resp   = self::MODEL_CLASS::getList($offset, $limit, $_POST);
+            
+            $list = array();
+            foreach ($resp as $key => $value) {
+                foreach ($value as $colName => $colData) {
+                   if($colName == "created_at"){
+                        if(!empty($colData)){
+                            $colData = date("d.m.Y H:i", strtotime($colData));
+                        }
+                    }
+                    if($colName == "from_warehouse_id" || $colName == "to_warehouse_id"){
+                        $colData = \Models\Warehouses::getNameById((int)$colData);
+                    }
+                    if($colName == "status"){
+                        switch ($colData) {
+                            case 'draft': $colData = 'Черновик'; break;
+                            case 'sent': $colData = 'Перемещено'; break;
+                            case 'received': $colData = 'Принято'; break;
+                            case 'cancelled': $colData = 'Отменено'; break;
+                            default: $colData = $colData;
+                        }
+                    }
+                    $list[$key][$colName] = $colData;
+                }
+            }
+            
+            \System\Response::okJSON([
+                'list'      => $list,
+                'total_num' => self::MODEL_CLASS::getNumRecords($_POST),
+            ]);
+        }
+		
+        else if ($_POST['action'] == 'add') {
+            
+			
+            $fromWarehouseId = $_POST['from_warehouse_id'] ?? '';
+            $toWarehouseId = $_POST['to_warehouse_id'] ?? '';
+            if(empty($fromWarehouseId) || empty($toWarehouseId)){
+                \System\Response::showJSONError('Не заполнено одно из обязательных полей (Склад отправитель, Склад получатель)');
+            }
+            
+            $insert = [
+                'from_warehouse_id' => $fromWarehouseId,
+                'to_warehouse_id'   => $toWarehouseId,
+                'manager_id'        => $_POST['manager_id'] ?? '',
+                'status'            => $_POST['status'] ?? 'draft',
+                'comment'           => $_POST['comment'] ?? '',
+                'created_at'        => date("Y-m-d H:i:s"),
+            ];
+            
+            $id = self::MODEL_CLASS::insert($insert);
+            
+
+            $itemIds = array();
+            if(isset($_POST["products"]) && !empty($_POST['products']) && is_array($_POST['products'])){
+                $receiptItems = $_POST['products']; 
+                foreach ($receiptItems as $key => $item) {
+                    $itemInsert = array(
+                        'transfer_id'    =>  $id,
+                        'product_id'    =>  (int)$item["product_id"],
+                        'quantity'  =>  (int)$item["quantity"]
+                    );
+                    $itemId = self::CHILD_MODEL_CLASS::insert($itemInsert);
+                    $itemIds[] = $itemId;
+                    
+                    //списываем товары со склада "откуда"
+                    \Helpers\StockRegister::recordMovement('transfer', $id, $fromWarehouseId, $product_id, -abs((int)$item["quantity"]), true );
+                    //Добавляем товары на склад "куда"
+                    \Helpers\StockRegister::recordMovement('transfer', $id, $toWarehouseId, $product_id, +abs((int)$item["quantity"]), true );
+                }
+            }
+
+            \System\Response::okJSON(['id'=>$id, 'item_ids'=>$itemIds]);
+        }
+        else if ($_POST['action'] == 'edit') {
+			
+            $id = (int) $_POST['item_id'];
+            if ($id > 0) {
+                $check = self::MODEL_CLASS::checkItemByID($id);
+                if (empty($check)) {
+                    exit('error');
+                }
+                
+                $update = [
+                    'from_warehouse_id' => $_POST['from_warehouse_id'] ?? '',
+                    'to_warehouse_id'   => $_POST['to_warehouse_id'] ?? '',
+                    'manager_id'        => $_POST['manager_id'] ?? '',
+                    'status'            => $_POST['status'] ?? 'draft',
+                    'comment'           => $_POST['comment'] ?? '',
+                    'created_at'        => date("Y-m-d H:i:s"),
+                ];
+                
+                self::MODEL_CLASS::update($id, $update);
+                
+                \System\Response::okJSON();
+            }
+            \System\Response::showJSONError('Не передан id');
+        }
+        
+		
+        self::ajaxActionsCommon();
+		
+		
+    }
+	
+	
+	
+	
+	
+	
+	
+	
+}

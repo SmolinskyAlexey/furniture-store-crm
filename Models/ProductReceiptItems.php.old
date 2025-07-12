@@ -1,0 +1,61 @@
+<?php
+
+namespace Models;
+
+class ProductReceiptItems extends _Base_ {
+    public static string $table_name = 'product_receipt_items';
+    public static string $table_alias = 'pri';
+
+    public static function getReceiptItems(int $receipt_id) {
+    
+        global $SQL;
+
+        $list = $SQL->getAllResults("
+            SELECT
+                pri.id AS receipt_item_id,
+                pri.product_id AS product_id,
+                pri.price,
+                pri.quantity,
+                pri.total,
+                p.source_name AS name,
+                p.img1 AS image,
+                p.img2 AS image1,
+                p.img3 AS image2,
+                p.img4 AS image3,
+                p.img5 AS image4,
+                c.name AS category
+            FROM 
+                product_receipt_items pri
+            JOIN 
+                products p ON pri.product_id = p.id
+            LEFT JOIN
+                categories c ON p.category_id = c.id
+            WHERE 
+                pri.receipt_id = ". $receipt_id
+        );
+
+        foreach ($list as $key => $listitem) {
+            $list[$key]["images"] = [];
+            for ($i = 0; $i < 5; $i++) {    
+                $ti = $i;
+                if ($ti == 0) {
+                    $ti = "";
+                }
+                $img_key = "image{$ti}"; 
+                $list[$key]["images"][$i] = [];
+                if (isset($list[$key][$img_key])) { 
+                    if (!empty($list[$key][$img_key])) {
+                        if (strpos($list[$key][$img_key], "http") !== 0) {
+                            $preview_path = "/assets/productImages/{$list[$key]['product_id']}/preview/" . basename($list[$key][$img_key]);
+                            $list[$key]["images"][$i]["preview"] = $preview_path;
+                        }
+                        $list[$key]["images"][$i]["full"] = $list[$key][$img_key];
+                    }
+                    unset($list[$key][$img_key]); 
+                } 
+            }
+        }
+
+        return $list;
+    }
+}

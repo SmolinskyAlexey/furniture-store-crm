@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание партии</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #1e293b;
+            color: white;
+            padding: 24px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid #334155;
+            margin-bottom: 24px;
+        }
+
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #334155;
+            color: white;
+        }
+
+        .nav-item.active {
+            background: #1e40af;
+            color: white;
+            border-left-color: #3b82f6;
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: white;
+            padding: 16px 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            padding: 8px 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #374151;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 32px;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 32px;
+        }
+
+        .main-section {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-draft {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-ready {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-shipped {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .packages-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .packages-table th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .packages-table td {
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+
+        .packages-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .package-id {
+            font-family: 'Monaco', monospace;
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .client-code {
+            font-family: 'Monaco', monospace;
+            font-weight: 600;
+            color: #059669;
+        }
+
+        .remove-btn {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 6px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .remove-btn:hover {
+            background: #fca5a5;
+        }
+
+        .remove-btn:disabled {
+            background: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .add-packages-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .add-packages-btn:hover {
+            background: #2563eb;
+        }
+
+        .add-packages-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .sidebar-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-select {
+            background-image: url("data:image/svg+xml;charset=utf-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+            appearance: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn:disabled {
+            background: #9ca3af;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+
+        .batch-id {
+            font-family: 'Monaco', monospace;
+            font-size: 16px;
+            font-weight: 600;
+            color: #059669;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h1>📦 WMS Склад</h1>
+        </div>
+        
+        <nav>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">📦</span>
+                Посылки
+            </a>
+            <a href="#" class="nav-item active">
+                <span class="nav-icon">🚚</span>
+                Партии
+            </a>
+            <a href="#" class="nav-item">
+                <span class="nav-icon">👥</span>
+                Клиенты
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="header-left">
+                <a href="#" class="back-btn">← К списку партий</a>
+                <h2>Партия <span class="batch-id" id="batchId">BTH-2024-015</span></h2>
+            </div>
+            <div class="user-info">
+                <span>Оператор: Иван Петров</span>
+                <div class="user-avatar">ИП</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="main-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Посылки в партии</h3>
+                        <div>
+                            <span class="status-badge status-draft" id="batchStatus">Черновик</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info" id="draftAlert">
+                        📝 Партия находится в режиме черновика. Вы можете добавлять и удалять посылки.
+                    </div>
+
+                    <div class="alert alert-warning" id="shippedAlert" style="display: none;">
+                        🚚 Партия отгружена со склада. Изменения заблокированы.
+                    </div>
+
+                    <button class="add-packages-btn" id="addPackagesBtn" onclick="addMorePackages()">
+                        ➕ Добавить посылки
+                    </button>
+
+                    <div id="packagesContainer">
+                        <table class="packages-table">
+                            <thead>
+                                <tr>
+                                    <th>ID посылки</th>
+                                    <th>Описание</th>
+                                    <th>Габариты</th>
+                                    <th>Вес</th>
+                                    <th>Клиент</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="packagesTable">
+                                <!-- Посылки будут загружены через JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-panel">
+                <div class="card">
+                    <h3 class="card-title">Информация о партии</h3>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalPackages">5</div>
+                            <div class="stat-label">Посылок</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalWeight">4.8</div>
+                            <div class="stat-label">Общий вес (кг)</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Тип перевозки</label>
+                        <select class="form-input form-select" id="shippingType">
+                            <option value="sea">Море</option>
+                            <option value="air">Авиа</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Примечание</label>
+                        <textarea class="form-input form-textarea" id="batchNote" placeholder="Дополнительная информация..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Дата создания</label>
+                        <input type="text" class="form-input" value="25.05.2024 14:30" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Создал</label>
+                        <input type="text" class="form-input" value="Иван Петров" disabled>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Действия</h3>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="saveBatch()">
+                            💾 Сохранить изменения
+                        </button>
+                        
+                        <button class="btn btn-success" id="shipBtn" onclick="shipBatch()">
+                            🚚 Отгрузить со склада
+                        </button>
+                        
+                        <button class="btn btn-secondary" onclick="generatePDF()">
+                            📄 Сформировать PDF
+                        </button>
+                        
+                        <button class="btn btn-danger" id="deleteBtn" onclick="deleteBatch()">
+                            🗑️ Удалить партию
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Демо-данные партии
+        let batchData = {
+            id: 'BTH-2024-015',
+            status: 'draft', // draft, ready, shipped
+            shippingType: 'sea',
+            note: '',
+            createdDate: '25.05.2024 14:30',
+            createdBy: 'Иван Петров',
+            packages: [
+                {
+                    id: 'PKG-2024-001',
+                    description: 'iPhone 15 Pro 256GB Titanium',
+                    dimensions: '15×8×2',
+                    weight: 0.4,
+                    client: 'ABC123'
+                },
+                {
+                    id: 'PKG-2024-002',
+                    description: 'Кроссовки Nike Air Force размер 42',
+                    dimensions: '35×25×15',
+                    weight: 1.2,
+                    client: 'DEF456'
+                },
+                {
+                    id: 'PKG-2024-005',
+                    description: 'Детские игрушки LEGO набор',
+                    dimensions: '30×25×12',
+                    weight: 2.1,
+                    client: 'JKL012'
+                },
+                {
+                    id: 'PKG-2024-006',
+                    description: 'Ноутбук MacBook Air M2',
+                    dimensions: '30×21×2',
+                    weight: 1.1,
+                    client: 'ABC123'
+                }
+            ]
+        };
+
+        function renderPackages() {
+            const tbody = document.getElementById('packagesTable');
+            const isLocked = batchData.status === 'shipped';
+            
+            if (batchData.packages.length === 0) {
+                document.getElementById('packagesContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📦</div>
+                        <p>В партии пока нет посылок</p>
+                        <small>Добавьте посылки с помощью кнопки выше</small>
+                    </div>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = batchData.packages.map(pkg => `
+                <tr>
+                    <td class="package-id">${pkg.id}</td>
+                    <td>${pkg.description}</td>
+                    <td>${pkg.dimensions} см</td>
+                    <td>${pkg.weight} кг</td>
+                    <td class="client-code">${pkg.client}</td>
+                    <td>
+                        <button class="remove-btn" 
+                                onclick="removePackage('${pkg.id}')" 
+                                ${isLocked ? 'disabled' : ''}
+                                title="${isLocked ? 'Партия отгружена' : 'Удалить из партии'}">
+                            🗑️
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            const totalPackages = batchData.packages.length;
+            const totalWeight = batchData.packages.reduce((sum, pkg) => sum + pkg.weight, 0);
+            
+            document.getElementById('totalPackages').textContent = totalPackages;
+            document.getElementById('totalWeight').textContent = totalWeight.toFixed(1);
+        }
+
+        function updateStatus() {
+            const statusMap = {
+                draft: { class: 'status-draft', text: 'Черновик' },
+                ready: { class: 'status-ready', text: 'Готова к отправке' },
+                shipped: { class: 'status-shipped', text: 'Отгружена' }
+            };
+            
+            const status = statusMap[batchData.status];
+            const statusElement = document.getElementById('batchStatus');
+            statusElement.className = `status-badge ${status.class}`;
+            statusElement.textContent = status.text;
+            
+            // Управление видимостью алертов и кнопок
+            const isShipped = batchData.status === 'shipped';
+            document.getElementById('draftAlert').style.display = isShipped ? 'none' : 'block';
+            document.getElementById('shippedAlert').style.display = isShipped ? 'block' : 'none';
+            document.getElementById('addPackagesBtn').disabled = isShipped;
+            document.getElementById('shipBtn').disabled = isShipped;
+            document.getElementById('deleteBtn').disabled = isShipped;
+            
+            // Блокировка полей ввода
+            document.getElementById('shippingType').disabled = isShipped;
+            document.getElementById('batchNote').disabled = isShipped;
+        }
+
+        function removePackage(packageId) {
+            if (batchData.status === 'shipped') return;
+            
+            if (confirm('Удалить посылку из партии?')) {
+                batchData.packages = batchData.packages.filter(pkg => pkg.id !== packageId);
+                renderPackages();
+                updateStats();
+            }
+        }
+
+        function addMorePackages() {
+            if (batchData.status === 'shipped') return;
+            alert('Переход к списку посылок для выбора дополнительных посылок');
+        }
+
+        function saveBatch() {
+            batchData.shippingType = document.getElementById('shippingType').value;
+            batchData.note = document.getElementById('batchNote').value;
+            
+            alert('Изменения сохранены');
+        }
+
+        function shipBatch() {
+            if (batchData.packages.length === 0) {
+                alert('В партии должна быть хотя бы одна посылка');
+                return;
+            }
+            
+            if (confirm('Отгрузить партию со склада? После этого изменения будут заблокированы.')) {
+                batchData.status = 'shipped';
+                updateStatus();
+                renderPackages();
+                alert('Партия отгружена со склада');
+            }
+        }
+
+        function generatePDF() {
+            alert('Формирование PDF-накладной...');
+        }
+
+        function deleteBatch() {
+            if (batchData.status === 'shipped') return;
+            
+            if (confirm('Удалить партию полностью? Посылки вернутся в общий список.')) {
+                alert('Партия удалена');
+                // Переход обратно к списку партий
+            }
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            renderPackages();
+            updateStats();
+            updateStatus();
+            
+            // Заполнение полей
+            document.getElementById('shippingType').value = batchData.shippingType;
+            document.getElementById('batchNote').value = batchData.note;
+        });
+
+        // Демо переключения статуса для тестирования
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'T') { // Нажмите T для переключения статуса
+                batchData.status = batchData.status === 'shipped' ? 'draft' : 'shipped';
+                updateStatus();
+                renderPackages();
+            }
+        });
+    </script>
+</body>
+</html>

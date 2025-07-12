@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Замовлення</title>
+    <style>
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.3;
+            margin: 20px;
+            background: white;
+        }
+        
+        .document {
+            max-width: 210mm;
+            margin: 0 auto;
+            background: white;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .order-number {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .order-date {
+            margin-bottom: 15px;
+        }
+        
+        .customer-info {
+            margin-bottom: 20px;
+        }
+        
+        .customer-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .customer-info td {
+            padding: 3px;
+            vertical-align: top;
+        }
+        
+        .customer-info .label {
+            width: 80px;
+            font-weight: bold;
+        }
+        
+        .underline {
+            border-bottom: 1px solid #000;
+            min-height: 18px;
+            display: inline-block;
+            min-width: 200px;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .items-table th,
+        .items-table td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: left;
+            vertical-align: top;
+        }
+        
+        .items-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .items-table .number {
+            width: 30px;
+            text-align: center;
+        }
+        
+        .items-table .qty {
+            width: 50px;
+            text-align: center;
+        }
+        
+        .items-table .price {
+            width: 80px;
+            text-align: right;
+        }
+        
+        .items-table .sum {
+            width: 80px;
+            text-align: right;
+        }
+        
+        .totals {
+            margin: 20px 0;
+        }
+        
+        .totals table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .totals td {
+            padding: 3px;
+            vertical-align: top;
+        }
+        
+        .totals .label {
+            width: 150px;
+            font-weight: bold;
+        }
+        
+        .services {
+            margin: 20px 0;
+        }
+        
+        .services table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .services td {
+            padding: 3px;
+            vertical-align: top;
+        }
+        
+        .services .label {
+            width: 120px;
+            font-weight: bold;
+        }
+        
+        .final-section {
+            margin-top: 30px;
+        }
+        
+        .final-section table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .final-section td {
+            padding: 8px 3px;
+            vertical-align: top;
+        }
+        
+        .final-section .label {
+            width: 200px;
+            font-weight: bold;
+        }
+        
+        .signature-line {
+            border-bottom: 1px solid #000;
+            min-height: 20px;
+            display: inline-block;
+            min-width: 150px;
+        }
+        
+        .company-stamp {
+            position: absolute;
+            right: 50px;
+            bottom: 50px;
+            opacity: 0.3;
+            font-size: 24px;
+            font-weight: bold;
+            color: #999;
+            transform: rotate(-15deg);
+        }
+        
+        .handwritten {
+            font-family: cursive;
+            color: #0066cc;
+        }
+        
+        @media print {
+            .document {
+                box-shadow: none;
+                margin: 0;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="document">
+        <div class="header">
+            <div class="order-number">Замovлення № <span class="underline handwritten">84</span></div>
+            <div class="order-date">від «<span class="underline handwritten">05</span>» <span class="underline handwritten">04</span> 2024 рік</div>
+        </div>
+        
+        <div class="customer-info">
+            <table>
+                <tr>
+                    <td class="label">ПРОДАВЕЦЬ:</td>
+                    <td><span class="underline">Леся</span></td>
+                </tr>
+                <tr>
+                    <td class="label">Моб</td>
+                    <td>093-799-7135-790 <span class="underline handwritten">063-95-84-80</span></td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="padding-top: 10px;">
+                        <strong>Магазин « БІС - М»</strong><br>
+                        Продавець: ФОП Марущак м. Одеса, ТЦ Меркурій
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">Замовник:</td>
+                    <td><span class="underline handwritten">Наталія Вінник</span></td>
+                </tr>
+                <tr>
+                    <td class="label">Тел:</td>
+                    <td><span class="underline handwritten">093-605-89-40</span></td>
+                </tr>
+                <tr>
+                    <td class="label">Адреса:</td>
+                    <td><span class="underline handwritten">м. Леся м. Ларосянська 5</span></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><span class="underline handwritten">кв. 9 / 27</span></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div style="font-size: 10px; margin-bottom: 10px;">
+            Вироби виконані під замовлення клієнта поверненню не підлягають
+        </div>
+        
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th class="number">№ п/п</th>
+                    <th>Назва та характеристика товара</th>
+                    <th class="qty">Кількість</th>
+                    <th class="price">Ціна</th>
+                    <th class="sum">Сума</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="number">1</td>
+                    <td>
+                        <span class="handwritten">Диван трьох Лаурич</span><br>
+                        <span class="handwritten">Жакари</span><br>
+                        <strong>Загальні р-ри:</strong> <span class="handwritten">тканина беж-обробл</span><br>
+                        <strong>Спальні р-ри:</strong> <span class="handwritten">шіх</span>
+                    </td>
+                    <td class="qty handwritten">1</td>
+                    <td class="price handwritten">24530 грн<br>24530<br>/ 100 грн</td>
+                    <td class="sum"></td>
+                </tr>
+                <tr>
+                    <td colspan="5" style="border: none; height: 100px;"></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="totals">
+            <table>
+                <tr>
+                    <td class="label">Сума:</td>
+                    <td><span class="underline handwritten">24530 грн</span></td>
+                </tr>
+                <tr>
+                    <td class="label">Аванс:</td>
+                    <td><span class="underline handwritten">3000 (на карту)</span></td>
+                </tr>
+                <tr>
+                    <td class="label">До опл:</td>
+                    <td><span class="underline handwritten">21530 грн</span></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="totals">
+            <table>
+                <tr>
+                    <td class="label">Колір дерева, МДФ</td>
+                    <td><span class="underline handwritten">дуб</span></td>
+                </tr>
+                <tr>
+                    <td class="label">Колір:</td>
+                    <td><span class="underline handwritten">білий моват г</span></td>
+                </tr>
+                <tr>
+                    <td class="label">Матеріал:</td>
+                    <td><span class="underline handwritten">Жакарини // юністекс</span></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="services">
+            <strong>ПОСЛУГИ:</strong>
+            <table>
+                <tr>
+                    <td class="label">Доставка:</td>
+                    <td><span class="underline handwritten">500</span></td>
+                </tr>
+                <tr>
+                    <td class="label">Підйом на</td>
+                    <td><span class="underline handwritten">2</span> поверх <span class="underline handwritten">200</span> з <span class="underline handwritten">900 грн</span></td>
+                </tr>
+                <tr>
+                    <td class="label">Збирання:</td>
+                    <td><span class="underline handwritten">800</span></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="final-section">
+            <table>
+                <tr>
+                    <td class="label">До сплати з послугами:</td>
+                    <td><span class="underline handwritten">22450 грн</span><br><span class="handwritten">колект-марка</span></td>
+                </tr>
+                <tr>
+                    <td class="label">Орієнтовна дата доставки:</td>
+                    <td><span class="underline handwritten">кінець квітня</span></td>
+                </tr>
+                <tr>
+                    <td class="label">Гарантія 18 місяців</td>
+                    <td><span class="handwritten">(підпис)</span></td>
+                </tr>
+                <tr>
+                    <td class="label">Підпис клієнта:</td>
+                    <td><span class="signature-line"></span></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="company-stamp">
+            Фабрика меблів<br>
+            БІС-М
+        </div>
+    </div>
+    
+    <div class="no-print" style="margin-top: 30px; text-align: center;">
+        <button onclick="window.print()" style="padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Роздрукувати
+        </button>
+    </div>
+</body>
+</html>

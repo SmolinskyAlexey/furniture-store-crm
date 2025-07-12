@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Замовлення</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 20px;
+            background: white;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .order-num {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .info-row {
+            margin: 5px 0;
+        }
+        .store-info {
+            margin: 10px 0;
+            font-size: 11px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        table, th, td {
+            border: 1px solid #000;
+        }
+        th, td {
+            padding: 5px;
+            text-align: left;
+            font-size: 11px;
+        }
+        th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+        .total-section {
+            margin: 15px 0;
+        }
+        .services {
+            margin: 10px 0;
+        }
+        .footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+        }
+        .logo {
+            background: #666;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            width: 150px;
+        }
+        .underline {
+            border-bottom: 1px solid #000;
+            display: inline-block;
+            min-width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="order-num">Замовлення № {{id}}</div>
+        <div>від {{created_at}} рік</div>
+    </div>
+
+    <div class="info-row">
+        <strong>ПРОДАВЕЦЬ:</strong> <span class="underline">{{manager_name}}</span>
+    </div>
+    <div class="info-row">
+        Моб <span class="underline">{{manager_phone}}</span>
+    </div>
+
+    <div class="store-info">
+        Магазин « БІС - М»<br>
+        Продавець: {{warehouse_name}}
+    </div>
+
+    <div class="info-row">
+        Замовник <span class="underline">{{client_info}}</span>
+    </div>
+    <!-- <div class="info-row">
+        Тел: <span class="underline">{{client_phone}}</span>
+    </div> -->
+    <div class="info-row">
+        Адреса: <span class="underline">{{delivery_adress}}</span>
+    </div>
+
+    <div style="font-size: 10px; margin: 10px 0;">
+        Вироби виконані під замовлення клієнта поверненню не підлягають
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>№ п/п</th>
+                <th>Назва та характеристика товара</th>
+                <th>Кількість</th>
+                <th>Ціна</th>
+                <th>Сума</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- ORDER_ITEMS_START -->
+            {{orderItemsHtml}}
+            <!-- ORDER_ITEMS_END -->
+<!--             <tr>
+                <td colspan="2">Загальні р-ри:</td>
+                <td colspan="3">__GENERAL_DIMENSIONS__</td>
+            </tr>
+            <tr>
+                <td colspan="2">Спальні р-ри:</td>
+                <td colspan="3">__SLEEP_DIMENSIONS__</td>
+            </tr> -->
+        </tbody>
+    </table>
+
+    <div class="total-section">
+        <div>Сума: <strong>{{total}} грн.</strong></div>
+        <div>Аванс: <strong>{{prepay}} ({{pay_method_name}})</strong></div>
+        <div>Скидка: <strong>{{discount}}</strong></div>
+        <div>До опл: <strong>{{total_amount_debt}} грн.</strong></div>
+    </div>
+
+<!--     <div>
+        Копір дерева, МДФ <span class="underline">__WOOD_TYPE__</span>
+    </div>
+    <div>
+        Копір: <span class="underline">__COPY_INFO__</span>
+    </div>
+    <div>
+        Матеріал: <span class="underline">__MATERIAL_INFO__</span>
+    </div> -->
+
+    <div class="services">
+        <strong>ПОСЛУГИ:</strong><br>
+        Доставка: <span class="underline">{{serv_delivery}}</span><br>
+        Упаковка: <span class="underline">{{serv_packaging}}</span><br>
+        Підйом: <span class="underline">{{serv_lifting}}</span><br>
+        Разбор: <span class="underline">{{serv_dismantling}}</span><br>
+        Збирання: <span class="underline">{{serv_assembly}}</span>
+    </div>
+
+    <div style="margin: 15px 0;">
+        <strong>До сплати з послугами: {{total_services_cost}} грн.</strong><br>
+        <span style="font-size: 11px;">{{pay_method_name}}</span>
+    </div>
+
+    <div>
+        Орієнтовна дата доставки: <span class="underline">{{date_of_delivery}}</span>
+    </div>
+
+    <div class="footer">
+        <div>
+            <div>Гарантія 18 місяців <span style="text-decoration: underline;">(__WARRANTY_SIGNATURE__)</span></div>
+            <div style="margin-top: 20px;">
+                Підпис клієнта: <span class="underline" style="min-width: 150px;"></span>
+            </div>
+        </div>
+        
+        <div class="logo">
+            Фабрика меблів<br>
+            БІС-М
+        </div>
+    </div>
+</body>
+</html>
