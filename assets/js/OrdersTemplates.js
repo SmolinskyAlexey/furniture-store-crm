@@ -32,12 +32,12 @@ window.OrdersTemplates = class {
                 <td class="total-status-cell">
                     <div class="total-status-wrapper">
                         <strong>${order.total}&nbsp;uah</strong>
-                        <span class="badge badge-success">${order.status}</span>
+                        <span class="badge badge-${order.status_tech_name}">${order.status}</span>
                     </div>
                 </td>
-                
+                 
                 <td>${order.manager_name}</td>
-
+                <td>${order.pay_method_name}</td>
                 <td class="actions-cell">
                     <div class="actions-wrapper">
                         

@@ -18,6 +18,9 @@ window.queries = {
         if(filters.type_show){
             formData.append('type_show', filters.type_show);
         } 
+        if(filters.inStock){
+            formData.append('in_stock', filters.inStock);
+        }
 
         const response = await fetch('/ajax/catalog/', {
             method: 'POST',
@@ -204,6 +207,9 @@ window.queries = {
             }
             if(filters.manager_id && filters.manager_id != 'all'){
                 formData.append('manager_id', filters.manager_id);
+            }
+            if(filters.pay_method && filters.pay_method != 'all'){
+                formData.append('payment_method_id', filters.pay_method);
             }
         }
 
@@ -410,6 +416,9 @@ window.queries = {
 
         if(filters.search){
             formData.append("search", filters.search);
+        }
+        if(filters.status && filters.status != 'all'){
+            formData.append("status", filters.status);
         }
 
         const response = await fetch('/ajax/supplier_requests/', {

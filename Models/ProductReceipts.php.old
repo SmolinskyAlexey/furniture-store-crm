@@ -1,8 +1,0 @@
-<?php
-
-namespace Models;
-
-class ProductReceipts extends _Base_ {
-    public static string $table_name = 'product_receipts';
-    public static string $table_alias = 'pr';
-}

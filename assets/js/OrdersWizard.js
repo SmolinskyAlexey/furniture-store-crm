@@ -96,6 +96,14 @@ class OrdersWizard {
             });
         });
 
+        let pmFilter = document.querySelector("#select-pay_method");
+        pmFilter.addEventListener('change', () => {//при выборе select
+            this.state.pay_method = pmFilter.value;
+            this.currentOrdersPage = 1;
+            this.cache.filter.pay_method = pmFilter.value;
+            this.preloadData(); 
+        });
+
         let whFilter = document.querySelector("#select-warehouse");
         whFilter.addEventListener('change', () => {//при выборе select
             this.state.warehouse = whFilter.value;

@@ -46,11 +46,7 @@ window.SupplierRequestsTemplates = class {
 
                 <td>${sRequest.delivered_date}</td>
 
-                <td>${sRequest.status}</td>
-
-                <td>${sRequest.received}</td>
-
-                <td>${sRequest.delivered}</td>
+                <td><span class="badge badge-${sRequest.status}">${sRequest.status}</span></td>
 
                 <td>${sRequest.comment}</td>
 

@@ -76,13 +76,13 @@ class SupplierRequestsWizard {
 
     initializeFilters(){
 
-        // let whFilter = document.querySelector("#select-warehouse");
-        // whFilter.addEventListener('change', () => {//при выборе select
-        //     this.state.warehouse = whFilter.value;
-        //     this.currentClientsPage = 1;
-        //     this.cache.filter.warehouse_id = whFilter.value;
-        //     this.preloadData(); 
-        // });
+        let statusFilter = document.querySelector("#select-status");
+        statusFilter.addEventListener('change', () => {//при выборе select
+            this.state.status = statusFilter.value;
+            this.currentClientsPage = 1;
+            this.cache.filter.status = statusFilter.value;
+            this.preloadData(); 
+        });
 
         // const dateSelector = document.querySelector("#date");
         // dateSelector.addEventListener('change', () => {

@@ -18,7 +18,7 @@ window.StockTransfersTemplates = class {
                 <td>${stockTransfer.to_warehouse_id}</td>
                 <td>${stockTransfer.manager_id}</td>
                 <td>${stockTransfer.carrier_id}</td>
-                <td>${statusText}</td>
+                <td><span class="badge badge-${stockTransfer.status}">${statusText}</span></td>
                 <td>${stockTransfer.comment}</td>
                 <td>${stockTransfer.created_at}</td>
                 <td class="actions-cell">
