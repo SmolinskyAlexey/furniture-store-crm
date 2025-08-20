@@ -777,8 +777,6 @@ function selectProductFromPopup(id, price, name, imagesStr) {
     if (!container) return;
 
 
-    var products_rows_num = 1 + document.querySelectorAll('.products-table tbody tr').length;
-
     var quantity = 1;
 
     // Добавление товара в массив
@@ -800,7 +798,7 @@ function selectProductFromPopup(id, price, name, imagesStr) {
 			
 				<div class="product-card" style="margin-bottom: 10px;" data-id="${id}">
 					
-					<input type="hidden" name='products[${products_rows_num}][product_id]' value="${id}" />  
+					<input type="hidden" name='products[${id}][product_id]' value="${id}" />  
 					
 					<div class="product-image">
 						<img class="img-product-order" src="${images?.[0]}" />
@@ -815,7 +813,7 @@ function selectProductFromPopup(id, price, name, imagesStr) {
 						
 							<div style="margin-right: 10px;">
                                 <label class="product-label" style="display: block;">Цена закупки:</label>
-                                <input type="number" class="js-product-price form-input product-price" name='products[${products_rows_num}][price]' value="${price}" placeholder="Введите цену"
+                                <input type="number" class="js-product-price form-input product-price" name='products[${id}][price]' value="${price}" placeholder="Введите цену"
                                 onchange="updatePaymentFields()"/>
                             </div>
                                                     
@@ -826,7 +824,7 @@ function selectProductFromPopup(id, price, name, imagesStr) {
 										<button type="button" class="quantity-btn" onclick="changeQuantity(${id}, -1)"
 												title="Уменьшить количество">−</button>
 										
-										<input type="number" name='products[${products_rows_num}][quantity]' class="quantity-input m-t-0" value="${quantity}" min="0" max="100"
+										<input type="number" name='products[${id}][quantity]' class="quantity-input m-t-0" value="${quantity}" min="0" max="100"
 											   onchange="setQuantity(${id}, this.value)">
 										<button type="button" class="quantity-btn" onclick="changeQuantity(${id}, 1)"
 												title="Увеличить количество">+</button>
@@ -858,8 +856,7 @@ function selectProductFromPopup(id, price, name, imagesStr) {
 			
 				<div class="product-card" style="margin-bottom: 10px;" data-id="${id}">
 					
-					<input type="hidden" name='products[${products_rows_num}][product_id]' value="${id}" />  
-					<input type="hidden" name='products[${products_rows_num}][price]' value="${price}" />  
+					<input type="hidden" name='products[${id}][product_id]' value="${id}" />  
 					
 					<div class="product-image">
 						<img class="img-product-order" src="${images?.[0]}" />
@@ -878,7 +875,7 @@ function selectProductFromPopup(id, price, name, imagesStr) {
 										<button type="button" class="quantity-btn" onclick="changeQuantity(${id}, -1)"
 												title="Уменьшить количество">−</button>
 										
-										<input type="number" name='products[${products_rows_num}][quantity]' class="quantity-input m-t-0" value="${quantity}" min="0" max="100"
+										<input type="number" name='products[${id}][quantity]' class="quantity-input m-t-0" value="${quantity}" min="0" max="100"
 											   onchange="setQuantity(${id}, this.value)">
 										<button type="button" class="quantity-btn" onclick="changeQuantity(${id}, 1)"
 												title="Увеличить количество">+</button>
@@ -899,12 +896,13 @@ function selectProductFromPopup(id, price, name, imagesStr) {
 			<td>
 				<div class="checkbox-group">
 
-                    <input name="orders_from_supplier[${products_rows_num}][product_id]" id="order_from_supplier" type="checkbox" value="${value_checkbox}" ${value_checkbox === '1' ? 'checked' : ''}  class="checkbox-new" />
+                    <input type="hidden" name='orders_from_supplier[${id}][product_id]' value="${id}" />  
+                    <input name="orders_from_supplier[${id}][is_orders_from_supplier]" id="order_from_supplier" type="checkbox" value="${value_checkbox}" ${value_checkbox === '1' ? 'checked' : ''}  class="checkbox-new" />
                     <label for="order_from_supplier" style="font-size: 12px; color: #059669;"> Заказать у поставщика</label> 
                     
 				</div>
 
-				<input name="orders_from_supplier[${products_rows_num}][note]" type="text" class="form-input" value="" placeholder="Введите комментарий" style="width: 175px;" />
+				<input name="orders_from_supplier[${id}][note]" type="text" class="form-input" value="" placeholder="Введите комментарий" style="width: 175px;" />
 			</td>
 			
         </tr>
@@ -1284,11 +1282,16 @@ window.createCatalogProductFast = async (event) => {
     // Создаём FormData из всей формы
     const formData = new FormData();
 
+    let is_price = 0;
+
     container.querySelectorAll('input, textarea, select').forEach(el => {
         if (el.name) { // важно, чтобы было имя, иначе в FormData не добавится
             if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) {
                 // не добавляем неотмеченные чекбоксы/радио
                 return;
+            }
+            if(el.name === 'price') {
+                is_price = 1;
             }
             formData.append(el.name, el.value);
         }
@@ -1318,7 +1321,7 @@ window.createCatalogProductFast = async (event) => {
             }).join('');
         }
 
-        selectProductFromPopup(result.id, result.price, result.name, url_img);
+        selectProductFromPopup(result.id, (is_price ? result.price : result.source_price), result.name, url_img);
 
         container.querySelectorAll('input, textarea, select').forEach(el => {
             if (el.type === 'checkbox' || el.type === 'radio') {
