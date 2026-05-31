@@ -1,7 +1,7 @@
 
 // Глобальные переменные
 
-let ordersWizard, catalogWizard, shiftsWizard, refundsWizard, clientsWizard, suppliersWizard, supplierRequestsWizard, writeOffsWizard, invoicesWizard, stockTransfersWizard, overheadExpenses;
+let ordersWizard, catalogWizard, shiftsWizard, refundsWizard, clientsWizard, suppliersWizard, supplierRequestsWizard, writeOffsWizard, invoicesWizard, stockTransfersWizard, overheadExpenses, categoriesWizard, servicesWizard, contractorsWizard, reportsWizard;
 
 // Инициализация приложения
 
@@ -19,6 +19,10 @@ window.addEventListener('DOMContentLoaded', () => {
     invoicesWizard = new InvoicesWizard();
     stockTransfersWizard = new StockTransfersWizard();
     overheadExpenses = new OverheadExpenses();
+    categoriesWizard     = new CategoriesWizard();
+    servicesWizard        = new ServicesWizard();
+    contractorsWizard     = new ContractorsWizard(); 
+    reportsWizard         = new ReportsWizard(); 
 
     // Инициализация навигации
     initializeNavigation();
@@ -81,6 +85,7 @@ window.showCatalog = () => {
 
 function getShiftControlModal(shift) {
     const isOpen = shift?.status === 'open';
+    //<br>Касса: <strong>${shift.cash.toLocaleString()} грн</strong>
     return `
         <div class="modal">
             <div class="modal-content shift-modal">
@@ -95,7 +100,7 @@ function getShiftControlModal(shift) {
                 <div class="modal-body">
                     <p>
                         ${isOpen
-            ? `Смена открыта в <strong>${shift.openedAt}</strong><br>Касса: <strong>${shift.cash.toLocaleString()} грн</strong>`
+            ? `Смена открыта в <strong>${shift.openedAt}</strong>`
             : 'Укажите начальный остаток в кассе:'}
                     </p>
                     ${!isOpen
@@ -209,11 +214,12 @@ function closeShift() {
 
 
 
-window.showShift = () => {
+window.showShift = (type = "show") => {
 
-    document.getElementById('pageTitle').textContent = 'Управление сменой';
-    updateActiveMenuItem('showShift');
-
+    if(type == "edit"){
+        document.getElementById('pageTitle').textContent = 'Управление сменой';
+        updateActiveMenuItem('showShift');
+    }
     fetch('/ajax/shifts/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -225,8 +231,13 @@ window.showShift = () => {
         .then(json => {
             if (json.ok) {
                 // console.log('Кассовая операция зарегистрирована');
-                document.querySelector('#modalContainer').innerHTML = getShiftControlModal(json.shift);
-                document.querySelector('#modalContainer').style.display = 'block';
+                if(type == "edit"){
+                    document.querySelector('#modalContainer').innerHTML = getShiftControlModal(json.shift);
+                    document.querySelector('#modalContainer').style.display = 'block';
+                }
+                if(type == "show"){
+                    window.showUniversalModal('shifts', json.shift.id);
+                }
             } else {
                 console.warn('Ошибка при загрузки смены');
                 this.showNotification('Ошибка при закрузке смены');
@@ -235,14 +246,396 @@ window.showShift = () => {
         .catch(console.error);
 
 };
+// Открытие модального окна истории
+function openShiftHistoryModal() {
+    const html = getShiftHistoryModal();
+    document.querySelector('#modalContainer').innerHTML = html;
+    document.querySelector('#modalContainer').style.display = 'block';
 
+    loadTodayCashMovements();//загружаем движения за сегодня
 
+    const formData = new FormData();
+    formData.append('action', 'list');
+    fetch('/ajax/warehouses/', {
+        method: 'POST',
+        body: formData,
+    }).then(response => response.json())
+    .then(json => {
+        if(json.ok == '1'){
+            let htmlWarehouses = '';
+            if(json.list){
+                htmlWarehouses += '<option value="all">Выберите склад</option>';
+                for (var i = 0; i < json.list.length; i++) {
+                    htmlWarehouses+= '<option value="'+json.list[i].id+'">'+json.list[i].name+'</option>';
+                }
+                let needSelectFillWarehouse = document.querySelectorAll(".new-row-whSelect");
+                for (var i = 0; i < needSelectFillWarehouse.length; i++) {
+                    if(needSelectFillWarehouse[i].value == "" || needSelectFillWarehouse[i].value == null){
+                        needSelectFillWarehouse[i].innerHTML = htmlWarehouses;
+                    }
+                }
+            }
+        }
+    }).catch(console.error);
 
+    // Устанавливаем удобные даты по умолчанию (последние 7 дней)
+    const to = new Date().toISOString().split('T')[0];
+    const from = new Date();
+    from.setDate(from.getDate() - 0);
+
+    document.getElementById('dateFrom').value = from.toISOString().split('T')[0];
+    document.getElementById('dateTo').value = to;
+}
+
+// Закрытие
+function closeShiftHistoryModal() {
+    document.querySelector('#modalContainer').style.display = 'none';
+}
+
+// Сброс формы (кнопка "Новый запрос")
+function resetHistoryForm() {
+    document.getElementById('historyForm').style.display = 'block';
+    document.getElementById('historyResult').style.display = 'none';
+    document.getElementById('historyResult').innerHTML = '';
+}
+
+// === 1. Показать конкретную смену ===
+function loadSingleShiftFromHistory() {
+    const id = document.getElementById('shiftIdInput').value.trim();
+    if (!id) {
+        showNotification('Введите ID смены', 'warning');
+        return;
+    }
+    closeShiftHistoryModal();
+    window.showUniversalModal('shifts', id);
+}
+
+// === 2. Движение средств за период ===
+async function loadTodayCashMovements() {
+
+    const body = document.getElementById('shiftHistoryBody');
+    const resultDiv = document.getElementById('historyResult');
+    const formDiv   = document.getElementById('historyForm');
+
+    // Лоадер
+    // formDiv.style.display = 'none';
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `
+        <div style="text-align:center; padding:60px 20px;">
+            <div class="loader"></div>
+            <p style="margin-top:20px;">Загрузка движения средств...</p>
+        </div>
+    `;
+
+    const formData = new FormData();
+    formData.append('action', 'load_today_cash_movements');   // ← этот action нужно добавить на бэке
+
+    try {
+        const response = await fetch('/ajax/shifts/', {
+            method: 'POST',
+            body: formData
+        });
+
+        const html = await response.text();
+
+        resultDiv.innerHTML = html;   // сервер должен вернуть готовый HTML (таблица + итоги)
+    } catch (e) {
+        resultDiv.innerHTML = `<p class="text-error">Ошибка загрузки отчёта</p>`;
+    }
+}
+
+async function loadPeriodReport() {
+    const dateFrom = document.getElementById('dateFrom').value;
+    const dateTo   = document.getElementById('dateTo').value;
+
+    if (!dateFrom || !dateTo) {
+        showNotification('Укажите обе даты', 'error');
+        return;
+    }
+
+    const body = document.getElementById('shiftHistoryBody');
+    const resultDiv = document.getElementById('historyResult');
+    const formDiv   = document.getElementById('historyForm');
+
+    // Лоадер
+    // formDiv.style.display = 'none';
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `
+        <div style="text-align:center; padding:60px 20px;">
+            <div class="loader"></div>
+            <p style="margin-top:20px;">Загрузка движения средств...</p>
+        </div>
+    `;
+
+    const formData = new FormData();
+    formData.append('action', 'load_today_cash_movements');   //'load_period_report'
+    formData.append('date_from', dateFrom);
+    formData.append('date_to', dateTo);
+
+    try {
+        const response = await fetch('/ajax/shifts/', {
+            method: 'POST',
+            body: formData
+        });
+
+        const html = await response.text();
+
+        resultDiv.innerHTML = html;   // сервер должен вернуть готовый HTML (таблица + итоги)
+    } catch (e) {
+        resultDiv.innerHTML = `<p class="text-error">Ошибка загрузки отчёта</p>`;
+    }
+}
+function getShiftHistoryModal() {
+    return `
+        <div class="modal">
+            <div class="modal-content shift-modal shift-history-modal">
+                <div class="modal-header">
+                    <h3 class="modal-title">Движение средств</h3>
+                    <button class="modal-close" onclick="closeShiftHistoryModal()">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="modal-body" id="shiftHistoryBody">
+                    <!-- Начальное состояние — форма ввода -->
+                    <div id="historyForm">
+                        <div class="" style="">
+                            
+                            <!-- === 1. По периоду === --> 
+                            <!--
+                            <div class="row" style="">
+                                <h4 style="margin-bottom:15px;">Движение средств за период</h4>
+                            </div>
+                            -->
+                            <div class="four-columns">
+                                <div class="form-group">
+                                    <label class="form-label">Дата с</label>
+                                    <input type="date" id="dateFrom" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Дата по</label>
+                                    <input type="date" id="dateTo" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <div class="select-warehouse">
+                                        <label class="form-label">Склад:</label><br>
+                                        <select name='warehouse_id' class="dropdown-filter new-row-whSelect">
+                                        <option disabled>Загрузка...</option> 
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <br>
+                                    <button class="btn btn-primary btn-block" onclick="loadPeriodReport()">
+                                        Показать движение средств
+                                    </button>
+                                </div>
+                            </div>
+
+                           
+                        </div>
+                    </div>
+                    <br>
+                    <!-- Сюда будет подгружаться результат (таблица / детализация) -->
+                    <div id="historyResult" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+    `;      
+    /**
+     * 
+     *  <!-- === 2. Конкретная смена === -->
+                            <div style="flex:1; border-left: 1px solid #e5e5e5; padding-left:30px;">
+                                <h4 style="margin-bottom:15px;">Конкретная смена</h4>
+                                <div class="form-group">
+                                    <label class="form-label">ID смены</label>
+                                    <input type="text" id="shiftIdInput" class="form-control" placeholder="Например: 1247">
+                                </div>
+                                <div class="form-group">
+                                    <br>
+                                    <button class="btn btn-primary btn-block" onclick="loadSingleShiftFromHistory()">
+                                        Показать смену
+                                    </button>
+                                </div>
+                            </div>
+                            **/
+}
 function closeShiftModal() {
     document.querySelector('#modalContainer').innerHTML = '';
     document.querySelector('#modalContainer').style.display = 'none';
 
 }
+
+function closeFiltersModal(){
+    document.querySelector("#modal-filters").style.display = 'none';
+}
+
+function showFiltersModal(){
+    document.querySelector("#modal-filters").style.display = 'block';
+}
+// Обработчик клика для фильтр-чипов
+document.addEventListener('click', function(event) {
+    // Ищем ближайший элемент .filter-chip от кликнутого элемента
+    const filterChip = event.target.closest('.filter-chip');
+    
+    // Если клик был по .filter-chip или его span
+    if (filterChip) {
+        // Проверяем, не был ли клик по кнопке внутри чипа
+        const isButtonClick = event.target.closest('button') !== null;
+        
+        // Если клик не по кнопке, выполняем функцию
+        if (!isButtonClick) {
+            showFiltersModal();
+        }
+    }
+});
+
+function resetFilters() {
+   // Сброс всех select
+    document.querySelectorAll('.filter-item select').forEach(select => {
+        select.selectedIndex = 0;
+        // вручную генерируем событие 'change'
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    // Сброс текстовых полей
+    document.querySelectorAll('.filter-item input[type="text"]').forEach(input => {
+        input.value = '';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    // Сброс чекбоксов
+    document.querySelectorAll('.filter-item input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = false;
+        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    // Сброс date-полей
+    document.querySelectorAll('.filter-item input[type="date"]').forEach(dateInput => {
+        dateInput.value = '';
+        dateInput.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    updateProductListForSelectModal();
+}
+updateActiveFilters();
+
+function updateActiveFilters() {
+    const container = document.querySelector('.active-filters .active-filters-value');
+    if (!container) return;
+
+    container.innerHTML = ''; // очищаем старые фильтры
+
+    // Обрабатываем SELECT
+    document.querySelectorAll('.filter-item select').forEach(select => {
+        if (select.closest('.select-warehouse-choose-prod')) {
+            return; // пропускаем этот элемент 
+        }
+        const selectedOption = select.options[select.selectedIndex];
+        if (selectedOption && selectedOption.value !== 'all' && selectedOption.value !== '') {
+            const label = document.querySelector(`label[for="${select.id}"]`);
+            const title = label ? label.textContent.trim() : select.id;
+
+            const chip = createFilterChip(title, selectedOption.text, () => {
+                select.selectedIndex = 0;
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+                updateActiveFilters();
+            });
+            container.appendChild(chip);
+        }
+    });
+
+    // Обрабатываем CHECKBOX
+    document.querySelectorAll('.filter-item input[type="checkbox"]').forEach(checkbox => {
+        if (checkbox.checked) {
+            const label = document.querySelector(`label[for="${checkbox.id}"]`);
+            const title = label ? label.textContent.trim() : checkbox.id;
+
+            const chip = createFilterChip(title, 'Включено', () => {
+                checkbox.checked = false;
+                checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                updateActiveFilters();
+            });
+            container.appendChild(chip);
+        }
+    });
+
+    // Обрабатываем DATE
+    document.querySelectorAll('.filter-item input[type="date"]').forEach(dateInput => {
+        if (dateInput.value) {
+            const label = document.querySelector(`label[for="${dateInput.id}"]`);
+            const title = label ? label.textContent.trim() : dateInput.id;
+
+            const chip = createFilterChip(title, dateInput.value, () => {
+                dateInput.value = '';
+                dateInput.dispatchEvent(new Event('change', { bubbles: true }));
+                updateActiveFilters();
+            });
+            container.appendChild(chip);
+        }
+    });
+
+    // Обрабатываем TEXT INPUT
+    document.querySelectorAll('.filter-item input[type="text"]').forEach(textInput => {
+        if (textInput.value.trim() !== '') {
+            const label = document.querySelector(`label[for="${textInput.id}"]`);
+            const title = label ? label.textContent.trim() : textInput.id;
+
+            const chip = createFilterChip(title, textInput.value.trim(), () => {
+                textInput.value = '';
+                textInput.dispatchEvent(new Event('input', { bubbles: true }));
+                updateActiveFilters();
+            });
+            container.appendChild(chip);
+        }
+    });
+
+    // Если фильтров нет — можно скрыть блок
+    const activeFilters = document.querySelector('.active-filters');
+    if (container.children.length === 0) {
+        activeFilters.style.display = 'none';
+    } else {
+        activeFilters.style.display = 'flex';
+    }
+}
+
+// Вспомогательная функция для создания "чипа"
+function formatDate(dateString) {
+    // Разделяем строку на части
+    const [year, month, day] = dateString.split('-');
+    // Возвращаем в формате ДД.ММ.ГГГГ
+    return `${day}.${month}.${year}`;
+}
+
+function createFilterChip(label, value, onRemove) {
+    const chip = document.createElement('div');
+    chip.className = 'filter-chip';
+
+    const span = document.createElement('span');
+    
+    // Проверяем, является ли значение датой (формат YYYY-MM-DD)
+    if ((label === 'Created_at' || label === 'Date') && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        span.textContent = `${label}: ${formatDate(value)}`;
+    } else {
+        span.textContent = `${label}: ${value}`;
+    }
+
+    const btn = document.createElement('button');
+    btn.className = 'filter-chip-close';
+    btn.textContent = '×';
+    btn.addEventListener('click', onRemove);
+
+    chip.appendChild(span);
+    chip.appendChild(btn);
+    return chip;
+}
+
+document.querySelectorAll('.filter-item select, .filter-item input').forEach(el => {
+    el.addEventListener('change', updateActiveFilters);
+    el.addEventListener('input', updateActiveFilters);
+});
 
 
 
@@ -264,6 +657,10 @@ function getCashOperationModal(type) {
                 </div>
 
                 <div class="modal-body">
+                    <div class="form-group width-100">
+                        <div class="form-label">Касса</div>
+                        <select placeholder="..." class="form-input select-payment-method" name="payment_method" id="cash_op_payment_method"></select>
+                    </div>
                     <div class="form-group">
                         <label class="form-label">Сумма</label>
                         <input type="number" class="form-control" id="cashAmount" placeholder="Введите сумму">
@@ -289,22 +686,48 @@ function addCash() {
 
     document.querySelector('#modalContainer').innerHTML = getCashOperationModal('add');
     document.querySelector('#modalContainer').style.display = 'block';
-
+    fillSelectPaymentMethod();
 }
 
 function removeCash() {
 
     document.querySelector('#modalContainer').innerHTML = getCashOperationModal('remove');
     document.querySelector('#modalContainer').style.display = 'block';
-
+    fillSelectPaymentMethod();
 }
 
+function fillSelectPaymentMethod(){
+    const formData = new FormData();
+    formData.append('action', 'get-payment-methods-list');
+    fetch('/ajax/shifts/', {
+        method: 'POST',
+        body: formData,
+    }).then(response => response.json())
+    .then(json => {
+        if(json.ok == '1'){
+            let htmlWarehouses = '';
+            if(json.list){
+                htmlWarehouses += '<option value="all">Выберите кассу</option>';
+                for (var i = 0; i < json.list.length; i++) {
+                    htmlWarehouses+= '<option value="'+json.list[i].id+'">'+json.list[i].name+'</option>';
+                }
+                let needSelectFillWarehouse = document.querySelectorAll(".select-payment-method");
+                for (var i = 0; i < needSelectFillWarehouse.length; i++) {
+                    if(needSelectFillWarehouse[i].value == "" || needSelectFillWarehouse[i].value == null){
+                        needSelectFillWarehouse[i].innerHTML = htmlWarehouses;
+                    }
+                }
+            }
+        }
+    }).catch(console.error);
+}
 
 
 function submitCashOperation(type) {
 
     const amount = parseFloat(document.getElementById('cashAmount').value || 0);
     const comment = document.getElementById('cashComment').value.trim();
+    const payment_method = document.getElementById('cash_op_payment_method').value || 0;
 
     if (isNaN(amount) || amount <= 0) {
         alert('Введите корректную сумму');
@@ -320,6 +743,7 @@ function submitCashOperation(type) {
             amount: amount,
             direction: type === 'add' ? "cash_in" : "cash_out",
             comment: comment,
+            payment_method: payment_method
         })
     })
         .then(r => r.json())
@@ -444,7 +868,10 @@ window.showUniversalModal = async (objectType, objectId, orderId = null) => {
 
         const productsTable = document.querySelector(".products-table");
         const productRows = productsTable.querySelectorAll("tbody tr");
-
+        
+        if (objectType === "orders" && orderId !== null) {
+            selectProductFromPopup(orderId.id, orderId.price, orderId.name);
+        }
         productRows.forEach(row => {
             // Находим карточку товара
             const productCard = row.querySelector(".product-card");
@@ -453,10 +880,12 @@ window.showUniversalModal = async (objectType, objectId, orderId = null) => {
                 // Извлекаем данные
                 const id = productCard.dataset.id;
                 const name = productCard.querySelector(".product-name").textContent.trim();
-                const priceText = productCard.querySelector(".product-price").textContent.trim();
+                const priceText = productCard.querySelector(".product-price .product-sale-price").value.trim();
                 const price = parseFloat(priceText.replace(/[^\d.]/g, ''));
                 const quantityInput = productCard.querySelector(".quantity-input");
                 const quantity = parseInt(quantityInput.value);
+
+                //const productId = productCard.querySelector("[name=products["+id+"][product_id]]");
 
                 // Добавляем товар в массив
                 selectedProducts.push({
@@ -542,7 +971,10 @@ window.showProductSelectModal = async () => {
     document.querySelector("#modalProductSelect .modal").style.display = 'flex';
 
     updateProductListForSelectModal();
-    attachProductSelectListeners();
+    if(document.getElementById("modalProductSelect").getAttribute("listeners-atached") != 'true'){
+        attachProductSelectListeners();
+        document.getElementById("modalProductSelect").setAttribute("listeners-atached", 'true');
+    }
 
 }
 
@@ -562,15 +994,19 @@ async function updateProductListForSelectModal() {
     const search = searchInput?.value || "";
 
     //Получем значение "только в наличии"
-    const inStockCheckbox = document.querySelector(".in-stock-checkbox input")
+    const inStockCheckbox = document.querySelector(".in-stock-checkbox input");
     const inStockVal = inStockCheckbox?.checked || false;
+
+    const warehouseSelect = document.querySelector(".select-warehouse-choose-prod select");
+    const wh_idVal = warehouseSelect?.value || "";
+    
     try {
         const response = await window.queries.searchProductsQuery(
             categoryId,
             search,
             (currentProductsPage - 1) * cardsPerPage,
             cardsPerPage,
-            { inStock: inStockVal }
+            { inStock: inStockVal, warehouse_id: wh_idVal}
         );
 
         totalProducts = response.total_num || 0; ///
@@ -601,31 +1037,48 @@ async function updateProductListForSelectModal() {
 
             const imageUrls = imagesArray.map(el => (el.preview || el.full || '')).join(';');
 
+            let attributesHTML = '';
+
+            if(product.attributes){
+                for (var i = 0; i < product.attributes.length; i++) {
+                    attributesHTML += '<div class="attr_row"><div class="attr_name">'+product.attributes[i].attribute_name+':&nbsp;</div><div class="attr_value">'+product.attributes[i].attribute_value+'</div></div>\n';
+                }
+            }
+
             return `
                 <div class="product-card ${quantity > 0 ? 'selected' : ''}" data-id="${product.id}" id="product-row-${product.id}">
                     
-					<div class="product-image"> 
+                    <div class="product-image"> 
                         ${imagesHtml}
                     </div> 
-					
+                    
                     <div class="product-info">
-                        <div class="product-name">${product.name}</div>      
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-attributes">${attributesHTML}</div>
                     </div>
                     
-					
+                    
                     <div class="product-card-right-container">
                         <div class="product-card-right-container-block">
-                            <div class="product-price">${product.price.toLocaleString()}&nbsp;грн</div>                  
+                            <div class="product-price">
+                                <span class="product-sale-price">${product.price.toLocaleString()}&nbsp;<small>₴</small></span><br>
+                                <span class="product-source-price">${product.source_price.toLocaleString()}&nbsp;<small>₴</small></span>
+                            </div>                  
                             <div class="product-actions">
                         ${quantity > 0 ? `
-                            
+                            <div class="select-warehouse">
+                                Склад списания
+                                <select name='products[${product.id}][warehouse_id]' class="dropdown-filter new-row-whSelect">
+                                <option disabled>Загрузка...</option> 
+                                </select>
+                            </div>
                             <div class="quantity-control active">
                                 <button type="button" class="quantity-btn" onclick="changeQuantity(${product.id}, -1)"
                                         title="Уменьшить количество">−</button>
 
 
                                 <input type="hidden" name='products[${product.id}][product_id]' value="${product.id}" />   
-								<input type="hidden" name='products[${product.id}][price]' value="${product.price}" />  
+                                <input type="hidden" name='products[${product.id}][price]' value="${product.price}" />  
 
                                 <input type="number" class="quantity-input m-t-0" name='products[${product.id}][quantity]' value="${quantity}" min="0" max="${product.stock}"
                                        onchange="setQuantity(${product.id}, this.value)"
@@ -640,16 +1093,16 @@ async function updateProductListForSelectModal() {
                                     title="Добавить в заказ"
                                     onclick="selectProductFromPopup(${product.id}, '${product.price}', '${product.name}', '${imageUrls}')">
                                 <span class="btn-icon">+</span>
-                                <span class="btn-text">Добавить</span>
+                                <span class="btn-text">Выбрать</span>
                             </button>
                         `}
                         </div>     
                         </div>
-						
+                        
                         <div class="product-details">В наличии:<br>${product.stock}</div> 
-						
+                        
                     </div>
-					
+                    
                 </div>
             `;
 
@@ -685,11 +1138,18 @@ function attachProductSelectListeners() {
 
     // Кнопка поиска
     document.querySelector('.product-search-bar .search-btn').addEventListener('click', () => {
+        currentProductsPage = 1;
         updateProductListForSelectModal();
     });
 
     // Кнопка в наличии
-    document.querySelector('.in-stock-checkbox input').addEventListener('click', () => {
+    document.querySelector('.in-stock-checkbox input').addEventListener('change', () => {
+        currentProductsPage = 1;
+        updateProductListForSelectModal();
+    });
+
+    document.querySelector(".select-warehouse-choose-prod select").addEventListener('change', () => {
+        currentProductsPage = 1;
         updateProductListForSelectModal();
     });
 
@@ -711,7 +1171,7 @@ function attachProductSelectListeners() {
         input.value = "";
         clearBtn.style.display = "none";
         input.focus();
-
+        currentProductsPage = 1;
         updateProductListForSelectModal();
     });
 
@@ -766,13 +1226,11 @@ window.closeProductSelectModal = async () => {
 
 //
 
-function selectProductFromPopup(id, price, name, imagesStr) {
-    const images = imagesStr.split(';');
-    console.log(images);
+function selectProductFromPopup(id, price, name, imagesStr, supplier_id = null, warehouse_id = null, source_price = null) {
+    const images = imagesStr ? imagesStr.split(';') : imagesStr;
 
     // Добавление товара в DOM основного попапа заказа
     const container = document.querySelector('.products-table tbody'); // контейнер, в который нужно вставить товар
-    console.log(container);
 
     if (!container) return;
 
@@ -784,127 +1242,249 @@ function selectProductFromPopup(id, price, name, imagesStr) {
         id,
         name,
         price: parseFloat(price),
-        quantity: quantity // начальное количество
+        source_price: parseFloat(source_price),
+        quantity: quantity // начальное количество,
     });
 
     // before max="${product.stock}" now max="1"
 
     let newRow;
+    let attributesHTML = '';
+
+    let productInfo = null;/*window.queries.getProduct(id);
+    console.log(productInfo);
+    productInfo = productInfo && productInfo.list ? productInfo.list[0] : null;
+    console.log(productInfo);*/
+
+    window.queries.getProduct(id).then(productResponse => {  
+        productInfo = productResponse && productResponse.list ? productResponse.list[0] : null; 
+        console.log(productInfo);
+        if(productInfo && productInfo.attributes){
+            for (var i = 0; i < productInfo.attributes.length; i++) {
+                attributesHTML += '<div class="attr_row"><div class="attr_name">'+productInfo.attributes[i].attribute_name+':&nbsp;</div><div class="attr_value">'+productInfo.attributes[i].attribute_value+'</div></div>\n';
+            }
+            if(document.querySelector("#product-row-"+id+" .product-attributes-in-card")){
+                document.querySelector("#product-row-"+id+" .product-attributes-in-card").innerHTML = attributesHTML;
+            }
+        }
+        if(source_price != null && source_price > 0){
+            if(document.querySelector("#product-row-"+id+" .product-source-price")){
+                document.querySelector("#product-row-"+id+" .product-source-price").value = source_price+"&nbsp;<small>₴</small>"; 
+            }
+        }
+        else if(productInfo && productInfo.source_price && productInfo.source_price > 0){
+            if(document.querySelector("#product-row-"+id+" .product-source-price")){
+                document.querySelector("#product-row-"+id+" .product-source-price").value = productInfo.source_price+"&nbsp;<small>₴</small>"; 
+            }
+        }
+    }).catch(error => {
+        console.error('Ошибка:', error);
+    });
+
     if (currentModalType === "supplier_requests") {
 
         newRow = `
-		<tr id="product-row-${id}">
-			<td>
-			
-				<div class="product-card" style="margin-bottom: 10px;" data-id="${id}">
-					
-					<input type="hidden" name='products[${id}][product_id]' value="${id}" />  
-					
-					<div class="product-image">
-						<img class="img-product-order" src="${images?.[0]}" />
-					</div>
-					
-					<div class="product-info">
-						<div class="product-name">${name}</div>
-					</div>
-					
-					<div class="product-card-right-container">
-						<div class="product-card-right-container-block">
-						
-							<div style="margin-right: 10px;">
+        <tr id="product-row-${id}">
+            <td>
+            
+                <div class="product-card" style="margin-bottom: 10px;" data-id="${id}">
+                    
+                    <input type="hidden" name='products[${id}][product_id]' value="${id}" />  
+                    
+                    <div class="product-image">
+                        <img class="img-product-order" src="${images?.[0]}" />
+                    </div>
+                    
+                    <div class="product-info">
+                        <div class="product-name">${name}</div>
+                        <div class="product-attributes-in-card">${attributesHTML}</div>
+                    </div>
+                    
+                    <div class="product-card-right-container">
+                        <div class="product-card-right-container-block">
+                        
+                            <div style="margin-right: 10px;">
                                 <label class="product-label" style="display: block;">Цена закупки:</label>
                                 <input type="number" class="js-product-price form-input product-price" name='products[${id}][price]' value="${price}" placeholder="Введите цену"
                                 onchange="updatePaymentFields()"/>
                             </div>
                                                     
-						
-							<div class="product-actions">
-									
-									<div class="quantity-control active">
-										<button type="button" class="quantity-btn" onclick="changeQuantity(${id}, -1)"
-												title="Уменьшить количество">−</button>
-										
-										<input type="number" name='products[${id}][quantity]' class="quantity-input m-t-0" value="${quantity}" min="0" max="100"
-											   onchange="setQuantity(${id}, this.value)">
-										<button type="button" class="quantity-btn" onclick="changeQuantity(${id}, 1)"
-												title="Увеличить количество">+</button>
-									</div>
-									
-							</div>
-						</div>
-						
+                        
+                            <div class="product-actions">
+                                    
+                                    <div class="quantity-control active">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity(${id}, -1)"
+                                                title="Уменьшить количество">−</button>
+                                        
+                                        <input autocomplete="off" type="number" min="0" max="100" onchange="setQuantity(${id}, this.value)" value="${quantity}" class="form-input quantity-input m-t-0" placeholder="Дополнительная информация о клиенте" name="products[${id}][quantity]">
+
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity(${id}, 1)"
+                                                title="Увеличить количество">+</button>
+                                    </div>
+                                    
+                            </div>
+                        </div>
+                        
                         <div class="product-details"></div> 
 
-						
-					</div>
-					
-				</div>
+                        
+                    </div>
+                    
+                </div>
 
-			</td>			
+            </td>           
         </tr>
 
     `;
 
-    } else {
-        const popup_prod = document.querySelector('.select-product-modal');
-        const isVisible = popup_prod && popup_prod.offsetWidth > 0 && popup_prod.offsetHeight > 0;
-        let value_checkbox = isVisible ? '0' : '1';
-
+    }else if (currentModalType === "write_offs") {//товар в списании 
         newRow = `
-		<tr id="product-row-${id}">
-			<td>
-			
-				<div class="product-card" style="margin-bottom: 10px;" data-id="${id}">
-					
-					<input type="hidden" name='products[${id}][product_id]' value="${id}" />  
-					
-					<div class="product-image">
-						<img class="img-product-order" src="${images?.[0]}" />
-					</div>
-					
-					<div class="product-info">
-						<div class="product-name">${name}</div>
-					</div>
-					
-					<div class="product-card-right-container">
-						<div class="product-card-right-container-block">
-							<div class="product-price"> ${price} &nbsp;uah</div>
-							<div class="product-actions">
-									
-									<div class="quantity-control active">
-										<button type="button" class="quantity-btn" onclick="changeQuantity(${id}, -1)"
-												title="Уменьшить количество">−</button>
-										
-										<input type="number" name='products[${id}][quantity]' class="quantity-input m-t-0" value="${quantity}" min="0" max="100"
-											   onchange="setQuantity(${id}, this.value)">
-										<button type="button" class="quantity-btn" onclick="changeQuantity(${id}, 1)"
-												title="Увеличить количество">+</button>
-									</div>
-									
-							</div>
-						</div>
-						
-                        <div class="product-details"></div> 
-						
-					</div>
-					
-				</div>
-
-			</td>
-
-
-			<td>
-				<div class="checkbox-group">
-
-                    <input type="hidden" name='orders_from_supplier[${id}][product_id]' value="${id}" />  
-                    <input name="orders_from_supplier[${id}][is_orders_from_supplier]" id="order_from_supplier" type="checkbox" value="${value_checkbox}" ${value_checkbox === '1' ? 'checked' : ''}  class="checkbox-new" />
-                    <label for="order_from_supplier" style="font-size: 12px; color: #059669;"> Заказать у поставщика</label> 
+        <tr id="product-row-${id}">
+            <td>
+            
+                <div class="product-card" style="margin-bottom: 10px;" data-id="${id}">
                     
-				</div>
+                    <input type="hidden" name='products[${id}][product_id]' value="${id}" /> 
+                    
+                    <div class="product-image">
+                        <img class="img-product-order" src="${images?.[0]}" />
+                    </div>
+                    
+                    <div class="product-info">
+                        <div class="product-name">${name}</div>
+                        <div class="product-attributes-in-card">${attributesHTML}</div>
+                    </div>
+                    
+                    <div class="product-card-right-container">
+                        <div class="product-card-right-container-block">
+                            <div class="product-price">
+                                <div class="product-sale-price"> ${price} &nbsp;<small>₴</small></div>
+                                <div class="product-source-price"></div>  
+                            </div>
+                            <div class="product-actions">
+                                    <div class="quantity-control active">
+                                        
+                                        <input autocomplete="off" type="number" min="0" max="100" onchange="setQuantity(${id}, this.value)" value="${quantity}" class="form-input quantity-input m-t-0" placeholder="Кол-во" name="products[${id}][quantity]">
+                                    </div>
+                                    
+                            </div>
+                        </div>
+                        
+                        <div class="product-details"></div> 
+                        
+                    </div>
+                    
+                </div>
 
-				<input name="orders_from_supplier[${id}][note]" type="text" class="form-input" value="" placeholder="Введите комментарий" style="width: 175px;" />
-			</td>
-			
+            </td>
+            
+        </tr>
+
+    `;
+    } else {
+        // const popup_prod = document.querySelector('.select-product-modal');
+        // const isVisible = popup_prod && popup_prod.offsetWidth > 0 && popup_prod.offsetHeight > 0;
+        let value_checkbox = supplier_id ? '1' : '0';
+
+        const formData = new FormData();
+        formData.append('action', 'list');
+        fetch('/ajax/warehouses/', {
+            method: 'POST',
+            body: formData,
+        }).then(response => response.json())
+        .then(json => {
+            if(json.ok == '1'){
+                let htmlWarehouses = '';
+                if(json.list){
+                    htmlWarehouses += '<option value="all">Выберите склад</option>';
+                    for (var i = 0; i < json.list.length; i++) {
+                        htmlWarehouses+= '<option value="'+json.list[i].id+'" '+(warehouse_id == json.list[i].id ? "selected" : "")+' >'+json.list[i].name+'</option>';
+                    }
+                    let needSelectFillWarehouse = document.querySelectorAll(".new-row-whSelect");
+                    for (var i = 0; i < needSelectFillWarehouse.length; i++) {
+                        if(needSelectFillWarehouse[i].value == "" || needSelectFillWarehouse[i].value == null){
+                            needSelectFillWarehouse[i].innerHTML = htmlWarehouses;
+                        }
+                    }
+                }
+            }
+        }).catch(console.error);
+        newRow = `
+        <tr id="product-row-${id}">
+            <td>
+            
+                <div class="product-card" style="margin-bottom: 10px;" data-id="${id}">
+                    
+                    <input type="hidden" name='products[${id}][product_id]' value="${id}" /> 
+                    
+                    <div class="product-image">
+                        <img class="img-product-order" src="${images?.[0]}" />
+                    </div>
+                    
+                    <div class="product-info">
+                        <div class="product-name">${name}</div>
+                        <div class="product-attributes-in-card">${attributesHTML}</div>
+                    </div>
+                    
+                    <div class="product-card-right-container">
+                        <div class="product-card-right-container-block">
+                            <div class="product-price">
+                                <div class="product-sale-price"> ${price} &nbsp;<small>₴</small></div>
+                                <div class="product-source-price"></div>  
+                            </div>
+                            <div class="product-actions">
+                                    <div class="select-warehouse">
+                                        Склад реализации
+                                        <select name='products[${id}][warehouse_id]' class="dropdown-filter new-row-whSelect">
+                                        <option disabled>Загрузка...</option> 
+                                        </select>
+                                    </div>
+                                    <div class="quantity-control active">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity(${id}, -1)"
+                                                title="Уменьшить количество">−</button>
+                                        
+                                        <input autocomplete="off" type="number" min="0" max="100" onchange="setQuantity(${id}, this.value)" value="${quantity}" class="form-input quantity-input m-t-0" placeholder="Кол-во" name="products[${id}][quantity]">
+
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity(${id}, 1)"
+                                                title="Увеличить количество">+</button>
+                                    </div>
+                                    
+                            </div>
+                        </div>
+                        
+                        <div class="product-details"></div> 
+                        
+                    </div>
+                    
+                </div>
+
+            </td>
+
+
+            <td>
+
+                <input type="hidden" name='orders_from_supplier[${id}][product_id]' value="${id}" /> 
+                <input type="hidden" name='orders_from_supplier[${id}][supplier_id]' value="${supplier_id}"/>  
+                <div class="form-group">
+                    <label class="checkbox_input has-value" style="">
+                        <input class="qqq form-input green" type="checkbox" value="1" name="products[${id}][through_warehouse]">
+                        <div class="checkbox__check_mark"></div>
+                        <div class="tit " style="flex:1">Провести через гараж</div>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox_input has-value" style="">
+                        <input class="qqq form-input green" type="checkbox" value="${value_checkbox}" ${value_checkbox == '1' ? 'checked="checked"' : ''} name="orders_from_supplier[${id}][is_orders_from_supplier]">
+                        <div class="checkbox__check_mark"></div>
+                        <div class="tit " style="flex:1">Заказать у поставщика</div>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <textarea placeholder="Введите комментарий" name="orders_from_supplier[${id}][note]" class="form-input"></textarea>
+                </div>
+            </td>
+            
         </tr>
 
     `;
@@ -931,10 +1511,14 @@ function selectProductFromPopup(id, price, name, imagesStr) {
 function calculateFullTotal() {
 
     const baseTotal = selectedProducts.reduce(
-        (sum, p) => sum + p.price * p.quantity,
+        (sum, p) => {
+            const price = parseFloat(p.price) || 0;
+            const quantity = parseInt(p.quantity) || 0;
+            return sum + price * quantity;
+        },
         0
     );
-
+/*
     const serviceFields = [
         'serv_dismantling',
         'serv_assembly',
@@ -948,8 +1532,8 @@ function calculateFullTotal() {
         const value = parseFloat(input?.value) || 0;
         return sum + value;
     }, 0);
-
-    return baseTotal + serviceTotal;
+*/
+    return baseTotal;
 }
 
 
@@ -989,27 +1573,35 @@ function updatePaymentFields() {
         if (!totalInput) return;
 
         const total = Number(calculateFullTotalForSupplier()) || 0;
-        totalInput.textContent = total.toFixed(2) + " uah";
+        totalInput.innerHTML = total.toFixed(0) + " <small>₴</small>";
 
     } else {
 
         const prepayInput = document.querySelector('input[name="prepay"]');
+        const prepay2Input = document.querySelector('input[name="prepay_2"]');
         const postpayInput = document.querySelector('input[name="postpay"]');
+        const postpay2Input = document.querySelector('input[name="postpay2"]');
         const discountInput = document.querySelector('input[name="discount"]');
         const totalDebt = document.querySelector('input[name="total_amount_debt"]');
 
         let totalInput = document.querySelector('input[name="total_amount_income"]');
+        let totalInputLabel = document.querySelector('label[name="total_amount_income"]');
 
         if (!prepayInput || !postpayInput || !totalInput || !totalDebt) return;
 
         const total = Number(calculateFullTotal()) || 0;
         let prepay = parseFloat(prepayInput.value) || 0;
+        let prepay2 = parseFloat(prepay2Input.value) || 0;
         let postpay = parseFloat(postpayInput.value) || 0;//Math.max(0, total - prepay);
+        let postpay2 = parseFloat(postpay2Input.value) || 0;
         let discount = parseFloat(discountInput.value) || 0;
-        let debt = parseFloat(total - (prepay + postpay + discount)) || 0;//долг клиента
+        let debt = parseFloat(total - (prepay + prepay2 + postpay + postpay2 + discount)) || 0;//долг клиента
 
-        totalInput.value = total.toFixed(2);
-        totalDebt.value = debt.toFixed(2);
+        totalInput.value = total.toFixed(0);
+        if(totalInputLabel){
+            totalInputLabel.innerHTML = total.toFixed(0)+" <small>₴</small>";
+        }
+        totalDebt.value = debt.toFixed(0);
     }
 
 }
@@ -1026,7 +1618,9 @@ function selectProduct(product) {
 
 function attachListenersForOrderModal() {
     const prepayInput = document.querySelector('input[name="prepay"]');
+    const prepay2Input = document.querySelector('input[name="prepay_2"]');
     const postpayInput = document.querySelector('input[name="postpay"]');
+    const postpay2Input = document.querySelector('input[name="postpay2"]');
     const discountInput = document.querySelector('input[name="discount"]');
     const serviceFields = [
         'serv_dismantling',
@@ -1039,8 +1633,14 @@ function attachListenersForOrderModal() {
     if (prepayInput) {
         prepayInput.addEventListener('input', updatePaymentFields);
     }
+    if (prepay2Input) {
+        prepay2Input.addEventListener('input', updatePaymentFields);
+    }
     if (postpayInput) {
         postpayInput.addEventListener('input', updatePaymentFields);
+    }
+    if (postpay2Input) {
+        postpay2Input.addEventListener('input', updatePaymentFields);
     }
     if (discountInput) {
         discountInput.addEventListener('input', updatePaymentFields);
@@ -1080,15 +1680,34 @@ function attachListenersForOrderModal() {
             deliveryOptions.forEach(opt => opt.classList.remove('active'));
             // Добавляем active на текущий элемент
             option.classList.add('active');
+            if(document.querySelector(".delivery-option-block")){
+                if(option.getAttribute('data-value') == 'pickup'){//при самовывозе скрываем блок с доп. информацией про доставку
+                    document.querySelector(".delivery-option-block").style.display="none";
+                    var celarinputs = document.querySelectorAll(".delivery-option-block input,.delivery-option-block textarea");
+                    if(celarinputs){
+                        for (var i = 0; i < celarinputs.length; i++) {
+                            celarinputs[i].value = '';
+                        }
+                    }
+                }else{
+                    document.querySelector(".delivery-option-block").style.display="block";
+                }
+            }
         });
     });
 
 
 }
 
-function changeQuantity(id, delta) {
+function changeQuantity(id, delta, convertPoidtoPid = 0) {
 
-    const productId = String(id);
+    let productId = String(id);
+    if(convertPoidtoPid == 1){
+        var pId = document.querySelector(`input[name="products[${id}][product_id]"]`);
+        if(pId){
+            productId = pId.value; 
+        }
+    }
 
     const countInput = document.querySelector(`input[name="products[${id}][quantity]"]`);
 
@@ -1102,7 +1721,7 @@ function changeQuantity(id, delta) {
     }
 
     selectedProducts = selectedProducts.map(product => {
-        if (product.id === id) {
+        if (product.id == productId ){
             return { ...product, quantity: nextValue }
         }
         return product;
@@ -1113,18 +1732,26 @@ function changeQuantity(id, delta) {
 
 }
 
-function setQuantity(id, quantity) {
+function setQuantity(id, quantity, convertPoidtoPid = 0) {
 
     if (!Number(quantity) && quantity != "0") {
         return;
     }
 
     if (quantity <= 0) {
-        document.querySelector(`#product-row-${id}`)?.remove();;
+        document.querySelector(`#product-row-${id}`)?.remove();
+    }
+
+    let productId = String(id);
+    if(convertPoidtoPid == 1){
+        var pId = document.querySelector(`input[name="products[${id}][product_id]"]`);
+        if(pId){
+            productId = pId.value; 
+        }
     }
 
     selectedProducts = selectedProducts.map(product => {
-        if (product.id === id) {
+        if (product.id === productId) {
             return { ...product, quantity: Number(quantity) }
         }
         return product;
@@ -1233,22 +1860,35 @@ window.universalHandleObjectCreateOrUpdate = async (objectType, objectId, event)
     if (!is_new) {
         formData.set('item_id', objectId);
     }
-
+    console.log(formData);
     try {
         const response = await fetch('/ajax/' + objectType + '/', {
             method: 'POST',
             body: formData,
         });
 
-        const result = await response.json();
+        // Проверяем, действительно ли ответ JSON
+        const contentType = response.headers.get('content-type');
+        let result;
+        let text;
+
+        try {  
+            text = await response.text();
+            result = JSON.parse(text);
+        } catch (error) {
+            alert('Ответ сервера не в формате JSON:\n\n' + text ?? '');
+            throw new Error('Ответ сервера не JSON');
+        }
 
         if (!response.ok || result.status === 'error') {
-            throw new Error(result.error);
+            throw new Error(result.error || 'Ошибка при сохранении данных');
         }
 
         window.closeUniversalModal();
-        this.showNotification("Success", 'success');
-        setTimeout(function () { window.location.reload(); }, 500);
+        this.showNotification("Success", 'success'); 
+        // if(objectType != "catalog"){
+            // setTimeout(() => window.location.reload(), 500);
+        // }
 
     } catch (error) {
         console.error("Ошибка:", error);
@@ -1265,12 +1905,58 @@ window.universalHandleObjectCreateOrUpdate = async (objectType, objectId, event)
 
 
 
+
 // быстрое добавление товара из заказа
-window.createCatalogProductFast = async (event) => {
+window.createCatalogProductFast = async (event, add_act = 'add') => {
 
     const container = event.target.closest('fieldset');
     const modalBody = container.querySelector('.modal-body');
     const submitButton = container.querySelector('button[type="submit"]');
+
+    const nameInput = container.querySelector('input[name="name"]');
+    const categoryInput = container.querySelector('select[name="category_id"]');
+
+    if(nameInput){
+        // Сбрасываем стили ошибки
+        nameInput.style.borderColor = ''; 
+
+        // Проверяем поле name
+        if (!nameInput.value.trim()) {
+            nameInput.style.borderColor = 'red';
+            nameInput.placeholder = 'Это поле обязательно для заполнения!';
+            nameInput.focus();
+            
+            // Восстанавливаем стиль при любом вводе (однократно)
+            nameInput.addEventListener('input', function restore() {
+                nameInput.style.borderColor = '';
+                nameInput.placeholder = '...';
+                nameInput.removeEventListener('input', restore);
+            }, { once: true }); // Обработчик сработает только один раз
+            
+            return;
+        }
+    }
+
+    if(categoryInput){
+        // Сбрасываем стили ошибки
+        categoryInput.style.borderColor = ''; 
+
+        // Проверяем поле category
+        if ( !categoryInput.value.trim() || categoryInput.value === "0" ) {
+            categoryInput.style.borderColor = 'red';
+            categoryInput.placeholder = 'Это поле обязательно для заполнения!';
+            categoryInput.focus();
+            
+            // Восстанавливаем стиль при любом вводе (однократно)
+            categoryInput.addEventListener('input', function restore() {
+                categoryInput.style.borderColor = '';
+                categoryInput.placeholder = '...';
+                categoryInput.removeEventListener('input', restore);
+            }, { once: true }); // Обработчик сработает только один раз
+            
+            return;
+        }
+    }
 
     // Блокируем кнопку и показываем прелоадер
     if (submitButton) {
@@ -1282,7 +1968,7 @@ window.createCatalogProductFast = async (event) => {
     // Создаём FormData из всей формы
     const formData = new FormData();
 
-    let is_price = 0;
+    let is_price = !modalBody.classList.contains('modal-body--supplier');
 
     container.querySelectorAll('input, textarea, select').forEach(el => {
         if (el.name) { // важно, чтобы было имя, иначе в FormData не добавится
@@ -1290,14 +1976,11 @@ window.createCatalogProductFast = async (event) => {
                 // не добавляем неотмеченные чекбоксы/радио
                 return;
             }
-            if(el.name === 'price') {
-                is_price = 1;
-            }
             formData.append(el.name, el.value);
         }
     });
 
-    formData.set('action', 'add');
+    formData.set('action', add_act);
 
 
 
@@ -1321,7 +2004,7 @@ window.createCatalogProductFast = async (event) => {
             }).join('');
         }
 
-        selectProductFromPopup(result.id, (is_price ? result.price : result.source_price), result.name, url_img);
+        selectProductFromPopup(result.id, (is_price ? result.price_last : result.source_price_last), result.name, url_img, formData.get('supplier_id'), formData.get('new_prod_warehouse_id'), (result.source_price_last ? result.source_price_last : null) );
 
         container.querySelectorAll('input, textarea, select').forEach(el => {
             if (el.type === 'checkbox' || el.type === 'radio') {
@@ -1419,42 +2102,65 @@ function registerOrderPaymentInShift(orderId, amount, comment = '') {
 
 
 function saveOrder(orderData) {
-
     fetch('/ajax/shifts/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'action=get_current_shift_id'
     })
+    .then(async r => {
+        const contentType = r.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return r.json();
+        } else {
+            const text = await r.text();
+            alert('Ответ сервера смен не в формате JSON:\n\n' + text);
+            throw new Error('Ответ сервера смен не JSON');
+        }
+    })
+    .then(json => {
+        if (!json.shift_id) {
+            alert("Нет активной смены!");
+            return;
+        }
 
-        .then(r => r.json())
-        .then(json => {
-            if (!json.shift_id) {
-                alert("Нет активной смены!");
-                return;
-            }
+        orderData.shift_id = json.shift_id;
 
-            orderData.shift_id = json.shift_id;
-
-            fetch('/ajax/orders/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'create_order',
-                    data: orderData
-                })
+        return fetch('/ajax/orders/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'create_order',
+                data: orderData
             })
-
-                .then(r => r.json())
-                .then(response => {
-                    if (response.success) {
-                        registerOrderPaymentInShift(response.order_id, orderData.total_sum);
-                        closeNewOrderModal();
-                    } else {
-                        alert('Ошибка при создании заказа');
-                    }
-                });
         });
+    })
+    .then(async r => {
+        if (!r) return; // если нет смены
+
+        const contentType = r.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return r.json();
+        } else {
+            const text = await r.text();
+            alert('Ответ сервера заказов не в формате JSON:\n\n' + text);
+            throw new Error('Ответ сервера заказов не JSON');
+        }
+    })
+    .then(response => {
+        if (!response) return;
+
+        if (response.success) {
+            registerOrderPaymentInShift(response.order_id, orderData.total_sum);
+            closeNewOrderModal();
+        } else {
+            alert('Ошибка при создании заказа');
+        }
+    })
+    .catch(error => {
+        alert('Ошибка: ' + error.message);
+    });
 }
+
 
 
 
@@ -1466,7 +2172,7 @@ function loadCurrentShiftOrders() {
         warehouse_select.addEventListener('change', function (e) {
             loadCurrentShiftOrders();
         });
-        warehouse_id = warehouse_select.value;
+        warehouse_id = 0;//warehouse_select.value;
     }
     fetch('/ajax/shifts/', {
         method: 'POST',
@@ -1498,9 +2204,9 @@ function loadCurrentShiftOrders() {
                 <td>${order.client.name}<br><small>${order.client_info}</small></td>
                 <td>
                     ${order.products?.map(product => product.name).join(", ")}
-					<br/>
-					<div class="photos-preview">
-						${order.products?.map(product => {
+                    <br/>
+                    <div class="photos-preview">
+                        ${order.products?.map(product => {
 
                     if (!product.images || product.images.length === 0) { return ''; }
 
@@ -1511,29 +2217,29 @@ function loadCurrentShiftOrders() {
                     }).join('');
 
                 }).join("")}
-					</div>
+                    </div>
                 </td>
 
-                <td>${order.prepay}&nbsp;uah</td>
-                <td>${order.postpay}&nbsp;uah</td>
+                <td>${order.prepay === 0 ? '-' : order.prepay + '&nbsp;<small>₴</small>'}</td>
+                <td>${order.postpay === 0 ? '-' : order.postpay + '&nbsp;<small>₴</small>'}</td>
                 <td class="comment-cell">${order.comment}</td>
 
                 <td class="total-status-cell">
                     <div class="total-status-wrapper">
-                        <strong>${order.total}&nbsp;uah</strong>
+                        <strong>${order.total}&nbsp;<small>₴</small></strong>
                         <span class="badge badge-success">${order.status}</span>
                     </div>
                 </td>
-                `+ (order.shift ? ("<td>" + order.shift.warehouse_name + "</td>") : "") + `
+                `+ (order.shift ? ("<td>" + order.warehouse_name + "</td>") : "") + `
                 <td class="actions-cell">
                     <div class="actions-wrapper">
                     
-						<button class="btn btn-icon btn-secondary" onclick="window.showUniversalModal('orders',${order.id})" 
-						 ${order.isEditable ? `title="Редактировать">✏️` : `title="Просмотр">👁️`}
+                        <button class="btn btn-icon btn-secondary" onclick="window.showUniversalModal('orders',${order.id})" 
+                         ${order.isEditable ? `title="Редактировать">✏️` : `title="Просмотр">👁️`}
                         </button>
-						
+                        
                         <button class="btn btn-icon btn-secondary" onclick="window.generateUniversalPDF('orders', ${order.id})" title="Печать">📠</button>
-						
+                        
                     </div>
                 </td>
             </tr>`;
@@ -1576,6 +2282,7 @@ function closeCashOutModal() {
 document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
         closeShiftModal();
+        closeFiltersModal();
     }
 });
 
@@ -1623,5 +2330,268 @@ function showNotification(message, type = 'error') {
 
 
 
+// === Функция инициализации автокомплита для одного инпута ===
+function initAutocomplete(input) {
+    if (input.dataset.autocompleteInitialized === 'true') return;
+    input.dataset.autocompleteInitialized = 'true';
 
+    let dropdown = null;
+    let selectedIndex = -1;
+    let items = [];
+    let xhr = null;
 
+    // Создание dropdown
+    function createDropdown() {
+      if (dropdown) return dropdown;
+
+      dropdown = document.createElement('ul');
+      dropdown.className = 'autocomplete-dropdown';
+      document.body.appendChild(dropdown);
+
+      positionDropdown();
+      return dropdown;
+    }
+
+    // Позиционирование
+    function positionDropdown() {
+      if (!dropdown) return;
+      const rect = input.getBoundingClientRect();
+      dropdown.style.width = rect.width + 'px';
+      dropdown.style.left = rect.left + window.scrollX + 'px';
+      dropdown.style.top = (rect.bottom + window.scrollY) + 'px';
+    }
+
+    function showDropdown() {
+      if (!dropdown) createDropdown();
+      dropdown.style.display = 'block';
+      positionDropdown();
+    }
+
+    function hideDropdown() {
+      if (dropdown) dropdown.style.display = 'none';
+      selectedIndex = -1;
+      items = [];
+    }
+
+    function renderItems(data) {
+      if (!dropdown) createDropdown();
+      dropdown.innerHTML = '';
+
+      if (!data || data.length === 0) {
+        const li = document.createElement('li');
+        li.className = 'autocomplete-item';
+        li.textContent = 'Ничего не найдено';
+        li.style.color = '#999';
+        li.style.cursor = 'default';
+        dropdown.appendChild(li);
+        showDropdown();
+        return;
+      }
+
+      items = data;
+      data.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = 'autocomplete-item';
+        li.textContent = typeof item === 'string' ? item : (item.value || item.name || item);
+        li.dataset.index = index;
+
+        li.addEventListener('click', () => {
+          input.value = li.textContent;
+          hideDropdown();
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+
+        li.addEventListener('mouseenter', () => {
+          selectItem(index);
+        });
+
+        dropdown.appendChild(li);
+      });
+
+      selectedIndex = -1;
+      showDropdown();
+    }
+
+    function selectItem(index) {
+      const prev = dropdown.querySelector('.selected');
+      if (prev) prev.classList.remove('selected');
+
+      selectedIndex = index;
+      const current = dropdown.querySelector(`[data-index="${index}"]`);
+      if (current) {
+        current.classList.add('selected');
+
+        // Прокрутка
+        const dropdownRect = dropdown.getBoundingClientRect();
+        const itemRect = current.getBoundingClientRect();
+        if (itemRect.bottom > dropdownRect.bottom) {
+          dropdown.scrollTop += itemRect.bottom - dropdownRect.bottom + 5;
+        } else if (itemRect.top < dropdownRect.top) {
+          dropdown.scrollTop -= dropdownRect.top - itemRect.top + 5;
+        }
+      }
+    }
+
+    function fetchAttributes(query) {
+      if (xhr) xhr.abort();
+
+      const attributeId = input.dataset.attributeId || input.getAttribute('data-index');
+      if (!attributeId) return;
+
+      const url = '/ajax/attributes/'; // POST action
+
+      // Формируем данные для POST
+      const formData = new FormData();
+      formData.append('action', 'autocomplete_attribute');
+      formData.append('attribute_id', attributeId);
+      formData.append('q', query);
+
+      xhr = new XMLHttpRequest();
+      xhr.open('POST', url, true);
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      // Не устанавливаем Content-Type — браузер сам поставит multipart/form-data с границей
+
+      xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            renderItems(data);
+          } catch (e) {
+            console.error('JSON parse error:', e);
+            renderItems([]);
+          }
+        } else {
+          console.warn('Server error:', xhr.status, xhr.statusText);
+          renderItems([]);
+        }
+      };
+
+      xhr.onerror = () => {
+        console.error('Request failed');
+        renderItems([]);
+      };
+
+      xhr.send(formData);
+    }
+
+    // === Обработчики ===
+    let timeout = null;
+    input.addEventListener('input', function () {
+      const query = input.value.trim();
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        if (query.length >= 1) {
+          fetchAttributes(query);
+        } else {
+          hideDropdown();
+        }
+      }, 300);
+    });
+
+    input.addEventListener('keydown', function (e) {
+      if (!dropdown || dropdown.style.display === 'none') return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectItem((selectedIndex + 1) % items.length);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectItem(selectedIndex <= 0 ? items.length - 1 : selectedIndex - 1);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (selectedIndex >= 0 && items[selectedIndex]) {
+          const selectedItem = dropdown.querySelector(`[data-index="${selectedIndex}"]`);
+          input.value = selectedItem.textContent;
+          hideDropdown();
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      } else if (e.key === 'Escape') {
+        hideDropdown();
+      }
+    });
+
+    input.addEventListener('focus', function () {
+      if (input.value.trim().length >= 1) {
+        fetchAttributes(input.value.trim());
+      }
+    });
+
+    // Скрытие при клике вне
+    const clickOutsideHandler = function (e) {
+      if (!input.contains(e.target) && dropdown && !dropdown.contains(e.target)) {
+        hideDropdown();
+      }
+    };
+    document.addEventListener('click', clickOutsideHandler);
+
+    // Перепозиционирование
+    const reposition = () => positionDropdown();
+    window.addEventListener('scroll', reposition);
+    window.addEventListener('resize', reposition);
+
+    // Очистка при удалении инпута
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'childList') {
+          const removed = Array.from(mutation.removedNodes);
+          if (removed.some(node => node === input || node.contains(input))) {
+            if (dropdown && dropdown.parentNode) {
+              dropdown.parentNode.removeChild(dropdown);
+            }
+            document.removeEventListener('click', clickOutsideHandler);
+            window.removeEventListener('scroll', reposition);
+            window.removeEventListener('resize', reposition);
+            observer.disconnect();
+            break;
+          }
+        }
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
+// === Инициализация существующих инпутов ===
+function initAllExisting() {
+    document.querySelectorAll('.autocomplete-attributes').forEach(input => {
+      if (!input.dataset.autocompleteInitialized) {
+        initAutocomplete(input);
+      }
+    });
+}
+
+// === Отслеживание новых инпутов ===
+const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.addedNodes.length) {
+        mutation.addedNodes.forEach(node => {
+          if (node.nodeType === 1) { // Element
+            if (node.matches && node.matches('.autocomplete-attributes')) {
+              initAutocomplete(node);
+            }
+            // Проверяем вложенные
+            if (node.querySelectorAll) {
+              node.querySelectorAll('.autocomplete-attributes').forEach(input => {
+                if (!input.dataset.autocompleteInitialized) {
+                  initAutocomplete(input);
+                }
+              });
+            }
+          }
+        });
+      }
+    }
+});
+
+// Запуск
+document.addEventListener('DOMContentLoaded', () => {
+    initAllExisting();
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+});
+
+// === Глобальная функция для ручного вызова (если нужно) ===
+window.initAutocomplete = initAutocomplete;
+window.initAllAutocompletes = initAllExisting;

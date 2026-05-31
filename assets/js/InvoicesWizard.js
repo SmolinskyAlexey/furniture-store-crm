@@ -9,7 +9,7 @@ class InvoicesWizard {
         this.isLoading = false;
 
         // Пагинация
-        this.cardsPerPage = 5;
+        this.cardsPerPage = 10;
         this.currentInvoicesPage = 1;
 
         this.state = {};

@@ -20,9 +20,9 @@ window.ShiftsTemplates = class {
 
                 <td>${shift.closed_at}</td>
 
-                <td>${shift.start_cash}&nbsp;uah</td>
+                <td>${shift.start_cash}</td>
 
-                <td>${shift.end_cash}&nbsp;uah</td>
+                <td>${shift.end_cash}</td>
 
                 <td>${shift.start_comment}</td>
 

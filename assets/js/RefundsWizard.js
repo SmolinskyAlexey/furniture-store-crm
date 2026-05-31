@@ -11,7 +11,7 @@ class RefundsWizard {
         this.isLoading = false;
 
         //пагинация (Скопировано из order. Делаю по-примеру)
-        this.cardsPerPage = 5;
+        this.cardsPerPage = 10;
         this.currentRefundsPage = 1;
 
         this.state = {};
@@ -85,12 +85,13 @@ class RefundsWizard {
         });
 
         const dateSelector = document.querySelector("#date");
-        dateSelector.addEventListener('change', () => {
-            this.cache.filter.date = dateSelector.value;
-            this.currentRefundsPage = 1;
-            this.preloadData();
-        });
-
+        if(dateSelector){
+            dateSelector.addEventListener('change', () => {
+                this.cache.filter.date = dateSelector.value;
+                this.currentRefundsPage = 1;
+                this.preloadData();
+            });
+        }
     }
 
     showLoading(show) {

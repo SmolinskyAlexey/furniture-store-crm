@@ -11,7 +11,7 @@ class OverheadExpenses {
         this.isLoading = false;
 
         //пагинация (Скопировано из order. Делаю по-примеру)
-        this.cardsPerPage = 5;
+        this.cardsPerPage = 10;
         this.currentOverheadExpensesPage = 1;
 
         this.state = {};

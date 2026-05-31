@@ -1,0 +1,2346 @@
+
+// Глобальные переменные
+
+let ordersWizard, catalogWizard, shiftsWizard, refundsWizard, clientsWizard, suppliersWizard, supplierRequestsWizard, writeOffsWizard, invoicesWizard, stockTransfersWizard, overheadExpenses, categoriesWizard, servicesWizard, contractorsWizard, reportsWizard;
+
+// Инициализация приложения
+
+window.addEventListener('DOMContentLoaded', () => {
+
+    // Создаем экземпляр мастера заказов
+    ordersWizard = new OrdersWizard();
+    catalogWizard = new CatalogWizard();
+    shiftsWizard = new ShiftsWizard();
+    refundsWizard = new RefundsWizard();
+    clientsWizard = new ClientsWizard();
+    suppliersWizard = new SuppliersWizard();
+    supplierRequestsWizard = new SupplierRequestsWizard();
+    writeOffsWizard = new WriteOffsWizard();
+    invoicesWizard = new InvoicesWizard();
+    stockTransfersWizard = new StockTransfersWizard();
+    overheadExpenses = new OverheadExpenses();
+    categoriesWizard     = new CategoriesWizard();
+    servicesWizard        = new ServicesWizard();
+    contractorsWizard     = new ContractorsWizard(); 
+    reportsWizard         = new ReportsWizard(); 
+
+    // Инициализация навигации
+    initializeNavigation();
+
+});
+
+
+
+// Навигация по страницам
+
+function initializeNavigation() {
+
+    // Обработчики для активных пунктов меню
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+
+            // Убираем активный класс со всех пунктов
+            document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
+
+            // Добавляем активный класс к текущему
+            e.currentTarget.classList.add('active');
+        });
+    });
+
+}
+
+
+
+// Вспомогательная функция для обновления активного пункта меню
+
+function updateActiveMenuItem(functionName) {
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('onclick')?.includes(functionName)) {
+            item.classList.add('active');
+        }
+    });
+}
+
+
+
+// Навигационные функции
+
+window.showHome = () => {
+    document.getElementById('pageTitle').textContent = 'Главная страница';
+    updateActiveMenuItem('showHome');
+};
+
+window.showOrders = () => {
+    document.getElementById('pageTitle').textContent = 'Мои заказы';
+    updateActiveMenuItem('showOrders');
+};
+
+window.showCatalog = () => {
+    document.getElementById('pageTitle').textContent = 'Catalog';
+    updateActiveMenuItem('showCatalog');
+};
+
+
+
+function getShiftControlModal(shift) {
+    const isOpen = shift?.status === 'open';
+    //<br>Касса: <strong>${shift.cash.toLocaleString()} грн</strong>
+    return `
+        <div class="modal">
+            <div class="modal-content shift-modal">
+                <div class="modal-header">
+                    <h3 class="modal-title">${isOpen ? 'Закрыть смену' : 'Открыть смену'}</h3>
+                    <button class="modal-close" onclick="closeShiftModal()">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        ${isOpen
+            ? `Смена открыта в <strong>${shift.openedAt}</strong>`
+            : 'Укажите начальный остаток в кассе:'}
+                    </p>
+                    ${!isOpen
+            ? `
+                            <div class="form-group">
+                                <label class="form-label">Сумма на начало смены</label>
+                                <input type="number" id="shiftCashInput" class="form-control" placeholder="Например, 5000">
+                            </div>
+                        `
+            : `
+                            <p>Укажите финальный остаток в кассе и комментарий:</p>
+                            <div class="form-group">
+                                <label class="form-label">Остаток в кассе</label>
+                                <input type="number" class="form-control" id="shiftFinalCash" placeholder="Введите итоговую сумму">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Комментарий</label>
+                                <textarea class="form-control" id="shiftEndComment" rows="3" placeholder="Причина закрытия, примечание..."></textarea>
+                            </div>
+                        `
+        }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeShiftModal()">Отмена</button>
+                    <button class="btn btn-primary" onclick="${isOpen ? 'closeShift()' : 'openShift()'}">
+                        ${isOpen ? 'Закрыть смену' : 'Открыть смену'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+
+function openShift() {
+    const cash = parseFloat(document.getElementById('shiftCashInput').value || 0);
+    if (isNaN(cash) || cash < 0) {
+        alert('Введите корректную сумму');
+        return;
+    }
+    const comment = '';//комментарий взять из поля, сейчас поля нет, поэтому не проставил
+    // const warehouse_id = 1;//торговая точка,  возможно будет браться вообще из бэка, точка куда привязан юзер
+
+    fetch('/ajax/shifts/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            action: 'add',
+            start_cash: cash,
+            start_comment: comment,
+        })
+    })
+        .then(r => r.json())
+        .then(json => {
+            if (json.ok) {
+                // console.log('Открытие смены с кассой: ' + cash);
+                // this.showSuccess("Смена успешно открыта!");
+                // window.location.reload();//перезагрузка страницы или действия после открытия смены
+                this.showNotification('Открытие смены с кассой: ' + cash, 'success');
+                setTimeout(function () { window.location.reload(); }, 500);
+            } else {
+                console.warn('Ошибка при открытии смены');
+                this.showNotification('Ошибка при открытии смены');
+            }
+        })
+        .catch(console.error);
+
+    closeShiftModal();
+
+}
+
+
+
+function closeShift() {
+
+    const finalCash = parseFloat(document.getElementById('shiftFinalCash') !== null ? document.getElementById('shiftFinalCash').value : 0 || 0);
+    const comment = document.getElementById('shiftEndComment') !== null ? document.getElementById('shiftEndComment').value.trim() : "";
+
+    if (isNaN(finalCash) || finalCash < 0) {
+        alert('Введите корректную сумму остатка');
+        return;
+    }
+
+    fetch('/ajax/shifts/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            action: 'close',
+            end_cash: finalCash,
+            end_comment: comment,
+        })
+    })
+        .then(r => r.json())
+        .then(json => {
+            if (json.ok) {
+                // console.log(`Смена закрыта. Остаток: ${finalCash} грн. Комментарий: ${comment}`);
+                // console.log('Смена успешно закрыта');
+                this.showNotification(`Смена закрыта. Остаток: ${finalCash} грн. Комментарий: ${comment}`);
+                setTimeout(function () { window.location.reload(); }, 500);
+            } else {
+                console.warn('Ошибка при закрытии смены');
+                this.showNotification('Ошибка при закрытии смены');
+            }
+        })
+        .catch(console.error);
+
+    closeShiftModal();
+
+}
+
+
+
+
+window.showShift = (type = "show") => {
+
+    if(type == "edit"){
+        document.getElementById('pageTitle').textContent = 'Управление сменой';
+        updateActiveMenuItem('showShift');
+    }
+    fetch('/ajax/shifts/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            action: 'get'
+        })
+    })
+        .then(r => r.json())
+        .then(json => {
+            if (json.ok) {
+                // console.log('Кассовая операция зарегистрирована');
+                if(type == "edit"){
+                    document.querySelector('#modalContainer').innerHTML = getShiftControlModal(json.shift);
+                    document.querySelector('#modalContainer').style.display = 'block';
+                }
+                if(type == "show"){
+                    window.showUniversalModal('shifts', json.shift.id);
+                }
+            } else {
+                console.warn('Ошибка при загрузки смены');
+                this.showNotification('Ошибка при закрузке смены');
+            }
+        })
+        .catch(console.error);
+
+};
+// Открытие модального окна истории
+function openShiftHistoryModal() {
+    const html = getShiftHistoryModal();
+    document.querySelector('#modalContainer').innerHTML = html;
+    document.querySelector('#modalContainer').style.display = 'block';
+
+    loadTodayCashMovements();//загружаем движения за сегодня
+
+    const formData = new FormData();
+    formData.append('action', 'list');
+    fetch('/ajax/warehouses/', {
+        method: 'POST',
+        body: formData,
+    }).then(response => response.json())
+    .then(json => {
+        if(json.ok == '1'){
+            let htmlWarehouses = '';
+            if(json.list){
+                htmlWarehouses += '<option value="all">Выберите склад</option>';
+                for (var i = 0; i < json.list.length; i++) {
+                    htmlWarehouses+= '<option value="'+json.list[i].id+'">'+json.list[i].name+'</option>';
+                }
+                let needSelectFillWarehouse = document.querySelectorAll(".new-row-whSelect");
+                for (var i = 0; i < needSelectFillWarehouse.length; i++) {
+                    if(needSelectFillWarehouse[i].value == "" || needSelectFillWarehouse[i].value == null){
+                        needSelectFillWarehouse[i].innerHTML = htmlWarehouses;
+                    }
+                }
+            }
+        }
+    }).catch(console.error);
+
+    // Устанавливаем удобные даты по умолчанию (последние 7 дней)
+    const to = new Date().toISOString().split('T')[0];
+    const from = new Date();
+    from.setDate(from.getDate() - 7);
+
+    document.getElementById('dateFrom').value = from.toISOString().split('T')[0];
+    document.getElementById('dateTo').value = to;
+}
+
+// Закрытие
+function closeShiftHistoryModal() {
+    document.querySelector('#modalContainer').style.display = 'none';
+}
+
+// Сброс формы (кнопка "Новый запрос")
+function resetHistoryForm() {
+    document.getElementById('historyForm').style.display = 'block';
+    document.getElementById('historyResult').style.display = 'none';
+    document.getElementById('historyResult').innerHTML = '';
+}
+
+// === 1. Показать конкретную смену ===
+function loadSingleShiftFromHistory() {
+    const id = document.getElementById('shiftIdInput').value.trim();
+    if (!id) {
+        showNotification('Введите ID смены', 'warning');
+        return;
+    }
+    closeShiftHistoryModal();
+    window.showUniversalModal('shifts', id);
+}
+
+// === 2. Движение средств за период ===
+async function loadTodayCashMovements() {
+
+    const body = document.getElementById('shiftHistoryBody');
+    const resultDiv = document.getElementById('historyResult');
+    const formDiv   = document.getElementById('historyForm');
+
+    // Лоадер
+    // formDiv.style.display = 'none';
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `
+        <div style="text-align:center; padding:60px 20px;">
+            <div class="loader"></div>
+            <p style="margin-top:20px;">Загрузка движения средств...</p>
+        </div>
+    `;
+
+    const formData = new FormData();
+    formData.append('action', 'load_today_cash_movements');   // ← этот action нужно добавить на бэке
+
+    try {
+        const response = await fetch('/ajax/shifts/', {
+            method: 'POST',
+            body: formData
+        });
+
+        const html = await response.text();
+
+        resultDiv.innerHTML = html;   // сервер должен вернуть готовый HTML (таблица + итоги)
+    } catch (e) {
+        resultDiv.innerHTML = `<p class="text-error">Ошибка загрузки отчёта</p>`;
+    }
+}
+
+async function loadPeriodReport() {
+    const dateFrom = document.getElementById('dateFrom').value;
+    const dateTo   = document.getElementById('dateTo').value;
+
+    if (!dateFrom || !dateTo) {
+        showNotification('Укажите обе даты', 'error');
+        return;
+    }
+
+    const body = document.getElementById('shiftHistoryBody');
+    const resultDiv = document.getElementById('historyResult');
+    const formDiv   = document.getElementById('historyForm');
+
+    // Лоадер
+    formDiv.style.display = 'none';
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `
+        <div style="text-align:center; padding:60px 20px;">
+            <div class="loader"></div>
+            <p style="margin-top:20px;">Загрузка движения средств...</p>
+        </div>
+    `;
+
+    const formData = new FormData();
+    formData.append('action', 'load_period_report');   // ← этот action нужно добавить на бэке
+    formData.append('date_from', dateFrom);
+    formData.append('date_to', dateTo);
+
+    try {
+        const response = await fetch('/ajax/shifts/', {
+            method: 'POST',
+            body: formData
+        });
+
+        const html = await response.text();
+
+        resultDiv.innerHTML = html;   // сервер должен вернуть готовый HTML (таблица + итоги)
+    } catch (e) {
+        resultDiv.innerHTML = `<p class="text-error">Ошибка загрузки отчёта</p>`;
+    }
+}
+function getShiftHistoryModal() {
+    return `
+        <div class="modal">
+            <div class="modal-content shift-modal shift-history-modal">
+                <div class="modal-header">
+                    <h3 class="modal-title">История смен и движение средств</h3>
+                    <button class="modal-close" onclick="closeShiftHistoryModal()">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="modal-body" id="shiftHistoryBody">
+                    <!-- Начальное состояние — форма ввода -->
+                    <div id="historyForm">
+                        <div class="row" style="display:flex; gap:40px;">
+                            
+                            <!-- === 1. По периоду === -->
+                            <div class="three-columns">
+                                <h4 style="margin-bottom:15px;">Движение средств за период</h4>
+                                <div class="form-group">
+                                    <label class="form-label">Дата с</label>
+                                    <input type="date" id="dateFrom" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Дата по</label>
+                                    <input type="date" id="dateTo" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <br>
+                                    <div class="select-warehouse">
+                                        Склад: 
+                                        <select name='warehouse_id' class="dropdown-filter new-row-whSelect">
+                                        <option disabled>Загрузка...</option> 
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <br>
+                                    <button class="btn btn-primary btn-block" onclick="loadPeriodReport()">
+                                        Показать движение средств
+                                    </button>
+                                </div>
+                            </div>
+
+                           
+                        </div>
+                    </div>
+                    
+                    <!-- Сюда будет подгружаться результат (таблица / детализация) -->
+                    <div id="historyResult" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+    `;      
+    /**
+     * 
+     *  <!-- === 2. Конкретная смена === -->
+                            <div style="flex:1; border-left: 1px solid #e5e5e5; padding-left:30px;">
+                                <h4 style="margin-bottom:15px;">Конкретная смена</h4>
+                                <div class="form-group">
+                                    <label class="form-label">ID смены</label>
+                                    <input type="text" id="shiftIdInput" class="form-control" placeholder="Например: 1247">
+                                </div>
+                                <div class="form-group">
+                                    <br>
+                                    <button class="btn btn-primary btn-block" onclick="loadSingleShiftFromHistory()">
+                                        Показать смену
+                                    </button>
+                                </div>
+                            </div>
+                            **/
+}
+function closeShiftModal() {
+    document.querySelector('#modalContainer').innerHTML = '';
+    document.querySelector('#modalContainer').style.display = 'none';
+
+}
+
+function closeFiltersModal(){
+    document.querySelector("#modal-filters").style.display = 'none';
+}
+
+function showFiltersModal(){
+    document.querySelector("#modal-filters").style.display = 'block';
+}
+// Обработчик клика для фильтр-чипов
+document.addEventListener('click', function(event) {
+    // Ищем ближайший элемент .filter-chip от кликнутого элемента
+    const filterChip = event.target.closest('.filter-chip');
+    
+    // Если клик был по .filter-chip или его span
+    if (filterChip) {
+        // Проверяем, не был ли клик по кнопке внутри чипа
+        const isButtonClick = event.target.closest('button') !== null;
+        
+        // Если клик не по кнопке, выполняем функцию
+        if (!isButtonClick) {
+            showFiltersModal();
+        }
+    }
+});
+
+function resetFilters() {
+   // Сброс всех select
+    document.querySelectorAll('.filter-item select').forEach(select => {
+        select.selectedIndex = 0;
+        // вручную генерируем событие 'change'
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    // Сброс текстовых полей
+    document.querySelectorAll('.filter-item input[type="text"]').forEach(input => {
+        input.value = '';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    // Сброс чекбоксов
+    document.querySelectorAll('.filter-item input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = false;
+        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    // Сброс date-полей
+    document.querySelectorAll('.filter-item input[type="date"]').forEach(dateInput => {
+        dateInput.value = '';
+        dateInput.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    updateProductListForSelectModal();
+}
+updateActiveFilters();
+
+function updateActiveFilters() {
+    const container = document.querySelector('.active-filters .active-filters-value');
+    if (!container) return;
+
+    container.innerHTML = ''; // очищаем старые фильтры
+
+    // Обрабатываем SELECT
+    document.querySelectorAll('.filter-item select').forEach(select => {
+        if (select.closest('.select-warehouse-choose-prod')) {
+            return; // пропускаем этот элемент 
+        }
+        const selectedOption = select.options[select.selectedIndex];
+        if (selectedOption && selectedOption.value !== 'all' && selectedOption.value !== '') {
+            const label = document.querySelector(`label[for="${select.id}"]`);
+            const title = label ? label.textContent.trim() : select.id;
+
+            const chip = createFilterChip(title, selectedOption.text, () => {
+                select.selectedIndex = 0;
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+                updateActiveFilters();
+            });
+            container.appendChild(chip);
+        }
+    });
+
+    // Обрабатываем CHECKBOX
+    document.querySelectorAll('.filter-item input[type="checkbox"]').forEach(checkbox => {
+        if (checkbox.checked) {
+            const label = document.querySelector(`label[for="${checkbox.id}"]`);
+            const title = label ? label.textContent.trim() : checkbox.id;
+
+            const chip = createFilterChip(title, 'Включено', () => {
+                checkbox.checked = false;
+                checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                updateActiveFilters();
+            });
+            container.appendChild(chip);
+        }
+    });
+
+    // Обрабатываем DATE
+    document.querySelectorAll('.filter-item input[type="date"]').forEach(dateInput => {
+        if (dateInput.value) {
+            const label = document.querySelector(`label[for="${dateInput.id}"]`);
+            const title = label ? label.textContent.trim() : dateInput.id;
+
+            const chip = createFilterChip(title, dateInput.value, () => {
+                dateInput.value = '';
+                dateInput.dispatchEvent(new Event('change', { bubbles: true }));
+                updateActiveFilters();
+            });
+            container.appendChild(chip);
+        }
+    });
+
+    // Обрабатываем TEXT INPUT
+    document.querySelectorAll('.filter-item input[type="text"]').forEach(textInput => {
+        if (textInput.value.trim() !== '') {
+            const label = document.querySelector(`label[for="${textInput.id}"]`);
+            const title = label ? label.textContent.trim() : textInput.id;
+
+            const chip = createFilterChip(title, textInput.value.trim(), () => {
+                textInput.value = '';
+                textInput.dispatchEvent(new Event('input', { bubbles: true }));
+                updateActiveFilters();
+            });
+            container.appendChild(chip);
+        }
+    });
+
+    // Если фильтров нет — можно скрыть блок
+    const activeFilters = document.querySelector('.active-filters');
+    if (container.children.length === 0) {
+        activeFilters.style.display = 'none';
+    } else {
+        activeFilters.style.display = 'flex';
+    }
+}
+
+// Вспомогательная функция для создания "чипа"
+function createFilterChip(label, value, onRemove) {
+    const chip = document.createElement('div');
+    chip.className = 'filter-chip';
+
+    const span = document.createElement('span');
+    span.textContent = `${label}: ${value}`;
+
+    const btn = document.createElement('button');
+    btn.className = 'filter-chip-close';
+    btn.textContent = '×';
+    btn.addEventListener('click', onRemove);
+
+    chip.appendChild(span);
+    chip.appendChild(btn);
+    return chip;
+}
+
+document.querySelectorAll('.filter-item select, .filter-item input').forEach(el => {
+    el.addEventListener('change', updateActiveFilters);
+    el.addEventListener('input', updateActiveFilters);
+});
+
+
+
+function getCashOperationModal(type) {
+
+    const isAdd = type === 'add';
+    const title = isAdd ? 'Поступление в кассу' : 'Выдача из кассы';
+
+    return `
+        <div class="modal">
+            <div class="modal-content shift-modal">
+                <div class="modal-header">
+                    <h3 class="modal-title">${title}</h3>
+                    <button class="modal-close" onclick="closeShiftModal()">  
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group width-100">
+                        <div class="form-label">Касса</div>
+                        <select placeholder="..." class="form-input select-payment-method" name="payment_method" id="cash_op_payment_method"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Сумма</label>
+                        <input type="number" class="form-control" id="cashAmount" placeholder="Введите сумму">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Комментарий</label>
+                        <textarea class="form-control" id="cashComment" rows="3" placeholder="Причина внесения или выдачи..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeShiftModal()">Отмена</button>
+                    <button class="btn btn-primary" onclick="submitCashOperation('${type}')">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+}
+
+
+
+function addCash() {
+
+    document.querySelector('#modalContainer').innerHTML = getCashOperationModal('add');
+    document.querySelector('#modalContainer').style.display = 'block';
+    fillSelectPaymentMethod();
+}
+
+function removeCash() {
+
+    document.querySelector('#modalContainer').innerHTML = getCashOperationModal('remove');
+    document.querySelector('#modalContainer').style.display = 'block';
+    fillSelectPaymentMethod();
+}
+
+function fillSelectPaymentMethod(){
+    const formData = new FormData();
+    formData.append('action', 'get-payment-methods-list');
+    fetch('/ajax/shifts/', {
+        method: 'POST',
+        body: formData,
+    }).then(response => response.json())
+    .then(json => {
+        if(json.ok == '1'){
+            let htmlWarehouses = '';
+            if(json.list){
+                htmlWarehouses += '<option value="all">Выберите кассу</option>';
+                for (var i = 0; i < json.list.length; i++) {
+                    htmlWarehouses+= '<option value="'+json.list[i].id+'">'+json.list[i].name+'</option>';
+                }
+                let needSelectFillWarehouse = document.querySelectorAll(".select-payment-method");
+                for (var i = 0; i < needSelectFillWarehouse.length; i++) {
+                    if(needSelectFillWarehouse[i].value == "" || needSelectFillWarehouse[i].value == null){
+                        needSelectFillWarehouse[i].innerHTML = htmlWarehouses;
+                    }
+                }
+            }
+        }
+    }).catch(console.error);
+}
+
+
+function submitCashOperation(type) {
+
+    const amount = parseFloat(document.getElementById('cashAmount').value || 0);
+    const comment = document.getElementById('cashComment').value.trim();
+    const payment_method = document.getElementById('cash_op_payment_method').value || 0;
+
+    if (isNaN(amount) || amount <= 0) {
+        alert('Введите корректную сумму');
+        return;
+
+    }
+
+    fetch('/ajax/shifts/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            action: 'add_cash_movement',//добавить движение средств
+            amount: amount,
+            direction: type === 'add' ? "cash_in" : "cash_out",
+            comment: comment,
+            payment_method: payment_method
+        })
+    })
+        .then(r => r.json())
+        .then(json => {
+            if (json.ok) {
+                console.log(`Операция ${type === 'add' ? 'внесения' : 'выдачи'}: ${amount} грн, комментарий: ${comment}`);
+                // window.location.reload();//перезагрузка страницы или действия после открытия смены
+                // this.showSuccess("Операция успешно занесена в базу");
+                this.showNotification("Success", 'success');
+                setTimeout(function () { window.location.reload(); }, 500);
+            } else {
+                console.warn('Ошибка выполнения кассовой операции');
+            }
+        })
+        .catch(console.error);
+
+    closeShiftModal();
+
+}
+
+
+
+// Universal Modal
+
+let currentModalType;
+
+
+
+
+
+window.generateUniversalPDF = async (objectType, objectId) => {
+
+    try {
+        const formData = new FormData();
+        formData.append('action', "generate_pdf");
+        formData.append('id', objectId);
+
+        const response = await fetch('/ajax/' + objectType + '/', {
+            method: 'POST',
+            body: formData
+        });
+
+        // Проверяем тип контента
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            // Если JSON - значит ошибка
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Ошибка генерации PDF');
+        }
+
+        // Получаем PDF как blob
+        const pdfBlob = await response.blob();
+
+        // Создаем URL для blob
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+
+        // Открываем в новом окне
+        const pdfWindow = window.open(pdfUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+        if (!pdfWindow) {
+            // Fallback если блокировщик попапов
+            const link = document.createElement('a');
+            link.href = pdfUrl;
+            link.download = `${objectType}_${objectId}.pdf`;
+            link.click();
+        }
+
+        // Очищаем URL через некоторое время
+        setTimeout(() => {
+            URL.revokeObjectURL(pdfUrl);
+        }, 10000);
+
+    } catch (error) {
+        console.error('Ошибка генерации PDF:', error);
+        alert('Ошибка при генерации PDF: ' + error.message);
+    }
+
+};
+
+
+window.showUniversalModal = async (objectType, objectId, orderId = null) => {
+
+    // jQuery('#modalEditTop .modal-content').addClass('loader'); // TODO прикрепить лоадер
+
+    console.log(objectType, objectId, "!!!!!! SHOW", orderId);
+
+    currentModalType = objectType;
+
+    const formData = new FormData();
+    formData.append('action', "load_card");
+    formData.append('id', objectId);
+
+    // id заказа для возврата
+    if (orderId !== null) {
+        formData.append('order_id', orderId);
+    }
+
+    const response = await fetch('/ajax/' + objectType + '/', {
+        method: 'POST',
+        body: formData
+    });
+
+    if (!response.ok) {
+        throw new Error('Ошибка при загрузке модального окна');
+    }
+
+    // if (res == 'error') {
+    //     showNotification('Ошибка! Попробуйте обновить страницу', 'error');
+    // }
+    // else if (res == 'empty') {
+    //     showNotification('Запись не найдена', 'warning')
+    // }
+
+    const popupHtml = await response.text();
+
+    document.querySelector('#modalContainer').innerHTML = popupHtml;
+    document.querySelector('#modalContainer').style.display = 'block';
+
+    if (objectType === "orders" || objectType === "supplier_requests") {
+        attachListenersForOrderModal();
+
+        selectedProducts = [];
+
+        const productsTable = document.querySelector(".products-table");
+        const productRows = productsTable.querySelectorAll("tbody tr");
+        
+        if (objectType === "orders" && orderId !== null) {
+            selectProductFromPopup(orderId.id, orderId.price, orderId.name)
+        }
+        productRows.forEach(row => {
+            // Находим карточку товара
+            const productCard = row.querySelector(".product-card");
+
+            if (productCard) {
+                // Извлекаем данные
+                const id = productCard.dataset.id;
+                const name = productCard.querySelector(".product-name").textContent.trim();
+                const priceText = productCard.querySelector(".product-price .product-sale-price").textContent.trim();
+                const price = parseFloat(priceText.replace(/[^\d.]/g, ''));
+                const quantityInput = productCard.querySelector(".quantity-input");
+                const quantity = parseInt(quantityInput.value);
+
+                //const productId = productCard.querySelector("[name=products["+id+"][product_id]]");
+
+                // Добавляем товар в массив
+                selectedProducts.push({
+                    id,
+                    name,
+                    price,
+                    quantity
+                });
+            }
+        });
+
+    }
+
+    if (objectType === "supplier_requests") {
+        updatePaymentFields();
+    }
+    if (objectType === "refunds") {
+
+        //initializeRefundTypeSelector();
+    }
+
+    // Для того чтоб placeholder-ы оставались приподнятыми если в input, textarea введен текст
+    document.querySelectorAll('input, textarea').forEach((field) => {
+        const toggle = () => {
+            field.parentElement.classList.toggle('has-value', field.value.trim() !== '');
+        };
+
+        // при наборе
+        field.addEventListener('input', toggle);
+        // при автозаполнении или начальном value
+        toggle();
+    });
+
+}
+
+
+function initializeRefundTypeSelector() {
+
+    const refundOptions = document.querySelectorAll('.refund-options .refund-option');
+    let selectedValue = ''; // Для хранения выбранного значения
+
+    refundOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            // Убираем класс active и атрибут name у всех опций
+            refundOptions.forEach(opt => {
+                opt.classList.remove('active');
+                opt.removeAttribute('name');
+            });
+
+            // Добавляем класс active и атрибут name текущей опции
+            option.classList.add('active');
+            option.setAttribute('name', 'refund_type');
+
+            // Обновляем выбранное значение
+            selectedValue = option.getAttribute('data-value');
+            console.log('Selected refund type:', selectedValue); // Для проверки
+        });
+    });
+
+    // Если нужно, передать значение в форму:
+    // Например, можно создать скрытое поле input и обновлять его значение:
+    // const hiddenInput = document.createElement('input');
+    // hiddenInput.type = 'hidden';
+    // hiddenInput.name = 'refund_type';
+    // document.querySelector('.form-group').appendChild(hiddenInput);
+    //
+    // refundOptions.forEach(option => {
+    //     option.addEventListener('click', () => {
+    //         hiddenInput.value = option.getAttribute('data-value');
+    //     });
+    // });
+
+}
+
+let currentProductsPage = 1;
+const cardsPerPage = 5;
+let totalProducts = 0;
+let selectedProducts = [];
+
+window.showProductSelectModal = async () => {
+
+    document.getElementById("modalProductSelect").style.display = 'flex';
+    document.querySelector("#modalProductSelect .modal").style.display = 'flex';
+
+    updateProductListForSelectModal();
+    if(document.getElementById("modalProductSelect").getAttribute("listeners-atached") != 'true'){
+        attachProductSelectListeners();
+        document.getElementById("modalProductSelect").setAttribute("listeners-atached", 'true');
+    }
+
+}
+
+
+
+async function updateProductListForSelectModal() {
+
+    // this.showLoading(true);
+
+
+    // Получаем активный таб и его категорию
+    const activeTab = document.querySelector(".category-tab.active");
+    const categoryId = activeTab?.dataset.category || null;
+
+    // Получаем значение из поля поиска
+    const searchInput = document.querySelector(".product-search-bar input");
+    const search = searchInput?.value || "";
+
+    //Получем значение "только в наличии"
+    const inStockCheckbox = document.querySelector(".in-stock-checkbox input");
+    const inStockVal = inStockCheckbox?.checked || false;
+
+    const warehouseSelect = document.querySelector(".select-warehouse-choose-prod select");
+    const wh_idVal = warehouseSelect?.value || "";
+    
+    try {
+        const response = await window.queries.searchProductsQuery(
+            categoryId,
+            search,
+            (currentProductsPage - 1) * cardsPerPage,
+            cardsPerPage,
+            { inStock: inStockVal, warehouse_id: wh_idVal}
+        );
+
+        totalProducts = response.total_num || 0; ///
+
+        var productCards = response.list.map(product => {
+
+            var selected = null;
+            var quantity = 0;
+
+            let imagesHtml = '';
+            if (product.images && product.images.length > 0) {
+                imagesHtml = product.images.map(image => {
+                    // Используем preview если есть, иначе full
+                    const imageUrl = image.preview || image.full || '';
+                    return imageUrl ? `<img class="img-product-order" src="${imageUrl}" />` : '';
+                }).join('');
+            }
+
+
+            const rawImages = product.images;
+
+            // Преобразование объект в массив, если это не массив
+            const imagesArray = Array.isArray(rawImages)
+                ? rawImages
+                : typeof rawImages === 'object' && rawImages !== null
+                    ? Object.values(rawImages)
+                    : [];
+
+            const imageUrls = imagesArray.map(el => (el.preview || el.full || '')).join(';');
+
+            let attributesHTML = '';
+
+            if(product.attributes){
+                for (var i = 0; i < product.attributes.length; i++) {
+                    attributesHTML += '<div class="attr_row"><div class="attr_name">'+product.attributes[i].attribute_name+':&nbsp;</div><div class="attr_value">'+product.attributes[i].attribute_value+'</div></div>\n';
+                }
+            }
+
+            return `
+                <div class="product-card ${quantity > 0 ? 'selected' : ''}" data-id="${product.id}" id="product-row-${product.id}">
+                    
+                    <div class="product-image"> 
+                        ${imagesHtml}
+                    </div> 
+                    
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-attributes">${attributesHTML}</div>
+                    </div>
+                    
+                    
+                    <div class="product-card-right-container">
+                        <div class="product-card-right-container-block">
+                            <div class="product-price">
+                                <span class="product-sale-price">${product.price.toLocaleString()}&nbsp;₴</span><br>
+                                <span class="product-source-price">${product.source_price.toLocaleString()}&nbsp;₴</span>
+                            </div>                  
+                            <div class="product-actions">
+                        ${quantity > 0 ? `
+                            
+                            <div class="quantity-control active">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity(${product.id}, -1)"
+                                        title="Уменьшить количество">−</button>
+
+
+                                <input type="hidden" name='products[${product.id}][product_id]' value="${product.id}" />   
+                                <input type="hidden" name='products[${product.id}][price]' value="${product.price}" />  
+
+                                <input type="number" class="quantity-input m-t-0" name='products[${product.id}][quantity]' value="${quantity}" min="0" max="${product.stock}"
+                                       onchange="setQuantity(${product.id}, this.value)"
+                                       onclick="this.select()">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity(${product.id}, 1)"
+                                        title="Увеличить количество">+</button>
+                            </div>
+
+                        ` : `
+                            <button class="btn btn-primary add-product-btn"               
+                                    data-product-id="${product.id}" 
+                                    title="Добавить в заказ"
+                                    onclick="selectProductFromPopup(${product.id}, '${product.price}', '${product.name}', '${imageUrls}')">
+                                <span class="btn-icon">+</span>
+                                <span class="btn-text">Выбрать</span>
+                            </button>
+                        `}
+                        </div>     
+                        </div>
+                        
+                        <div class="product-details">В наличии:<br>${product.stock}</div> 
+                        
+                    </div>
+                    
+                </div>
+            `;
+
+
+        }).join('');
+
+        document.getElementById('productGrid').innerHTML =
+            productCards || '<div class="product-not-found">Товары не найдены</div>';
+
+        renderPagination(); ///
+
+    } finally {
+        // this.showLoading(false);
+    }
+
+
+
+}
+
+function attachProductSelectListeners() {
+
+    // Категории
+    document.querySelectorAll('.category-tabs .category-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.category-tabs .category-tab')
+                .forEach(t => t.classList.remove('active'));
+
+            tab.classList.add('active');
+
+            updateProductListForSelectModal();
+        });
+    });
+
+    // Кнопка поиска
+    document.querySelector('.product-search-bar .search-btn').addEventListener('click', () => {
+        currentProductsPage = 1;
+        updateProductListForSelectModal();
+    });
+
+    // Кнопка в наличии
+    document.querySelector('.in-stock-checkbox input').addEventListener('change', () => {
+        currentProductsPage = 1;
+        updateProductListForSelectModal();
+    });
+
+    document.querySelector(".select-warehouse-choose-prod select").addEventListener('change', () => {
+        currentProductsPage = 1;
+        updateProductListForSelectModal();
+    });
+
+
+
+    // строка поиска и кнопка очистки
+    const input = document.querySelector('.product-search-bar input');
+    const clearBtn = document.querySelector('.product-search-bar .clear-btn');
+
+    if (!input || !clearBtn) return;
+
+    // При вводе — показываем/скрываем кнопку очистки
+    input.addEventListener("input", () => {
+        clearBtn.style.display = input.value ? "block" : "none";
+    });
+
+    // Кнопка стереть
+    clearBtn.addEventListener("click", () => {
+        input.value = "";
+        clearBtn.style.display = "none";
+        input.focus();
+        currentProductsPage = 1;
+        updateProductListForSelectModal();
+    });
+
+    // Пагинация
+    const paginationContainer = document.getElementById("order-products-pagination");
+    if (!paginationContainer) return;
+
+    const prevBtn = paginationContainer.querySelector(".prev-arrow");
+    const nextBtn = paginationContainer.querySelector(".next-arrow");
+
+    prevBtn.addEventListener("click", async () => {
+        if (currentProductsPage > 1) {
+            currentProductsPage--;
+            await updateProductListForSelectModal();
+        }
+    });
+
+    nextBtn.addEventListener("click", async () => {
+        const totalPages = Math.ceil(totalProducts / cardsPerPage);
+        if (currentProductsPage < totalPages) {
+            currentProductsPage++;
+            await updateProductListForSelectModal();
+        }
+    });
+
+
+}
+
+function renderPagination() {
+    const paginationContainer = document.getElementById("order-products-pagination");
+    if (!paginationContainer) return;
+
+    const prevBtn = paginationContainer.querySelector(".prev-arrow");
+    const nextBtn = paginationContainer.querySelector(".next-arrow");
+    const pageIndicator = paginationContainer.querySelector(".page-indicator");
+
+    const totalPages = Math.ceil(totalProducts / cardsPerPage);
+
+    // Обновляем текст
+    pageIndicator.innerHTML = `стр ${currentProductsPage}&nbsp;из ${totalPages}`;
+
+    // Обновляем кнопки
+    prevBtn.disabled = currentProductsPage <= 1;
+    nextBtn.disabled = currentProductsPage >= totalPages;
+}
+
+window.closeProductSelectModal = async () => {
+
+    document.getElementById("modalProductSelect").style.display = 'none';
+    document.querySelector("#modalProductSelect .modal").style.display = 'none';
+}
+
+//
+
+function selectProductFromPopup(id, price, name, imagesStr, supplier_id = null) {
+    const images = imagesStr ? imagesStr.split(';') : imagesStr;
+
+    // Добавление товара в DOM основного попапа заказа
+    const container = document.querySelector('.products-table tbody'); // контейнер, в который нужно вставить товар
+
+    if (!container) return;
+
+
+    var quantity = 1;
+
+    // Добавление товара в массив
+    selectedProducts.push({
+        id,
+        name,
+        price: parseFloat(price),
+        quantity: quantity // начальное количество,
+    });
+
+    // before max="${product.stock}" now max="1"
+
+    let newRow;
+    let attributesHTML = '';
+
+    let productInfo = null;/*window.queries.getProduct(id);
+    console.log(productInfo);
+    productInfo = productInfo && productInfo.list ? productInfo.list[0] : null;
+    console.log(productInfo);*/
+
+    window.queries.getProduct(id).then(productResponse => {  
+        productInfo = productResponse && productResponse.list ? productResponse.list[0] : null; 
+        console.log(productInfo);
+        if(productInfo && productInfo.attributes){
+            for (var i = 0; i < productInfo.attributes.length; i++) {
+                attributesHTML += '<div class="attr_row"><div class="attr_name">'+productInfo.attributes[i].attribute_name+':&nbsp;</div><div class="attr_value">'+productInfo.attributes[i].attribute_value+'</div></div>\n';
+            }
+            if(document.querySelector("#product-row-"+id+" .product-attributes-in-card")){
+                document.querySelector("#product-row-"+id+" .product-attributes-in-card").innerHTML = attributesHTML;
+            }
+        }
+        if(productInfo && productInfo.source_price && productInfo.source_price > 0){
+            if(document.querySelector("#product-row-"+id+" .product-source-price")){
+                document.querySelector("#product-row-"+id+" .product-source-price").innerHTML = productInfo.source_price+"&nbsp;₴"; 
+            }
+        }
+    }).catch(error => {
+        console.error('Ошибка:', error);
+    });
+
+    if (currentModalType === "supplier_requests") {
+
+        newRow = `
+        <tr id="product-row-${id}">
+            <td>
+            
+                <div class="product-card" style="margin-bottom: 10px;" data-id="${id}">
+                    
+                    <input type="hidden" name='products[${id}][product_id]' value="${id}" />  
+                    
+                    <div class="product-image">
+                        <img class="img-product-order" src="${images?.[0]}" />
+                    </div>
+                    
+                    <div class="product-info">
+                        <div class="product-name">${name}</div>
+                        <div class="product-attributes-in-card">${attributesHTML}</div>
+                    </div>
+                    
+                    <div class="product-card-right-container">
+                        <div class="product-card-right-container-block">
+                        
+                            <div style="margin-right: 10px;">
+                                <label class="product-label" style="display: block;">Цена закупки:</label>
+                                <input type="number" class="js-product-price form-input product-price" name='products[${id}][price]' value="${price}" placeholder="Введите цену"
+                                onchange="updatePaymentFields()"/>
+                            </div>
+                                                    
+                        
+                            <div class="product-actions">
+                                    
+                                    <div class="quantity-control active">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity(${id}, -1)"
+                                                title="Уменьшить количество">−</button>
+                                        
+                                        <input autocomplete="off" type="number" min="0" max="100" onchange="setQuantity(${id}, this.value)" value="${quantity}" class="form-input quantity-input m-t-0" placeholder="Дополнительная информация о клиенте" name="products[${id}][quantity]">
+
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity(${id}, 1)"
+                                                title="Увеличить количество">+</button>
+                                    </div>
+                                    
+                            </div>
+                        </div>
+                        
+                        <div class="product-details"></div> 
+
+                        
+                    </div>
+                    
+                </div>
+
+            </td>           
+        </tr>
+
+    `;
+
+    }else if (currentModalType === "write_offs") {//товар в списании 
+        newRow = `
+        <tr id="product-row-${id}">
+            <td>
+            
+                <div class="product-card" style="margin-bottom: 10px;" data-id="${id}">
+                    
+                    <input type="hidden" name='products[${id}][product_id]' value="${id}" /> 
+                    
+                    <div class="product-image">
+                        <img class="img-product-order" src="${images?.[0]}" />
+                    </div>
+                    
+                    <div class="product-info">
+                        <div class="product-name">${name}</div>
+                        <div class="product-attributes-in-card">${attributesHTML}</div>
+                    </div>
+                    
+                    <div class="product-card-right-container">
+                        <div class="product-card-right-container-block">
+                            <div class="product-price">
+                                <div class="product-sale-price"> ${price} &nbsp;₴</div>
+                                <div class="product-source-price"></div>  
+                            </div>
+                            <div class="product-actions">
+                                    <div class="quantity-control active">
+                                        
+                                        <input autocomplete="off" type="number" min="0" max="100" onchange="setQuantity(${id}, this.value)" value="${quantity}" class="form-input quantity-input m-t-0" placeholder="Кол-во" name="products[${id}][quantity]">
+                                    </div>
+                                    
+                            </div>
+                        </div>
+                        
+                        <div class="product-details"></div> 
+                        
+                    </div>
+                    
+                </div>
+
+            </td>
+            
+        </tr>
+
+    `;
+    } else {
+        // const popup_prod = document.querySelector('.select-product-modal');
+        // const isVisible = popup_prod && popup_prod.offsetWidth > 0 && popup_prod.offsetHeight > 0;
+        let value_checkbox = supplier_id ? '1' : '0';
+
+        const formData = new FormData();
+        formData.append('action', 'list');
+        fetch('/ajax/warehouses/', {
+            method: 'POST',
+            body: formData,
+        }).then(response => response.json())
+        .then(json => {
+            if(json.ok == '1'){
+                let htmlWarehouses = '';
+                if(json.list){
+                    htmlWarehouses += '<option value="all">Выберите склад</option>';
+                    for (var i = 0; i < json.list.length; i++) {
+                        htmlWarehouses+= '<option value="'+json.list[i].id+'">'+json.list[i].name+'</option>';
+                    }
+                    let needSelectFillWarehouse = document.querySelectorAll(".new-row-whSelect");
+                    for (var i = 0; i < needSelectFillWarehouse.length; i++) {
+                        if(needSelectFillWarehouse[i].value == "" || needSelectFillWarehouse[i].value == null){
+                            needSelectFillWarehouse[i].innerHTML = htmlWarehouses;
+                        }
+                    }
+                }
+            }
+        }).catch(console.error);
+        newRow = `
+        <tr id="product-row-${id}">
+            <td>
+            
+                <div class="product-card" style="margin-bottom: 10px;" data-id="${id}">
+                    
+                    <input type="hidden" name='products[${id}][product_id]' value="${id}" /> 
+                    
+                    <div class="product-image">
+                        <img class="img-product-order" src="${images?.[0]}" />
+                    </div>
+                    
+                    <div class="product-info">
+                        <div class="product-name">${name}</div>
+                        <div class="product-attributes-in-card">${attributesHTML}</div>
+                    </div>
+                    
+                    <div class="product-card-right-container">
+                        <div class="product-card-right-container-block">
+                            <div class="product-price">
+                                <div class="product-sale-price"> ${price} &nbsp;₴</div>
+                                <div class="product-source-price"></div>  
+                            </div>
+                            <div class="product-actions">
+                                    <div class="select-warehouse">
+                                        Склад реализации
+                                        <select name='products[${id}][warehouse_id]' class="dropdown-filter new-row-whSelect">
+                                        <option disabled>Загрузка...</option> 
+                                        </select>
+                                    </div>
+                                    <div class="quantity-control active">
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity(${id}, -1)"
+                                                title="Уменьшить количество">−</button>
+                                        
+                                        <input autocomplete="off" type="number" min="0" max="100" onchange="setQuantity(${id}, this.value)" value="${quantity}" class="form-input quantity-input m-t-0" placeholder="Кол-во" name="products[${id}][quantity]">
+
+                                        <button type="button" class="quantity-btn" onclick="changeQuantity(${id}, 1)"
+                                                title="Увеличить количество">+</button>
+                                    </div>
+                                    
+                            </div>
+                        </div>
+                        
+                        <div class="product-details"></div> 
+                        
+                    </div>
+                    
+                </div>
+
+            </td>
+
+
+            <td>
+
+                <div class="form-group">
+                    <label class="checkbox_input has-value" style="">
+                        <input type="hidden" name='orders_from_supplier[${id}][product_id]' value="${id}" /> 
+                        <input type="hidden" name='orders_from_supplier[${id}][supplier_id]' value="${supplier_id}"/>  
+                        <input class="qqq form-input green" type="checkbox" value="${value_checkbox}" ${value_checkbox == '1' ? 'checked="checked"' : ''} name="orders_from_supplier[${id}][is_orders_from_supplier]">
+                        <div class="checkbox__check_mark"></div>
+                        <div class="tit " style="flex:1">Заказать у поставщика</div>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <textarea placeholder="Введите комментарий" name="orders_from_supplier[${id}][note]" class="form-input"></textarea>
+                </div>
+            </td>
+            
+        </tr>
+
+    `;
+
+    }
+
+    const row = newRow;
+
+
+
+    container.insertAdjacentHTML('beforeend', row);
+
+    if (document.querySelector('.select-product-modal')) {
+        window.closeProductSelectModal();
+    }
+
+    updatePaymentFields();
+
+}
+
+
+//// Подсчет оплаты и стоимостей
+
+function calculateFullTotal() {
+
+    const baseTotal = selectedProducts.reduce(
+        (sum, p) => {
+            const price = parseFloat(p.price) || 0;
+            const quantity = parseInt(p.quantity) || 0;
+            return sum + price * quantity;
+        },
+        0
+    );
+/*
+    const serviceFields = [
+        'serv_dismantling',
+        'serv_assembly',
+        'serv_packaging',
+        'serv_lifting',
+        'serv_delivery'
+    ];
+
+    const serviceTotal = serviceFields.reduce((sum, name) => {
+        const input = document.querySelector(`input[name="${name}"]`);
+        const value = parseFloat(input?.value) || 0;
+        return sum + value;
+    }, 0);
+*/
+    return baseTotal;
+}
+
+
+function calculateFullTotalForSupplier() {
+
+    let baseTotal = 0;
+
+    // Находим все элементы с ценой и количеством
+    const priceInputs = document.querySelectorAll('input.js-product-price');
+
+    priceInputs.forEach((priceInput) => {
+        // Найти соседний или соответствующий input количества
+        const rowElement = priceInput.closest('.product-card-right-container-block');
+        const quantityInput = rowElement?.querySelector('.quantity-input');
+
+        // Получаем значения цены и количества
+        const priceValue = parseFloat(priceInput.value) || 0;
+        const quantityValue = parseInt(quantityInput?.value) || 1; // По умолчанию 1, если не найдено
+
+        // Умножаем цену на количество и добавляем к общей сумме
+        baseTotal += priceValue * quantityValue;
+
+    });
+
+    // Возвращаем общую сумму
+    return baseTotal;
+}
+
+
+function updatePaymentFields() {
+
+    if (currentModalType === "supplier_requests") {
+
+        // Ищем <label> вместо <input> для supplier_requests
+        let totalInput = document.querySelector('label[name="total_amount_income"]');
+
+        if (!totalInput) return;
+
+        const total = Number(calculateFullTotalForSupplier()) || 0;
+        totalInput.textContent = total.toFixed(0) + " ₴";
+
+    } else {
+
+        const prepayInput = document.querySelector('input[name="prepay"]');
+        const prepay2Input = document.querySelector('input[name="prepay_2"]');
+        const postpayInput = document.querySelector('input[name="postpay"]');
+        const discountInput = document.querySelector('input[name="discount"]');
+        const totalDebt = document.querySelector('input[name="total_amount_debt"]');
+
+        let totalInput = document.querySelector('input[name="total_amount_income"]');
+        let totalInputLabel = document.querySelector('label[name="total_amount_income"]');
+
+        if (!prepayInput || !postpayInput || !totalInput || !totalDebt) return;
+
+        const total = Number(calculateFullTotal()) || 0;
+        let prepay = parseFloat(prepayInput.value) || 0;
+        let prepay2 = parseFloat(prepay2Input.value) || 0;
+        let postpay = parseFloat(postpayInput.value) || 0;//Math.max(0, total - prepay);
+        let discount = parseFloat(discountInput.value) || 0;
+        let debt = parseFloat(total - (prepay + prepay2 + postpay + discount)) || 0;//долг клиента
+
+        totalInput.value = total.toFixed(0);
+        if(totalInputLabel){
+            totalInputLabel.innerHTML = total.toFixed(0)+" ₴";
+        }
+        totalDebt.value = debt.toFixed(0);
+    }
+
+}
+
+
+////
+
+
+function selectProduct(product) {
+    addProductToOrder(product);
+    modalManager.switchTo('modal-order');
+}
+
+
+function attachListenersForOrderModal() {
+    const prepayInput = document.querySelector('input[name="prepay"]');
+    const prepay2Input = document.querySelector('input[name="prepay_2"]');
+    const postpayInput = document.querySelector('input[name="postpay"]');
+    const discountInput = document.querySelector('input[name="discount"]');
+    const serviceFields = [
+        'serv_dismantling',
+        'serv_assembly',
+        'serv_packaging',
+        'serv_lifting',
+        'serv_delivery'
+    ];
+
+    if (prepayInput) {
+        prepayInput.addEventListener('input', updatePaymentFields);
+    }
+    if (prepay2Input) {
+        prepay2Input.addEventListener('input', updatePaymentFields);
+    }
+    if (postpayInput) {
+        postpayInput.addEventListener('input', updatePaymentFields);
+    }
+    if (discountInput) {
+        discountInput.addEventListener('input', updatePaymentFields);
+    }
+
+    serviceFields.forEach(name => {
+        const input = document.querySelector(`input[name="${name}"]`);
+        if (input) {
+            input.addEventListener('input', updatePaymentFields);
+        }
+    });
+
+    // Запрет вводить буквы в инпуты с типом number
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('keydown', function (e) {
+            // Разрешённые клавиши:
+            const allowedKeys = [
+                'Backspace', 'ArrowLeft', 'ArrowRight', 'Delete', 'Tab',
+                'Home', 'End'
+            ];
+
+            const isNumber = /^[0-9]$/.test(e.key);
+            const isAllowed = allowedKeys.includes(e.key);
+
+            if (!isNumber && !isAllowed) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    // Выбор типа доставки
+    const deliveryOptions = document.querySelectorAll('.delivery-options .delivery-option');
+
+    deliveryOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            // Убираем active со всех опций внутри delivery-options
+            deliveryOptions.forEach(opt => opt.classList.remove('active'));
+            // Добавляем active на текущий элемент
+            option.classList.add('active');
+            if(document.querySelector(".delivery-option-block")){
+                if(option.getAttribute('data-value') == 'pickup'){//при самовывозе скрываем блок с доп. информацией про доставку
+                    document.querySelector(".delivery-option-block").style.display="none";
+                    var celarinputs = document.querySelectorAll(".delivery-option-block input,.delivery-option-block textarea");
+                    if(celarinputs){
+                        for (var i = 0; i < celarinputs.length; i++) {
+                            celarinputs[i].value = '';
+                        }
+                    }
+                }else{
+                    document.querySelector(".delivery-option-block").style.display="block";
+                }
+            }
+        });
+    });
+
+
+}
+
+function changeQuantity(id, delta, convertPoidtoPid = 0) {
+
+    let productId = String(id);
+    if(convertPoidtoPid == 1){
+        var pId = document.querySelector(`input[name="products[${id}][product_id]"]`);
+        if(pId){
+            productId = pId.value; 
+        }
+    }
+
+    const countInput = document.querySelector(`input[name="products[${id}][quantity]"]`);
+
+    const nextValue = delta + Number(countInput.value || "0");
+
+    if (nextValue <= 0) {
+        // document.querySelector(`#product-row-${id}`)?.remove();
+         countInput.value = 0;
+    } else {
+        countInput.value = nextValue;
+    }
+
+    selectedProducts = selectedProducts.map(product => {
+        if (product.id == productId ){
+            return { ...product, quantity: nextValue }
+        }
+        return product;
+    });
+
+
+    updatePaymentFields();
+
+}
+
+function setQuantity(id, quantity, convertPoidtoPid = 0) {
+
+    if (!Number(quantity) && quantity != "0") {
+        return;
+    }
+
+    if (quantity <= 0) {
+        document.querySelector(`#product-row-${id}`)?.remove();
+    }
+
+    let productId = String(id);
+    if(convertPoidtoPid == 1){
+        var pId = document.querySelector(`input[name="products[${id}][product_id]"]`);
+        if(pId){
+            productId = pId.value; 
+        }
+    }
+
+    selectedProducts = selectedProducts.map(product => {
+        if (product.id === productId) {
+            return { ...product, quantity: Number(quantity) }
+        }
+        return product;
+    });
+
+    updatePaymentFields();
+}
+
+function closeUniversalModal() {
+    document.querySelector('#modalContainer').innerHTML = '';
+    document.querySelector('#modalContainer').style.display = 'none';
+}
+
+window.universalHandleObjectDelete = async (objectType, objectId) => {
+    if (!confirm('Вы действительно желаете удалить запись ?')) {
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('action', 'delete');
+    formData.append('item_id', objectId);
+
+    const response = await fetch('/ajax/' + objectType + '/', {
+        method: 'POST',
+        body: formData,
+    });
+
+    if (!response.ok) {
+        throw new Error('Ошибка при загрузке клиента');
+    }
+
+    window.closeUniversalModal();
+    this.showNotification("success delete", 'success');
+    setTimeout(function () { window.location.reload(); }, 500);
+}
+
+// window.universalHandleObjectCreateOrUpdate = async (objectType, objectId) => {
+//
+//     const is_new = (objectId == 0 || objectId == null);
+//
+//     const modal = document.getElementById(is_new ? "modalAddTop" : "modalEditTop");
+//
+//     // Отправка запроса на изменение
+//
+//     const formData = new FormData();
+//
+//     formData.append('action', (is_new ? 'add' : 'edit'));
+//
+//     if(!is_new){
+//         formData.append('item_id', objectId);
+//     }
+//
+//     if(objectType === "clients") {
+//         formData.append('name', modal.querySelector('[name="client_name"]').value);
+//         formData.append('phone', modal.querySelector('[name="phone_number"]').value);
+//         formData.append('email', modal.querySelector('[name="email"]').value);
+//         formData.append('comment', modal.querySelector('[name="comment"]').value);
+//     }
+//     else if(objectType === "warehouses"){
+//         formData.append('name', modal.querySelector('[name="warehouse_name"]').value);
+//         formData.append('phone', modal.querySelector('[name="phone_number"]').value);
+//         formData.append('addressFull', modal.querySelector('[name="addressFull"]').value);
+//         formData.append('team_users_ids', modal.querySelector('[name="team_users_ids"]').value);
+//     }
+//     else if(objectType === "categories"){
+//         formData.append('parent_id', modal.querySelector('[name="parent_id"]').value);
+//         formData.append('name', modal.querySelector('[name="name"]').value);
+//         formData.append('attributes_ids', modal.querySelector('[name="attributes_ids"]').value);
+//         formData.append('in_export', modal.querySelector('[name="in_export"]').value);
+//     }
+//
+//     const response = await fetch('/ajax/' + objectType + '/', {
+//         method: 'POST',
+//         body: formData,
+//     });
+//
+//     if (!response.ok) {
+//         throw new Error('Ошибка при загрузке клиента');
+//     }
+//
+//     const data = await response.json(); // предполагается, что сервер возвращает JSON
+//
+//     console.log(response);
+//     window.closeUniversalModal();
+//
+// }
+
+window.universalHandleObjectCreateOrUpdate = async (objectType, objectId, event) => {
+    const is_new = (objectId == 0 || objectId == null);
+    const modal = document.getElementById(is_new ? "modalAddTop" : "modalEditTop");
+    const form = modal.querySelector('form');
+    const modalBody = modal.querySelector('.modal-body');
+    const submitButton = event ? event.target.closest('button') : modal.querySelector('button[type="submit"]');
+
+    // Блокируем кнопку и показываем прелоадер
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.classList.add('button-loading');
+    }
+    modalBody.classList.add('modal-loading');
+
+    // Создаём FormData из всей формы
+    const formData = new FormData(form);
+    formData.set('action', is_new ? 'add' : 'edit');
+
+    if (!is_new) {
+        formData.set('item_id', objectId);
+    }
+
+    try {
+        const response = await fetch('/ajax/' + objectType + '/', {
+            method: 'POST',
+            body: formData,
+        });
+
+        // Проверяем, действительно ли ответ JSON
+        const contentType = response.headers.get('content-type');
+        let result;
+        let text;
+
+        try {  
+            text = await response.text();
+            result = JSON.parse(text);
+        } catch (error) {
+            alert('Ответ сервера не в формате JSON:\n\n' + text ?? '');
+            throw new Error('Ответ сервера не JSON');
+        }
+
+        if (!response.ok || result.status === 'error') {
+            throw new Error(result.error || 'Ошибка при сохранении данных');
+        }
+
+        window.closeUniversalModal();
+        this.showNotification("Success", 'success'); 
+        // if(objectType != "catalog"){
+            // setTimeout(() => window.location.reload(), 500);
+        // }
+
+    } catch (error) {
+        console.error("Ошибка:", error);
+        this.showNotification(error.message || "Произошла неизвестная ошибка");
+    } finally {
+        // Разблокируем кнопку и убираем прелоадер
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.classList.remove('button-loading');
+        }
+        modalBody.classList.remove('modal-loading');
+    }
+};
+
+
+
+
+// быстрое добавление товара из заказа
+window.createCatalogProductFast = async (event) => {
+
+    const container = event.target.closest('fieldset');
+    const modalBody = container.querySelector('.modal-body');
+    const submitButton = container.querySelector('button[type="submit"]');
+
+    const nameInput = container.querySelector('input[name="name"]');
+
+    if(nameInput){
+        // Сбрасываем стили ошибки
+        nameInput.style.borderColor = ''; 
+
+        // Проверяем поле name
+        if (!nameInput.value.trim()) {
+            nameInput.style.borderColor = 'red';
+            nameInput.placeholder = 'Это поле обязательно для заполнения!';
+            nameInput.focus();
+            
+            // Восстанавливаем стиль при любом вводе (однократно)
+            nameInput.addEventListener('input', function restore() {
+                nameInput.style.borderColor = '';
+                nameInput.placeholder = '...';
+                nameInput.removeEventListener('input', restore);
+            }, { once: true }); // Обработчик сработает только один раз
+            
+            return;
+        }
+    }
+    // Блокируем кнопку и показываем прелоадер
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.classList.add('button-loading');
+    }
+    modalBody.classList.add('modal-loading');
+
+    // Создаём FormData из всей формы
+    const formData = new FormData();
+
+    let is_price = !modalBody.classList.contains('modal-body--supplier');
+
+    container.querySelectorAll('input, textarea, select').forEach(el => {
+        if (el.name) { // важно, чтобы было имя, иначе в FormData не добавится
+            if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) {
+                // не добавляем неотмеченные чекбоксы/радио
+                return;
+            }
+            formData.append(el.name, el.value);
+        }
+    });
+
+    formData.set('action', 'add');
+
+
+
+    try {
+        const response = await fetch('/ajax/catalog/', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || result.status === 'error') {
+            throw new Error(result.error);
+        }
+
+        let url_img = '';
+        if (result.images && result.images.length > 0) {
+            url_img = result.images.map(image => {
+                // Используем preview если есть, иначе full
+                return imageUrl = image.preview || image.full || '';
+            }).join('');
+        }
+
+        selectProductFromPopup(result.id, (is_price ? result.price : result.source_price), result.name, url_img, formData.get('supplier_id') );
+
+        container.querySelectorAll('input, textarea, select').forEach(el => {
+            if (el.type === 'checkbox' || el.type === 'radio') {
+                el.checked = false; // снимаем выбор
+            } else {
+                el.value = ''; // очищаем значение
+            }
+        });
+
+    } catch (error) {
+        console.error("Ошибка:", error);
+        this.showNotification(error.message || "Произошла неизвестная ошибка");
+    } finally {
+        // Разблокируем кнопку и убираем прелоадер
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.classList.remove('button-loading');
+        }
+        modalBody.classList.remove('modal-loading');
+    }
+};
+
+
+// для создания копии товара
+
+window.assignModalIdAndCopy = async (button) => {
+    const modal = button.closest('.modal');
+    if (!modal) return;
+
+    const originalId = modal.id;
+
+    // Временно присваиваем id, который ожидает universalHandleObjectCreateOrUpdate
+    modal.id = "modalAddTop";
+
+    // Вызываем метод
+    window.universalHandleObjectCreateOrUpdate('catalog', 0);
+
+    // Через короткое время возвращаем исходный id
+    setTimeout(() => {
+        modal.id = originalId;
+    }, 1000); // достаточно 1 секунды, можно меньше
+}
+//
+
+
+function viewOrder(orderId) {
+
+    fetch('/ajax/orders/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'action=get_order&id=' + encodeURIComponent(orderId)
+    })
+
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('modalContainer').innerHTML = html;
+            document.getElementById('currentOrderModal').style.display = 'block';
+        })
+
+        .catch(console.error);
+
+}
+
+
+
+function getShiftsOrders() {
+
+}
+
+
+
+function registerOrderPaymentInShift(orderId, amount, comment = '') {
+    fetch('/ajax/shifts/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            action: 'add_cash_from_order',
+            order_id: orderId,
+            amount: amount,
+            comment: comment
+        })
+    })
+        .then(r => r.json())
+        .then(json => {
+            if (json.saved) {
+                console.log('Кассовая операция зарегистрирована');
+            } else {
+                console.warn('Ошибка при сохранении движения по смене');
+            }
+        })
+        .catch(console.error);
+}
+
+
+
+
+function saveOrder(orderData) {
+    fetch('/ajax/shifts/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'action=get_current_shift_id'
+    })
+    .then(async r => {
+        const contentType = r.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return r.json();
+        } else {
+            const text = await r.text();
+            alert('Ответ сервера смен не в формате JSON:\n\n' + text);
+            throw new Error('Ответ сервера смен не JSON');
+        }
+    })
+    .then(json => {
+        if (!json.shift_id) {
+            alert("Нет активной смены!");
+            return;
+        }
+
+        orderData.shift_id = json.shift_id;
+
+        return fetch('/ajax/orders/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'create_order',
+                data: orderData
+            })
+        });
+    })
+    .then(async r => {
+        if (!r) return; // если нет смены
+
+        const contentType = r.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return r.json();
+        } else {
+            const text = await r.text();
+            alert('Ответ сервера заказов не в формате JSON:\n\n' + text);
+            throw new Error('Ответ сервера заказов не JSON');
+        }
+    })
+    .then(response => {
+        if (!response) return;
+
+        if (response.success) {
+            registerOrderPaymentInShift(response.order_id, orderData.total_sum);
+            closeNewOrderModal();
+        } else {
+            alert('Ошибка при создании заказа');
+        }
+    })
+    .catch(error => {
+        alert('Ошибка: ' + error.message);
+    });
+}
+
+
+
+
+function loadCurrentShiftOrders() {
+    let warehouse_select = document.querySelector("#select-warehouse");
+    let warehouse_id = 'all';
+    if (warehouse_select) {
+        //Обновление листа при выборе салона
+        warehouse_select.addEventListener('change', function (e) {
+            loadCurrentShiftOrders();
+        });
+        warehouse_id = warehouse_select.value;
+    }
+    fetch('/ajax/shifts/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'action=get_orders_for_current_shift&warehouse_id=' + warehouse_id
+    })
+
+        .then(r => r.json())
+        .then(data => {
+            const tbody = document.querySelector('#current_shift_orders_table tbody');
+            tbody.innerHTML = ''; // очистка
+
+            if (!data.list || !data.list.length) {
+                tbody.innerHTML = '<tr><td colspan="5">Нет заказов</td></tr>';
+                return;
+            }
+
+            const title = document.querySelector('#current_shift_orders_count');
+
+            title.innerHTML = `Текущие заказы смены (` + data.total_num + `)`;
+
+            data.list.forEach(order => {
+
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+            <tr>
+                <td><strong>#${order.id}</strong>  |  ${order.created_at}</td>
+                <td>${order.client.name}<br><small>${order.client_info}</small></td>
+                <td>
+                    ${order.products?.map(product => product.name).join(", ")}
+                    <br/>
+                    <div class="photos-preview">
+                        ${order.products?.map(product => {
+
+                    if (!product.images || product.images.length === 0) { return ''; }
+
+                    return product.images.map(image => {
+                        // Используем preview если есть, иначе full
+                        const imageUrl = image.preview || image.full || '';
+                        return imageUrl ? `<img src="${imageUrl}" />` : '';
+                    }).join('');
+
+                }).join("")}
+                    </div>
+                </td>
+
+                <td>${order.prepay === 0 ? '-' : order.prepay + '&nbsp;₴'}</td>
+                <td>${order.postpay === 0 ? '-' : order.postpay + '&nbsp;₴'}</td>
+                <td class="comment-cell">${order.comment}</td>
+
+                <td class="total-status-cell">
+                    <div class="total-status-wrapper">
+                        <strong>${order.total}&nbsp;₴</strong>
+                        <span class="badge badge-success">${order.status}</span>
+                    </div>
+                </td>
+                `+ (order.shift ? ("<td>" + order.shift.warehouse_name + "</td>") : "") + `
+                <td class="actions-cell">
+                    <div class="actions-wrapper">
+                    
+                        <button class="btn btn-icon btn-secondary" onclick="window.showUniversalModal('orders',${order.id})" 
+                         ${order.isEditable ? `title="Редактировать">✏️` : `title="Просмотр">👁️`}
+                        </button>
+                        
+                        <button class="btn btn-icon btn-secondary" onclick="window.generateUniversalPDF('orders', ${order.id})" title="Печать">📠</button>
+                        
+                    </div>
+                </td>
+            </tr>`;
+
+                tbody.appendChild(row);
+
+            });
+        });
+
+}
+
+window.loadCurrentShiftOrders = loadCurrentShiftOrders;
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.location.pathname === '/' || window.location.pathname === '/index.php') {
+
+        loadCurrentShiftOrders();
+
+    }
+});
+
+
+// Закрытие окон по Escape
+
+function closeCashInModal() {
+    const modal = document.querySelector('#cash-in-modal');
+    if (modal) {
+        modal.classList.remove('modal--visible');
+    }
+}
+
+function closeCashOutModal() {
+    const modal = document.querySelector('#cash-out-modal');
+    if (modal) {
+        modal.classList.remove('modal--visible');
+    }
+}
+
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        closeShiftModal();
+        closeFiltersModal();
+    }
+});
+
+
+function showNotification(message, type = 'error') {
+
+    // Удаляем существующие уведомления
+
+    document.querySelectorAll('.notification').forEach(n => n.remove());
+
+    const notification = document.createElement('div');
+
+    notification.className = `notification notification-${type}`;
+
+    const icons = {
+        success: '✓',
+        error: '⚠',
+        info: 'ℹ',
+        warning: '⚡'
+    };
+
+    notification.innerHTML = `
+            <div class="notification-content notification-card-${type}">
+                <span class="notification-icon">${icons[type] || icons.info}</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close modal-close" onclick="this.parentElement.parentElement.remove()">×</button>
+            </div>
+        `;
+
+    document.body.appendChild(notification);
+
+    // Анимация появления
+
+    requestAnimationFrame(() => {
+        notification.classList.add('show');
+    });
+
+    // Автоудаление
+
+    setTimeout(() => {
+        notification.classList.add('hide');
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
+}
+
+
+
+// === Функция инициализации автокомплита для одного инпута ===
+function initAutocomplete(input) {
+    if (input.dataset.autocompleteInitialized === 'true') return;
+    input.dataset.autocompleteInitialized = 'true';
+
+    let dropdown = null;
+    let selectedIndex = -1;
+    let items = [];
+    let xhr = null;
+
+    // Создание dropdown
+    function createDropdown() {
+      if (dropdown) return dropdown;
+
+      dropdown = document.createElement('ul');
+      dropdown.className = 'autocomplete-dropdown';
+      document.body.appendChild(dropdown);
+
+      positionDropdown();
+      return dropdown;
+    }
+
+    // Позиционирование
+    function positionDropdown() {
+      if (!dropdown) return;
+      const rect = input.getBoundingClientRect();
+      dropdown.style.width = rect.width + 'px';
+      dropdown.style.left = rect.left + window.scrollX + 'px';
+      dropdown.style.top = (rect.bottom + window.scrollY) + 'px';
+    }
+
+    function showDropdown() {
+      if (!dropdown) createDropdown();
+      dropdown.style.display = 'block';
+      positionDropdown();
+    }
+
+    function hideDropdown() {
+      if (dropdown) dropdown.style.display = 'none';
+      selectedIndex = -1;
+      items = [];
+    }
+
+    function renderItems(data) {
+      if (!dropdown) createDropdown();
+      dropdown.innerHTML = '';
+
+      if (!data || data.length === 0) {
+        const li = document.createElement('li');
+        li.className = 'autocomplete-item';
+        li.textContent = 'Ничего не найдено';
+        li.style.color = '#999';
+        li.style.cursor = 'default';
+        dropdown.appendChild(li);
+        showDropdown();
+        return;
+      }
+
+      items = data;
+      data.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = 'autocomplete-item';
+        li.textContent = typeof item === 'string' ? item : (item.value || item.name || item);
+        li.dataset.index = index;
+
+        li.addEventListener('click', () => {
+          input.value = li.textContent;
+          hideDropdown();
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+
+        li.addEventListener('mouseenter', () => {
+          selectItem(index);
+        });
+
+        dropdown.appendChild(li);
+      });

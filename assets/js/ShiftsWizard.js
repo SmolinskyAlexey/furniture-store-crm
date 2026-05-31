@@ -11,7 +11,7 @@ class ShiftsWizard {
         this.isLoading = false;
 
         //пагинация (Скопировано из order. Делаю по-примеру)
-        this.cardsPerPage = 5;
+        this.cardsPerPage = 10;
         this.currentShiftsPage = 1;
 
         this.state = {};
@@ -84,7 +84,7 @@ class ShiftsWizard {
             this.preloadData(); 
         });
 
-        const dateSelector = document.querySelector("#date");
+        const dateSelector = document.querySelector("#created_at");
         dateSelector.addEventListener('change', () => {
             this.cache.filter.date = dateSelector.value;
             this.currentShiftsPage = 1;

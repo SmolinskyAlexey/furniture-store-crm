@@ -1,5 +1,40 @@
 
 RewriteEngine On
+
+# --- БЛОК 1: БЕЗОПАСНОСТЬ (Файлы и папки) ---
+
+# Запрещаем доступ к конфигам, логам, бекапам и системным файлам
+<FilesMatch "^\.env|^\.git|^\.ht|composer\.(json|lock)|package(-lock)?\.json$|web\.config$|\.(log|bak|sql|swp|dist)$">
+    # <IfModule mod_authz_core.c>
+        Require all denied
+    # </IfModule>
+    # <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    # </IfModule>
+</FilesMatch>
+
+# Запрет доступа к папкам (включая _gsdata_ и .git и .env)
+RewriteRule ^(_gsdata_|\.git|\.env) - [F,L]
+
+
+# --- БЛОК 2: CORS ЗАГОЛОВКИ ---
+
+Header always set Access-Control-Allow-Origin "*"
+Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+Header always set Access-Control-Allow-Headers "Content-Type,Authorization,Auth-Key,User-Auth-Key"
+
+# Быстрый ответ на preflight-запросы OPTIONS без участия index.php
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^ - [R=200,L]
+
+
+# --- БЛОК 3: РОУТИНГ (index.php) ---
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !\.(json|webmanifest)$ [NC]
+RewriteRule ^(.*[^/])$ /$1/ [L,R=301]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.php [L]

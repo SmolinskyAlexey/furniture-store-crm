@@ -1,6 +1,6 @@
 window.queries = {
 
-    searchProductsQuery: async (category_id, search, offset = 0, limit = 5, filters = {}) => {   
+    searchProductsQuery: async (category_id, search, offset = 0, limit = 10, filters = {}) => {   
 
         const formData = new FormData();
 
@@ -21,6 +21,12 @@ window.queries = {
         if(filters.inStock){
             formData.append('in_stock', filters.inStock);
         }
+        if(filters.only_deleted){
+            formData.append("only_deleted", filters.only_deleted);
+        }
+        if(filters.only_negative){
+            formData.append("only_negative", filters.only_negative);
+        }
 
         const response = await fetch('/ajax/catalog/', {
             method: 'POST',
@@ -32,7 +38,7 @@ window.queries = {
         return data;
     },
 
-    searchShiftsQuery: async (offset = 0, limit = 5, filters = {}) => { 
+    searchShiftsQuery: async (offset = 0, limit = 10, filters = {}) => { 
 
         const formData = new FormData();
 
@@ -60,7 +66,7 @@ window.queries = {
         return data;
     },
 
-    searchRefundsQuery: async (offset = 0, limit = 5, filters = {}) => { 
+    searchRefundsQuery: async (offset = 0, limit = 10, filters = {}) => { 
 
         const formData = new FormData();
 
@@ -133,7 +139,7 @@ window.queries = {
         return data;
     },
 
-    getProducts: async (offset = 0, limit = 5, type_show = 'for_order') => {
+    getProducts: async (offset = 0, limit = 10, type_show = 'for_order') => {
 
         const response = await fetch('/ajax/catalog/', {
             method: 'POST',
@@ -158,9 +164,31 @@ window.queries = {
         return list;
     },
 
+    getProduct: async (id = 1) => {
+
+        const response = await fetch('/ajax/catalog/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                action: 'get_list',
+                id: id
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Ошибка при загрузке продуктов');
+        }
+
+        const data = await response.json(); // предполагается, что сервер возвращает JSON
+        let list = data;
+        return list;
+    },
+
     /*Добавил Егор 08.06.2025, пагинацию добавил 09.06*/
 
-    getOrders: async (offset = 0, limit = 5) => {
+    getOrders: async (offset = 0, limit = 10) => {
 
         const response = await fetch('/ajax/orders/', {
             method: 'POST',
@@ -186,7 +214,7 @@ window.queries = {
 
     //Добавил Егор 10.06.2025
 
-    searchOrdersQuery: async (search, filters, offset = 0, limit = 5) => {
+    searchOrdersQuery: async (search, filters, offset = 0, limit = 10) => {
 
         const formData = new FormData();
 
@@ -210,6 +238,12 @@ window.queries = {
             }
             if(filters.pay_method && filters.pay_method != 'all'){
                 formData.append('payment_method_id', filters.pay_method);
+            }
+            if(filters.pay_method_postpay && filters.pay_method_postpay != 'all'){
+                formData.append('payment_method_postpay_id', filters.pay_method_postpay);  
+            }
+            if(filters.only_deleted){
+                formData.append("only_deleted", filters.only_deleted);
             }
         }
 
@@ -244,7 +278,7 @@ window.queries = {
         return list;
     },
 
-    getClients: async (offset = 0, limit = 5, filters = {}) => {
+    getClients: async (offset = 0, limit = 10, filters = {}) => {
         const formData = new FormData();
 
         formData.append('action', "get_list");
@@ -269,7 +303,7 @@ window.queries = {
         return list;
     },
 
-    getOverheadExpenses: async (offset = 0, limit = 5, filters = {}) => {
+    getOverheadExpenses: async (offset = 0, limit = 10, filters = {}) => {
         const formData = new FormData();
 
         formData.append('action', "get_list");
@@ -305,7 +339,7 @@ window.queries = {
 
     // 22.06.2025
 
-    getStockTransfers: async (offset = 0, limit = 5, filters = {}) => {
+    getStockTransfers: async (offset = 0, limit = 10, filters = {}) => {
         const formData = new FormData();
 
         formData.append('action', "get_list");
@@ -330,7 +364,7 @@ window.queries = {
         return list;
     },
 
-    getWriteOffs: async (offset = 0, limit = 5, filters = {}) => {
+    getWriteOffs: async (offset = 0, limit = 10, filters = {}) => {
         const formData = new FormData();
 
         formData.append('action', "get_list");
@@ -355,7 +389,7 @@ window.queries = {
         return list;
     },
 
-    getInvoices: async (offset = 0, limit = 5, filters = {}) => {
+    getInvoices: async (offset = 0, limit = 10, filters = {}) => {
         const formData = new FormData();
 
         formData.append('action', "get_list");
@@ -382,7 +416,7 @@ window.queries = {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    getSuppliers: async (offset = 0, limit = 5, filters = {}) => {
+    getSuppliers: async (offset = 0, limit = 10, filters = {}) => {
         const formData = new FormData();
 
         formData.append('action', "get_list");
@@ -407,7 +441,7 @@ window.queries = {
         return list;
     },
 
-    getSupplierRequests: async (offset = 0, limit = 5, filters = {}) => {
+    getSupplierRequests: async (offset = 0, limit = 10, filters = {}) => {
         const formData = new FormData();
 
         formData.append('action', "get_list");
@@ -419,6 +453,9 @@ window.queries = {
         }
         if(filters.status && filters.status != 'all'){
             formData.append("status", filters.status);
+        }
+        if(filters.only_deleted){
+            formData.append("only_deleted", filters.only_deleted);
         }
 
         const response = await fetch('/ajax/supplier_requests/', {
@@ -435,6 +472,116 @@ window.queries = {
         console.log(list);
         return list;
     },
+    // Для категорий (обновленная версия с пагинацией и фильтрами)
+    getCategories: async (offset = 0, limit = 10, filters = {}) => {
+        const formData = new FormData();
 
+        formData.append('action', "get_list");
+        formData.append('offset', offset);
+        formData.append('limit', limit);
 
+        if(filters.search){
+            formData.append("search", filters.search);
+        }
+
+        const response = await fetch('/ajax/categories/', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('Ошибка при загрузке категорий');
+        }
+
+        const data = await response.json();
+        return data;
+    },
+
+    // Для услуг (предполагаем endpoint /ajax/services/)
+    getServices: async (offset = 0, limit = 10, filters = {}) => {
+        const formData = new FormData();
+
+        formData.append('action', "get_list");
+        formData.append('offset', offset);
+        formData.append('limit', limit);
+
+        if(filters.search){
+            formData.append("search", filters.search);
+        }
+        if(filters.date){
+            formData.append("date", filters.date);
+        }
+        if(filters.warehouse_id && filters.warehouse_id != 'all'){
+            formData.append("warehouse_id", filters.warehouse_id);
+        }
+
+        const response = await fetch('/ajax/services/', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('Ошибка при загрузке услуг');
+        }
+
+        const data = await response.json();
+        return data;
+    },
+
+    // Для подрядчиков (предполагаем endpoint /ajax/contractors/, возможно, аналог suppliers или clients)
+    getContractors: async (offset = 0, limit = 10, filters = {}) => {
+        const formData = new FormData();
+
+        formData.append('action', "get_list");
+        formData.append('offset', offset);
+        formData.append('limit', limit);
+
+        if(filters.search){
+            formData.append("search", filters.search);
+        }
+
+        const response = await fetch('/ajax/contractors/', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('Ошибка при загрузке подрядчиков');
+        }
+
+        const data = await response.json();
+        return data;
+    },
+
+    getReportsStats: async (filters = {}) => {
+        const formData = new FormData();
+        formData.append('action', 'get_reports_stats'); // важно — совпадает с обработчиком на бэке
+
+        // Добавляем фильтры только если они заданы и не пустые
+        if (filters.date_from) {
+            formData.append('date_from', filters.date_from);
+        }
+        if (filters.date_to) {
+            formData.append('date_to', filters.date_to);
+        }
+        if (filters.warehouse_id && filters.warehouse_id !== 'all') {
+            formData.append('warehouse_id', filters.warehouse_id);
+        }
+        if (filters.manager_id && filters.manager_id !== 'all') {
+            formData.append('manager_id', filters.manager_id);
+        }
+
+        const response = await fetch('/ajax/reports/', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('Ошибка сети при загрузке статистики');
+        }
+
+        const data = await response.json();
+
+        return data;
+    },
 }

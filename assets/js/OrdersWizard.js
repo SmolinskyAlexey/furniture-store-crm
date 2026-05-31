@@ -11,7 +11,7 @@ class OrdersWizard {
         this.isLoading = false;
 
         //пагинация (Скопировано из order. Делаю по-примеру)
-        this.cardsPerPage = 5;
+        this.cardsPerPage = 10;
         this.currentOrdersPage = 1;
 
         this.state = {};
@@ -95,12 +95,28 @@ class OrdersWizard {
 
             });
         });
+        
+        let statusesFilter = document.querySelector("#statuses");
+        statusesFilter.addEventListener('change', () => {//при выборе select
+            this.cache.filter.status_id = statusesFilter.value;
+            this.currentOrdersPage = 1;
+            this.preloadData(); 
+        });
+
 
         let pmFilter = document.querySelector("#select-pay_method");
         pmFilter.addEventListener('change', () => {//при выборе select
             this.state.pay_method = pmFilter.value;
             this.currentOrdersPage = 1;
             this.cache.filter.pay_method = pmFilter.value;
+            this.preloadData(); 
+        });
+
+        let pmPostpayFilter = document.querySelector("#select-pay_method_postpay");
+        pmPostpayFilter.addEventListener('change', () => {//при выборе select
+            this.state.pay_method_postpay = pmPostpayFilter.value;
+            this.currentOrdersPage = 1;
+            this.cache.filter.pay_method_postpay = pmPostpayFilter.value;
             this.preloadData(); 
         });
 
@@ -126,9 +142,14 @@ class OrdersWizard {
             this.currentOrdersPage = 1;
             this.preloadData();
         });
-
+        let onlyDeletedFilter = document.querySelector("#show-only-deleted");
+        onlyDeletedFilter.addEventListener('change', () => {//при выборе select
+            this.cache.filter.only_deleted = onlyDeletedFilter.checked;
+            this.currentOrdersPage = 1;
+            this.preloadData(); 
+        });
         // -- Свайп по элементам если крыт скрол-бар
-
+        /*
         const tabGroup = document.querySelector('.filter-tabs-group');
 
         let isDown = false;
@@ -159,7 +180,7 @@ class OrdersWizard {
             const walk = (x - startX) * 1.5; // чувствительность
             tabGroup.scrollLeft = scrollLeft - walk;
         });
-
+        */
     }
 
     showLoading(show) {

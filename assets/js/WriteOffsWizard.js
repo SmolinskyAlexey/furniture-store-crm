@@ -9,7 +9,7 @@ class WriteOffsWizard {
         this.isLoading = false;
 
         // Пагинация
-        this.cardsPerPage = 5;
+        this.cardsPerPage = 10;
         this.currentWriteOffsPage = 1;
 
         this.state = {};

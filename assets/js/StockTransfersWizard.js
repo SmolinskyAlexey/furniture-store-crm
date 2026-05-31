@@ -9,7 +9,7 @@ class StockTransfersWizard {
         this.isLoading = false;
 
         // Пагинация
-        this.cardsPerPage = 5;
+        this.cardsPerPage = 10;
         this.currentStockTransfersPage = 1;
 
         this.state = {};

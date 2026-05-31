@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Замовлення</title>
+    <title>{{lang_order}}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -56,9 +56,9 @@
             align-items: end;
         }
         .logo {
-            background: #666;
+            border: 1px solid #666;
             color: white;
-            padding: 10px;
+            padding: 0px;
             text-align: center;
             font-size: 18px;
             font-weight: bold;
@@ -69,48 +69,52 @@
             display: inline-block;
             min-width: 100px;
         }
+        .row, .row th, .row td {
+            border: none !important;
+            vertical-align: top !important; /* Выравнивание по верхнему краю */
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="order-num">Замовлення № {{id}}</div>
-        <div>від {{created_at}} рік</div>
+        <div class="order-num">{{lang_order}} № {{id}}</div>
+        <div>{{lang_from}} {{created_at}}</div>
     </div>
 
     <div class="info-row">
-        <strong>ПРОДАВЕЦЬ:</strong> <span class="underline">{{manager_name}}</span>
+        <strong>{{lang_seller}}:</strong> <span class="underline">{{manager_name}}</span>
     </div>
     <div class="info-row">
-        Моб <span class="underline">{{manager_phone}}</span>
+        {{lang_phone}} <span class="underline">{{manager_phone}}</span>
     </div>
 
     <div class="store-info">
-        Магазин « БІС - М»<br>
-        Продавець: {{warehouse_name}}
+        {{lang_shop_name}}<br>
+        {{lang_seller}}: {{warehouse_name}}
     </div>
 
     <div class="info-row">
-        Замовник <span class="underline">{{client_info}}</span>
+        {{lang_customer}} <span class="underline">{{client_info}}</span>
     </div>
     <!-- <div class="info-row">
         Тел: <span class="underline">{{client_phone}}</span>
     </div> -->
     <div class="info-row">
-        Адреса: <span class="underline">{{delivery_adress}}</span>
+        {{lang_adreses}}: <span class="underline">{{delivery_adress}}</span>
     </div>
 
     <div style="font-size: 10px; margin: 10px 0;">
-        Вироби виконані під замовлення клієнта поверненню не підлягають
+        {{lang_notification}}
     </div>
 
     <table>
         <thead>
             <tr>
                 <th>№ п/п</th>
-                <th>Назва та характеристика товара</th>
-                <th>Кількість</th>
-                <th>Ціна</th>
-                <th>Сума</th>
+                <th>{{lang_name}}</th>
+                <th>{{lang_quantity}}</th>
+                <th>{{lang_price}}</th>
+                <th>{{lang_amount}}</th>
             </tr>
         </thead>
         <tbody>
@@ -127,53 +131,60 @@
             </tr> -->
         </tbody>
     </table>
+    <table class="row">
+        <tbody>
+        <tr>
+            <td class="total-section">
+                <div>{{lang_price}}: <strong>{{total_amount_income}}</strong></div>
+                <div>{{lang_discount}}: <strong>{{discount}}</strong></div>
+                <div>{{lang_prepay}}: <strong>{{prepay}}</strong></div>
+                <div>{{lang_postpay}}: <strong>{{postpay}}</strong></div>
+                <div>{{lang_to_be_paid}}: <strong>{{total_amount_debt}}</strong></div>
+            </td>
 
-    <div class="total-section">
-        <div>Сума: <strong>{{total_sum}} грн.</strong></div>
-        <div>Аванс: <strong>{{prepay}} ({{pay_method_name}})</strong></div>
-        <div>Скидка: <strong>{{discount}}</strong></div>
-        <div>До опл: <strong>{{total_amount_debt}} грн.</strong></div>
-    </div>
+        <!--     <div>
+                Копір дерева, МДФ <span class="underline">__WOOD_TYPE__</span>
+            </div>
+            <div>
+                Копір: <span class="underline">__COPY_INFO__</span>
+            </div>
+            <div>
+                Матеріал: <span class="underline">__MATERIAL_INFO__</span>
+            </div> -->
 
-<!--     <div>
-        Копір дерева, МДФ <span class="underline">__WOOD_TYPE__</span>
-    </div>
+            <td class="services">
+                <strong>{{lang_services}}:</strong><br>
+                {{lang_delivery}}: <span class="underline">{{serv_delivery}}</span><br>
+                {{lang_packaging}}: <span class="underline">{{serv_packaging}}</span><br>
+                {{lang_lifting}}: <span class="underline">{{serv_lifting}}</span><br>
+                {{lang_assembly}}: <span class="underline">{{serv_assembly}}</span><br>
+                <br>
+                <span>{{full_text_services_pay}}</span><br>
+            </td>
+
+            <td style="margin: 15px 0;">
+<!--                 <div>{{full_text_services_and_total}}</div> -->
+                <div>{{full_text_services_and_debt}}</div> 
+            </td> 
+        <tr>
+        </tbody>
+    </table>
     <div>
-        Копір: <span class="underline">__COPY_INFO__</span>
-    </div>
-    <div>
-        Матеріал: <span class="underline">__MATERIAL_INFO__</span>
-    </div> -->
-
-    <div class="services">
-        <strong>ПОСЛУГИ:</strong><br>
-        Доставка: <span class="underline">{{serv_delivery}}</span><br>
-        Упаковка: <span class="underline">{{serv_packaging}}</span><br>
-        Підйом: <span class="underline">{{serv_lifting}}</span><br>
-        Разбор: <span class="underline">{{serv_dismantling}}</span><br>
-        Збирання: <span class="underline">{{serv_assembly}}</span>
-    </div>
-
-    <div style="margin: 15px 0;">
-        <strong>До сплати з послугами: {{total_services_cost}} грн.</strong><br>
-        <span style="font-size: 11px;">{{pay_method_name}}</span>
-    </div>
-
-    <div>
-        Орієнтовна дата доставки: <span class="underline">{{date_of_delivery}}</span>
+        {{lang_estimated_delivery_date}}: <span class="underline">{{date_of_delivery}} - {{date_of_delivery_by}}</span>
+        <br>
+        {{delivery_comment}}
     </div>
 
     <div class="footer">
         <div>
-            <div>Гарантія 18 місяців <span style="text-decoration: underline;">(__WARRANTY_SIGNATURE__)</span></div>
+            <div>{{lang_warranty}} <span style="text-decoration: underline;"></span></div>
             <div style="margin-top: 20px;">
-                Підпис клієнта: <span class="underline" style="min-width: 150px;"></span>
+                {{lang_customer_signature}}: <span class="underline" style="min-width: 150px;"></span>
             </div>
         </div>
         
         <div class="logo">
-            Фабрика меблів<br>
-            БІС-М
+            <img src="/assets/img/meb-logo-2.jpg"> 
         </div>
     </div>
 </body>

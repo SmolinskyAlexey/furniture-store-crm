@@ -11,7 +11,7 @@ class SupplierRequestsWizard {
         this.isLoading = false;
 
         //пагинация (Скопировано из order. Делаю по-примеру)
-        this.cardsPerPage = 5;
+        this.cardsPerPage = 10;
         this.currentSupplierRequestsPage = 1;
 
         this.state = {};
@@ -79,15 +79,22 @@ class SupplierRequestsWizard {
         let statusFilter = document.querySelector("#select-status");
         statusFilter.addEventListener('change', () => {//при выборе select
             this.state.status = statusFilter.value;
-            this.currentClientsPage = 1;
+            this.currentSupplierRequestsPage = 1;
             this.cache.filter.status = statusFilter.value;
+            this.preloadData(); 
+        }); 
+        let onlyDeletedFilter = document.querySelector("#show-only-deleted");
+        onlyDeletedFilter.addEventListener('change', () => {//при выборе select
+            this.state.only_deleted = onlyDeletedFilter.checked;
+            this.currentSupplierRequestsPage = 1;
+            this.cache.filter.only_deleted = onlyDeletedFilter.checked;
             this.preloadData(); 
         });
 
         // const dateSelector = document.querySelector("#date");
         // dateSelector.addEventListener('change', () => {
         //     this.cache.filter.date = dateSelector.value;
-        //     this.currentClientsPage = 1;
+        //     this.currentSupplierRequestsPage = 1;
         //     this.preloadData();
         // });
 
@@ -167,7 +174,7 @@ class SupplierRequestsWizard {
                 this.cache.supplierRequests = supplierRequests;
 
                 this.currentSuppliersPage = 1;
-                this.mountSuppliers(this.cache.supplierRequests);
+                this.mountSupplierRequests(this.cache.supplierRequests);
             } finally {
                 this.showLoading(false);
             }

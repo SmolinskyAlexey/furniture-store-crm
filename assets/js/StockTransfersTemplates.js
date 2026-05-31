@@ -14,6 +14,21 @@ window.StockTransfersTemplates = class {
             return `
             <tr>
                 <td><strong>#${stockTransfer.id}</strong></td>
+                <td>
+                ${stockTransfer.products?.map(product => {
+                            let prodHTML = '<div class=\'product-in-order\'>';
+                            let attributesHTML = '';
+                            if(product.attributes){
+                                for (var i = 0; i < product.attributes.length; i++) {
+                                    attributesHTML += '<div class="attr_row"><div class="attr_name">'+product.attributes[i].attribute_name+':&nbsp;</div><div class="attr_value">'+product.attributes[i].attribute_value+'</div></div>\n';
+                                }
+                            }
+                            
+                            prodHTML+='<span class="prod-name">'+product.name+'</span><div class="product-attributes">'+attributesHTML+'</div>';
+                            prodHTML+='</div>';
+                            return prodHTML;
+                        }).join(" ")}
+                </td> 
                 <td>${stockTransfer.from_warehouse_id}</td>
                 <td>${stockTransfer.to_warehouse_id}</td>
                 <td>${stockTransfer.manager_id}</td>
