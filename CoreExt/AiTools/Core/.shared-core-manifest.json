@@ -1,0 +1,21 @@
+{
+  "schema": 2,
+  "namespace": "CoreExt\\AiTools\\Core",
+  "reference": {
+    "product": "webcrm",
+    "path": "CoreExt/AiTools/Core"
+  },
+  "hash_algorithm": "sha256",
+  "normalization": "UTF-8 source text with LF line endings",
+  "files": [
+    {"path": "AiIntrospection.php", "content_sha256": "d7b26bfb27bbfa175928a8db6d73390c4330855c1785d5b510428e6a8f8d12c7"},
+    {"path": "AgentToolsGatewayAdapter.php", "content_sha256": "a7a426ba82d52b9249139b62fb6b5626ae73a28e015630f618af4a982494e60e"},
+    {"path": "AiKernel.php", "content_sha256": "ab9051682c287515c2ccc67e4399b8f8c74617af763869227e5cddc27a124009"},
+    {"path": "AppUiEngine.php", "content_sha256": "86eaf705a3e26c9b80bb809da46d92953cc5e83b8a2358928bda1c1ac2519a65"},
+    {"path": "ArtifactEngine.php", "content_sha256": "48da6d968e9356309bb78c48e7684534af42169d3f2286008f46a9dc14e5ffa3"},
+    {"path": "ObjectEngine.php", "content_sha256": "38a687716b9521aaed0b4091c9cc18e8b37c108cbe6b749b18d838b448d90ea8"},
+    {"path": "ReportEngine.php", "content_sha256": "6b3ea29ff673598bbe1fdc2027008a3b19a931fe7fbf7e80d988a41fe3846cf3"},
+    {"path": "WorkflowEngine.php", "content_sha256": "fb45d2a059a1fbece8c234c84cd5c46f0d11833f6a2c0b38de10117f7f68d9f9"},
+    {"path": "WritePolicy.php", "content_sha256": "2c4d209da1cc436e07d91bd0bb4a52ecb057968d934e75871018a9851844efc0"}
+  ]
+}
