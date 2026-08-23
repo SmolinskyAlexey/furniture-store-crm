@@ -1,0 +1,11 @@
+{
+  "base_url": "http://127.0.0.1:8095",
+  "verify_ssl": true,
+  "auth_key_agent": "PUT_FURNITURE_AGENTAI_KEY_HERE",
+  "bad_auth_key": "bad-key",
+  "sample_search": "test",
+  "sample_product_id": 1,
+  "sample_sku": "",
+  "sample_barcode": "",
+  "sample_warehouse_id": 1
+}
