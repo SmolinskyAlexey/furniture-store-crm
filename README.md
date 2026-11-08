@@ -24,8 +24,6 @@ Pet-проект с открытым исходным кодом
 4. Проверь миграции штатным раннером: `php db/migrations.php --dry_run`, затем запусти `php db/migrations.php`.
 5. Открой `public/index.php`
 
-Для обработки аудио AI-инструментами установите `ffmpeg` и `ffprobe` и добавьте их в системный `PATH`.
-
 ## 📥 Вклад в проект
 Pull Request’ы и обсуждения приветствуются! Предложения по архитектуре, UI, функционалу — через [Issues](https://github.com/username/furniture-crm/issues) или PR.
 
