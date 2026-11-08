@@ -34,7 +34,8 @@
  LANGS.lang_texts["start_comment"] = "Комментарий к открытию"; 
  LANGS.lang_texts["start_cash"] = "Касса в начале"; 
  LANGS.lang_texts["source_price"] = "Закупочная цена"; 
- LANGS.lang_texts["source"] = "источник"; 
+ LANGS.lang_texts["source_document"] = "Основание";
+ LANGS.lang_texts["source"] = "Источник";
  LANGS.lang_texts["show_in_products_list"] = "Показывать в списке товаров"; 
  LANGS.lang_texts["shop_name"] = "Магазин «БІС - М»"; 
  LANGS.lang_texts["shifts"] = "Смены"; 

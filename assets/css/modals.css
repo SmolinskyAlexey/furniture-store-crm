@@ -1,0 +1,195 @@
+/* Модальные окна */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+}
+
+.modal.active {
+    display: flex;
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+/*.default-table{*/
+/*    table-layout: fixed;*/
+/*    width: 100%;*/
+/* }*/
+.table__wrapper {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+}
+
+.table__wrapper .table {
+    width: 100%;
+    min-width: max-content;
+    white-space: nowrap;
+    border-collapse: collapse;
+}
+
+
+
+.table .photos-preview {
+    display: flex;
+    gap: 6px;
+    max-width: 40px;
+    max-height: 40px;
+    margin-top: 5px;
+}
+
+.table .photos-preview img {
+    width: 100%;
+    border-radius: 7px;
+}
+
+.table .photo-thumb {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+
+
+.table .total-status-cell {
+    width: 170px;
+}
+
+.table .comment-cell {
+    width: 250px;
+}
+
+.table .total-status-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.table .actions-cell .actions-wrapper {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.table .btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+
+.table .attributes_ids {
+    word-break: break-all;
+    white-space: normal;
+    max-width: 250px;
+    /* опционально — ограничивает ширину ячейки */
+}
+
+.table .id {
+    width: 50px !important;
+}
+
+
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 100%;
+    height: 98%;
+    max-height: 98%;
+    overflow: hidden;
+    animation: modalSlideIn 0.3s ease-out;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: auto;
+}
+
+
+
+.modal-header {
+    padding: 10px 20px;
+    border-bottom: 1px solid #e1e5e9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.modal-title-and-icon {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.modal-close {
+    width: 35px;
+    height: 35px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-close:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.modal-body {
+    padding: 10px 20px;
+    max-height: 90%;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.modal-footer {
+    /*height: 62px;*/
+    padding: 12px 20px;
+    border-top: 1px solid #e1e5e9;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    background: #f8f9fa;
+    flex-shrink: 0;
+
+    @media (max-width: 600px) {
+        padding: 20px
+    }
+}
+
+.modal-footer-buttons {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+}

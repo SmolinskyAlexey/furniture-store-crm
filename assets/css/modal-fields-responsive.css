@@ -1,0 +1,192 @@
+/*             Modals elements                  */
+input,
+.select2-selection,
+textarea {
+    border: 1px solid #86868b;
+    color: #1d1d1f;
+    background-color: #fff;
+    font-size: 17px;
+    line-height: 1.23536;
+    /*font-weight: 400;*/
+    border-radius: 12px;
+    padding: 18px 16px 0;
+    width: 100%;
+    /*font-weight: 700;*/
+}
+
+.input-small input {
+    padding: 12px 8px 0;
+    height: 40px;
+}
+
+.input-small .input__placeholder {
+    left: 8px;
+}
+
+.input-small input:focus~.input__placeholder,
+.input-small.has-value .input__placeholder {
+    font-size: 11px;
+    top: 11px;
+    white-space: nowrap;
+    max-width: calc(100% - 22px);
+}
+
+
+
+textarea {
+    padding-top: 23px;
+}
+
+div.update_variations_group_cont input {
+    height: 40px;
+    padding-top: 7px;
+}
+
+div.update_variations_group_cont .input__placeholder {
+    top: 9px;
+}
+
+.editor-container textarea {
+    display: none;
+}
+
+.input,
+.select,
+.textarea {
+    position: relative;
+}
+
+input:disabled,
+textarea:disabled {
+    cursor: not-allowed;
+    pointer-events: all !important;
+    background-color: #eee;
+}
+
+.select .select2 {
+    width: 100% !important;
+}
+
+.input__placeholder,
+.select2-selection__placeholder,
+.textarea__placeholder {
+    color: #6e6e73;
+    pointer-events: none;
+    position: absolute;
+    left: 16px;
+    font-size: 17px;
+    z-index: 1;
+    transition-timing-function: ease-in;
+    transition-duration: .125s;
+    transform: translateY(-50%);
+    background-color: transparent;
+    /*font-weight: 400;*/
+    max-width: calc(100% - 32px);
+    text-overflow: ellipsis;
+}
+
+.textarea__placeholder {
+    top: 27px;
+}
+
+.input__placeholder,
+.select2-selection__placeholder {
+    top: 20px;
+}
+
+.select2-selection__placeholder {
+    width: calc(100% - 34px);
+    line-height: 1.5;
+    z-index: 102;
+}
+
+.select2-selection__placeholder.select2-selection__placeholder--selected,
+.select2-container--open .select2-selection__placeholder,
+.has-value .textarea__placeholder,
+.has-value .input__placeholder,
+input:focus~.input__placeholder,
+textarea:focus~.textarea__placeholder {
+    font-size: 12px;
+    top: 15px;
+}
+
+/*!* 2.  Поднятый плейсхолдер, когда в поле уже есть текст *!*/
+/* input:not(:placeholder-shown) ~ .input__placeholder,*/
+/* textarea:not(:placeholder-shown) ~ .textarea__placeholder {*/
+/*     font-size: 12px;*/
+/*     top: 22px;*/
+/* }*/
+legend {
+    padding: 3px 6px;
+}
+
+.product-card-fieldset {
+    padding: 10px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.mobile-open {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .content-area {
+        padding: 20px;
+    }
+
+    .top-bar {
+        padding: 16px 20px;
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+    }
+
+    .page-title {
+        font-size: 24px;
+    }
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-16px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

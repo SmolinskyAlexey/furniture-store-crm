@@ -1,6 +1,12 @@
 
 RewriteEngine On
 
+# Public OAuth deployment address; no client secrets or API keys belong here.
+SetEnv MCP_PUBLIC_ORIGIN https://elitemebli-demotest.soft-pro.biz
+
+# Preserve bearer authorization for the public OAuth MCP endpoint under FastCGI.
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
 # --- БЛОК 1: БЕЗОПАСНОСТЬ (Файлы и папки) ---
 
 # Запрещаем доступ к конфигам, логам, бекапам и системным файлам
@@ -22,7 +28,8 @@ RewriteRule ^(_gsdata_|\.git|\.env) - [F,L]
 
 Header always set Access-Control-Allow-Origin "*"
 Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
-Header always set Access-Control-Allow-Headers "Content-Type,Authorization,Auth-Key,User-Auth-Key"
+Header always set Access-Control-Allow-Headers "Content-Type,Authorization,Auth-Key,User-Auth-Key,MCP-Protocol-Version,Mcp-Session-Id,Last-Event-ID"
+Header always set Access-Control-Expose-Headers "WWW-Authenticate,Mcp-Session-Id,MCP-Protocol-Version"
 
 # Быстрый ответ на preflight-запросы OPTIONS без участия index.php
 RewriteCond %{REQUEST_METHOD} OPTIONS
@@ -33,6 +40,8 @@ RewriteRule ^ - [R=200,L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_URI} !\.(json|webmanifest)$ [NC]
+RewriteCond %{REQUEST_URI} !^/\.well-known/oauth-(protected-resource|authorization-server)(/|$) [NC]
+RewriteCond %{REQUEST_URI} !^/api/(mcp|oauth)(/|$) [NC]
 RewriteRule ^(.*[^/])$ /$1/ [L,R=301]
 
 RewriteCond %{REQUEST_FILENAME} !-f

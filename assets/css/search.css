@@ -1,0 +1,125 @@
+.search-filter-group {
+    display: flex;
+    align-items: center;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.search-wrapper {
+    position: relative;
+}
+
+.search-input {
+    padding: 8px 40px 8px 16px;
+    width: 240px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+.search-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: #9ca3af;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    border: none;
+    border-left: 1px solid #d1d5db;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+    color: #374151;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filter-btn:hover {
+    background: #f9fafb;
+}
+#modal-filters .modal-content{
+    max-width: 400px;
+    height: auto;
+}
+.filter-item{
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0px;
+}
+.filter-item #in-stock{
+    width: 40px;
+}
+.filter-item .checkbox{
+    width: 40px;
+}
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+  font-size: 13px;
+  color: #1e40af;
+  cursor: pointer;
+}
+.filter-chip-close {
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #3b82f6;
+  font-size: 16px;
+  line-height: 1;
+}
+.filters-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.filter-item .date-input{
+    width: 160px;
+}
+.top-bar .active-filters{
+    justify-content: start;
+}
+.actions-wrapper{
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-between;
+}
+.supplier-request-file-input{
+    border: 1px solid #86868b;
+    color: #1d1d1f;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 5px;
+    width: 100%;
+    font-weight: 400;
+    display: flex;
+    justify-content: space-between;
+}
+.supplier-request-file-input a{
+    color: #1d1d1f;
+}
+.supplier-request-file-input .file-delete{
+    font-size: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.supplier-request-file-input input{
+    border: none;
+}
+.attr_name{
+    color: #6c6c6c;
+}

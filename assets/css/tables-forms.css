@@ -1,0 +1,153 @@
+/* Таблицы */
+.card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e1e5e9;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 20px;
+    border-bottom: 1px solid #e1e5e9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    padding-top: 3px;
+}
+
+.card-footer {
+    padding: 20px;
+    border-bottom: 1px solid #e1e5e9;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: #f5f7fa;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-received {
+    background: linear-gradient(135deg, #d6d3f0 0%, #e4d5f5 100%);
+    color: #5c3c94;
+    /* тёмно-фиолетовый текст для контраста */
+}
+
+.badge-finished,
+.badge-delivered {
+    background: #e8f5e8;
+    color: #4CAF50;
+}
+.badge-in_work{
+    color: #02a7d4;
+    background: #e8f4fc;
+}
+
+.badge-canceled {
+    background-color: #f2f2f2;
+    /* светло-серый фон */
+    color: #777777;
+    /* серая надпись */
+}
+
+.badge-error {
+    background-color: #ffe5e5;
+    /* светло-красный фон */
+    color: #b30000;
+    /* красный текст */
+}
+
+.badge-pending {
+    background: #fff3e0;
+    color: #FF9800;
+}
+
+/* Формы */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.order-summary-form {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.order-summary-form>div {
+    width: 33%;
+}
+/*
+.form-group {
+    margin-bottom: 10px;
+}
+*/
+
+.form-label {
+    font-size: 12px;
+    color: #6b7280;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.form-control,
+.input-field {
+    width: 100%;
+    padding: 18px 15px;
+    border: 1px solid #86868b;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus,
+.input-field:focus {
+    border-color: #667eea;
+    outline: none;
+}
+
+.form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+}

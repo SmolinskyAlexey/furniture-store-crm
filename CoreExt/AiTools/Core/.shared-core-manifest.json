@@ -10,7 +10,7 @@
   "files": [
     {
       "path": "AiIntrospection.php",
-      "content_sha256": "194fa0f9052a647d3562f8408db7d1e26ebc178af5cd123faa8500ed26de82bb"
+      "content_sha256": "d44d7ad3f320eeb18f962fd74fb78eb157680c83b12888e70d7f35a192e22cbf"
     },
     {
       "path": "AgentToolsGatewayAdapter.php",
@@ -18,7 +18,7 @@
     },
     {
       "path": "AiKernel.php",
-      "content_sha256": "edceb0492810407c5a4cafd30027100c41c7ea1d0faf416e7d23de64dcffd7fc"
+      "content_sha256": "f005ede60c30e6afc46d158c04b3b382cdda97e934e7c5eb260094f252616df0"
     },
     {
       "path": "AppUiEngine.php",

@@ -2,11 +2,7 @@ window.queries = {
 
     searchProductsQuery: async (category_id, search, offset = 0, limit = 10, filters = {}) => {   
 
-        const formData = new FormData();
-
-        formData.append('action', "get_list");
-        formData.append('offset', offset);
-        formData.append('limit', limit);
+        const formData = CRMFrontend.api.listBody(offset, limit);
 
         if(category_id){
             formData.append('category_id', category_id);
@@ -28,23 +24,15 @@ window.queries = {
             formData.append("only_negative", filters.only_negative);
         }
 
-        const response = await fetch('/ajax/catalog/', {
+        return CRMFrontend.api.json('/ajax/catalog/', {
             method: 'POST',
             body: formData
-        })
-
-        const data = await response.json();
-
-        return data;
+        }, "Ошибка загрузки данных");
     },
 
     searchShiftsQuery: async (offset = 0, limit = 10, filters = {}) => { 
 
-        const formData = new FormData();
-
-        formData.append('action', "get_list");
-        formData.append('offset', offset);
-        formData.append('limit', limit);
+        const formData = CRMFrontend.api.listBody(offset, limit);
 
         if(filters.warehouse_id && filters.warehouse_id != 'all'){
             formData.append('warehouse_id', filters.warehouse_id);
@@ -56,23 +44,15 @@ window.queries = {
             formData.append("search", filters.search);
         }
 
-        const response = await fetch('/ajax/shifts/', {
+        return CRMFrontend.api.json('/ajax/shifts/', {
             method: 'POST',
             body: formData
-        })
-
-        const data = await response.json();
-
-        return data;
+        }, "Ошибка загрузки данных");
     },
 
     searchRefundsQuery: async (offset = 0, limit = 10, filters = {}) => { 
 
-        const formData = new FormData();
-
-        formData.append('action', "get_list");
-        formData.append('offset', offset);
-        formData.append('limit', limit);
+        const formData = CRMFrontend.api.listBody(offset, limit);
 
         if(filters.warehouse_id && filters.warehouse_id != 'all'){
             formData.append('warehouse_id', filters.warehouse_id);
@@ -84,35 +64,23 @@ window.queries = {
             formData.append("search", filters.search);
         }
 
-        const response = await fetch('/ajax/refunds/', {
+        return CRMFrontend.api.json('/ajax/refunds/', {
             method: 'POST',
             body: formData
-        })
-
-        const data = await response.json();
-
-        return data;
+        }, "Ошибка загрузки данных");
     },
 
-    getCategories: async () => {
-        const response = await fetch('/ajax/categories/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams({
-                action: 'get_list'
-            })
-        });
+    getCategories: async (offset = 0, limit = 10, filters = {}) => {
+        const formData = CRMFrontend.api.listBody(offset, limit);
 
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке категорий');
+        if(filters.search){
+            formData.append("search", filters.search);
         }
 
-        const data = await response.json(); // предполагается, что сервер возвращает JSON
-        let list = data.list;
-        console.log(list);
-        return list;
+        return CRMFrontend.api.json('/ajax/categories/', {
+            method: 'POST',
+            body: formData
+        }, "Ошибка при загрузке категорий");
     },
 
     createCategory: async (category_data) => {
@@ -125,23 +93,15 @@ window.queries = {
         formData.append('attributes_ids', category_data?.attributes_ids);
         formData.append('in_export', category_data?.in_export);
 
-        const response = await fetch('/ajax/categories/', {
+        return CRMFrontend.api.json('/ajax/categories/', {
             method: 'POST',
             body: formData,
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке клиента');
-        }
-
-        const data = await response.json(); // предполагается, что сервер возвращает JSON
-
-        return data;
+        }, "Ошибка при загрузке клиента");
     },
 
     getProducts: async (offset = 0, limit = 10, type_show = 'for_order') => {
 
-        const response = await fetch('/ajax/catalog/', {
+        return CRMFrontend.api.json('/ajax/catalog/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -152,21 +112,12 @@ window.queries = {
                 offset,
                 limit
             })
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке продуктов');
-        }
-
-        const data = await response.json(); // предполагается, что сервер возвращает JSON
-        let list = data;
-        console.log(list);
-        return list;
+        }, "Ошибка при загрузке продуктов");
     },
 
     getProduct: async (id = 1) => {
 
-        const response = await fetch('/ajax/catalog/', {
+        return CRMFrontend.api.json('/ajax/catalog/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -175,22 +126,12 @@ window.queries = {
                 action: 'get_list',
                 id: id
             })
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке продуктов');
-        }
-
-        const data = await response.json(); // предполагается, что сервер возвращает JSON
-        let list = data;
-        return list;
+        }, "Ошибка при загрузке продуктов");
     },
-
-    /*Добавил Егор 08.06.2025, пагинацию добавил 09.06*/
 
     getOrders: async (offset = 0, limit = 10) => {
 
-        const response = await fetch('/ajax/orders/', {
+        return CRMFrontend.api.json('/ajax/orders/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -200,27 +141,12 @@ window.queries = {
                 offset,
                 limit
             })
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке заказов');
-        }
-
-        const data = await response.json(); // предполагается, что сервер возвращает JSON
-        let list = data;
-        console.log(list);
-        return list;
+        }, "Ошибка при загрузке заказов");
     },
-
-    //Добавил Егор 10.06.2025
 
     searchOrdersQuery: async (search, filters, offset = 0, limit = 10) => {
 
-        const formData = new FormData();
-
-        formData.append('action', "get_list");
-        formData.append('offset', offset);
-        formData.append('limit', limit);
+        const formData = CRMFrontend.api.listBody(offset, limit);
 
         if(search) formData.append('search', search);
         if(filters){
@@ -247,17 +173,15 @@ window.queries = {
             }
         }
 
-        const response = await fetch('/ajax/orders/', {
+        return CRMFrontend.api.json('/ajax/orders/', {
             method: 'POST',
             body: formData
-        })
-        const data = await response.json();
-        return data;
+        }, "Ошибка загрузки данных");
     },
 
     getOrder: async (order_id) => {
 
-        const response = await fetch('/ajax/orders/', {
+        return CRMFrontend.api.json('/ajax/orders/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -266,49 +190,24 @@ window.queries = {
                 action: 'get',
                 id : order_id,
             })
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке заказа');
-        }
-
-        const data = await response.json(); // предполагается, что сервер возвращает JSON
-        let list = data;
-        console.log(list);
-        return list;
+        }, "Ошибка при загрузке заказа");
     },
 
     getClients: async (offset = 0, limit = 10, filters = {}) => {
-        const formData = new FormData();
-
-        formData.append('action', "get_list");
-        formData.append('offset', offset);
-        formData.append('limit', limit);
+        const formData = CRMFrontend.api.listBody(offset, limit);
 
         if(filters.search){
             formData.append("search", filters.search);
         }
 
-        const response = await fetch('/ajax/clients/', {
+        return CRMFrontend.api.json('/ajax/clients/', {
             method: 'POST',
             body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке клиентов');
-        }
-
-        const data = await response.json(); // предполагается, что сервер возвращает JSON
-        let list = data;
-        return list;
+        }, "Ошибка при загрузке клиентов");
     },
 
     getOverheadExpenses: async (offset = 0, limit = 10, filters = {}) => {
-        const formData = new FormData();
-
-        formData.append('action', "get_list");
-        formData.append('offset', offset);
-        formData.append('limit', limit);
+        const formData = CRMFrontend.api.listBody(offset, limit);
 
         if(filters.search){
             formData.append("search", filters.search);
@@ -323,130 +222,66 @@ window.queries = {
             formData.append("service_id", filters.service);
         }
 
-        const response = await fetch('/ajax/overhead_expenses/', {
+        return CRMFrontend.api.json('/ajax/overhead_expenses/', {
             method: 'POST',
             body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке клиентов');
-        }
-
-        const data = await response.json(); // предполагается, что сервер возвращает JSON
-        let list = data;
-        return list;
+        }, "Ошибка при загрузке клиентов");
     },
 
-    // 22.06.2025
-
     getStockTransfers: async (offset = 0, limit = 10, filters = {}) => {
-        const formData = new FormData();
-
-        formData.append('action', "get_list");
-        formData.append('offset', offset);
-        formData.append('limit', limit);
+        const formData = CRMFrontend.api.listBody(offset, limit);
 
         if(filters.search){
             formData.append("search", filters.search);
         }
 
-        const response = await fetch('/ajax/stock_transfers/', {
+        return CRMFrontend.api.json('/ajax/stock_transfers/', {
             method: 'POST',
             body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке stock_transfers');
-        }
-
-        const data = await response.json(); // предполагается, что сервер возвращает JSON
-        let list = data;
-        return list;
+        }, "Ошибка при загрузке stock_transfers");
     },
 
     getWriteOffs: async (offset = 0, limit = 10, filters = {}) => {
-        const formData = new FormData();
-
-        formData.append('action', "get_list");
-        formData.append('offset', offset);
-        formData.append('limit', limit);
+        const formData = CRMFrontend.api.listBody(offset, limit);
 
         if(filters.search){
             formData.append("search", filters.search);
         }
 
-        const response = await fetch('/ajax/write_offs/', {
+        return CRMFrontend.api.json('/ajax/write_offs/', {
             method: 'POST',
             body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке write_offs');
-        }
-
-        const data = await response.json(); // предполагается, что сервер возвращает JSON
-        let list = data;
-        return list;
+        }, "Ошибка при загрузке write_offs");
     },
 
     getInvoices: async (offset = 0, limit = 10, filters = {}) => {
-        const formData = new FormData();
-
-        formData.append('action', "get_list");
-        formData.append('offset', offset);
-        formData.append('limit', limit);
+        const formData = CRMFrontend.api.listBody(offset, limit);
 
         if(filters.search){
             formData.append("search", filters.search);
         }
 
-        const response = await fetch('/ajax/invoices/', {
+        return CRMFrontend.api.json('/ajax/invoices/', {
             method: 'POST',
             body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке invoices');
-        }
-
-        const data = await response.json(); // предполагается, что сервер возвращает JSON
-        let list = data;
-        return list;
+        }, "Ошибка при загрузке invoices");
     },
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     getSuppliers: async (offset = 0, limit = 10, filters = {}) => {
-        const formData = new FormData();
-
-        formData.append('action', "get_list");
-        formData.append('offset', offset);
-        formData.append('limit', limit);
+        const formData = CRMFrontend.api.listBody(offset, limit);
 
         if(filters.search){
             formData.append("search", filters.search);
         }
 
-        const response = await fetch('/ajax/suppliers/', {
+        return CRMFrontend.api.json('/ajax/suppliers/', {
             method: 'POST',
             body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке производителей');
-        }
-
-        const data = await response.json(); // предполагается, что сервер возвращает JSON
-        let list = data;
-        return list;
+        }, "Ошибка при загрузке производителей");
     },
 
     getSupplierRequests: async (offset = 0, limit = 10, filters = {}) => {
-        const formData = new FormData();
-
-        formData.append('action', "get_list");
-        formData.append('offset', offset);
-        formData.append('limit', limit);
+        const formData = CRMFrontend.api.listBody(offset, limit);
 
         if(filters.search){
             formData.append("search", filters.search);
@@ -458,52 +293,16 @@ window.queries = {
             formData.append("only_deleted", filters.only_deleted);
         }
 
-        const response = await fetch('/ajax/supplier_requests/', {
+        return CRMFrontend.api.json('/ajax/supplier_requests/', {
             method: 'POST',
             body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке производителей');
-        }
-
-        const data = await response.json(); // предполагается, что сервер возвращает JSON
-        let list = data;
-        console.log(list);
-        return list;
-    },
-    // Для категорий (обновленная версия с пагинацией и фильтрами)
-    getCategories: async (offset = 0, limit = 10, filters = {}) => {
-        const formData = new FormData();
-
-        formData.append('action', "get_list");
-        formData.append('offset', offset);
-        formData.append('limit', limit);
-
-        if(filters.search){
-            formData.append("search", filters.search);
-        }
-
-        const response = await fetch('/ajax/categories/', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке категорий');
-        }
-
-        const data = await response.json();
-        return data;
+        }, "Ошибка при загрузке производителей");
     },
 
-    // Для услуг (предполагаем endpoint /ajax/services/)
+
+
     getServices: async (offset = 0, limit = 10, filters = {}) => {
-        const formData = new FormData();
-
-        formData.append('action', "get_list");
-        formData.append('offset', offset);
-        formData.append('limit', limit);
+        const formData = CRMFrontend.api.listBody(offset, limit);
 
         if(filters.search){
             formData.append("search", filters.search);
@@ -515,49 +314,29 @@ window.queries = {
             formData.append("warehouse_id", filters.warehouse_id);
         }
 
-        const response = await fetch('/ajax/services/', {
+        return CRMFrontend.api.json('/ajax/services/', {
             method: 'POST',
             body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке услуг');
-        }
-
-        const data = await response.json();
-        return data;
+        }, "Ошибка при загрузке услуг");
     },
 
-    // Для подрядчиков (предполагаем endpoint /ajax/contractors/, возможно, аналог suppliers или clients)
     getContractors: async (offset = 0, limit = 10, filters = {}) => {
-        const formData = new FormData();
-
-        formData.append('action', "get_list");
-        formData.append('offset', offset);
-        formData.append('limit', limit);
+        const formData = CRMFrontend.api.listBody(offset, limit);
 
         if(filters.search){
             formData.append("search", filters.search);
         }
 
-        const response = await fetch('/ajax/contractors/', {
+        return CRMFrontend.api.json('/ajax/contractors/', {
             method: 'POST',
             body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке подрядчиков');
-        }
-
-        const data = await response.json();
-        return data;
+        }, "Ошибка при загрузке подрядчиков");
     },
 
     getReportsStats: async (filters = {}) => {
         const formData = new FormData();
-        formData.append('action', 'get_reports_stats'); // важно — совпадает с обработчиком на бэке
+        formData.append('action', 'get_reports_stats');
 
-        // Добавляем фильтры только если они заданы и не пустые
         if (filters.date_from) {
             formData.append('date_from', filters.date_from);
         }
@@ -571,17 +350,9 @@ window.queries = {
             formData.append('manager_id', filters.manager_id);
         }
 
-        const response = await fetch('/ajax/reports/', {
+        return CRMFrontend.api.json('/ajax/reports/', {
             method: 'POST',
             body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка сети при загрузке статистики');
-        }
-
-        const data = await response.json();
-
-        return data;
+        }, "Ошибка сети при загрузке статистики");
     },
 }

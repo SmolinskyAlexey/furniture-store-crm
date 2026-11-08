@@ -34,7 +34,8 @@
  LANGS.lang_texts["start_comment"] = "Start Comment"; 
  LANGS.lang_texts["start_cash"] = "Cash at start"; 
  LANGS.lang_texts["source_price"] = "Purchase price"; 
- LANGS.lang_texts["source"] = "source"; 
+ LANGS.lang_texts["source_document"] = "Source document";
+ LANGS.lang_texts["source"] = "Source";
  LANGS.lang_texts["show_in_products_list"] = "Show in Products List"; 
  LANGS.lang_texts["shop_name"] = "Shop &quot;BIS - M&quot;"; 
  LANGS.lang_texts["shifts"] = "Shifts"; 

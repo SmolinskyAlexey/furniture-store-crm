@@ -1,0 +1,215 @@
+/* Catalog */
+.filter-tabs-group-wrapper {
+    display: inline-block;
+    background-color: #e3e3e3;
+    border-radius: 999px;
+    border: 1px solid #4f46e5;
+    overflow: visible;
+}
+
+.filter-tabs-group {
+    display: inline-flex;
+    border-radius: 999px;
+    overflow: visible;
+    white-space: normal;
+    scrollbar-width: none;
+    -ms-overflow-style: auto;
+}
+
+.filter-tabs-group::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari */
+}
+
+.filter-tab {
+    flex-shrink: 0;
+    /* ← это ключевой момент для скролла */
+    padding: 9px 10px;
+    border: none;
+    border-right: 1px solid #4f46e5;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4f46e5;
+    text-align: center;
+    cursor: pointer;
+    outline: none;
+    background-color: white;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.filter-tab:first-child {
+    border-top-left-radius: 999px;
+    border-bottom-left-radius: 999px;
+}
+
+.filter-tab:last-child {
+    border-top-right-radius: 999px;
+    border-bottom-right-radius: 999px;
+    border-right: none;
+}
+
+/* При наведении */
+.filter-tab:hover {
+    background-color: #f3f4f6;
+}
+
+/* Активная кнопка */
+.filter-tab.active {
+    background-color: #eef0ff;
+    color: #4f46e5;
+}
+
+/* При клике */
+.filter-tab:active {
+    transform: none;
+}
+
+.dropdown-filter-wrapper {
+    position: relative;
+}
+
+.dropdown-filter {
+    width: 160px;
+    height: 37px;
+    max-height: 37px;
+    padding: 6px 12px;
+    border: 1px solid #4f46e5;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: black;
+}
+
+.dropdown-filter:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.dropdown-filter:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.date-input-wrapper {
+    position: relative;
+}
+
+.date-input {
+    height: 37px;
+    max-height: 37px;
+    padding: 6px 12px;
+    border: 1px solid #4f46e5;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: white;
+    color: black;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* При наведении */
+.date-input:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+/* При фокусе (клик или Tab) */
+.date-input:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.reset-style-btn {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    background: none;
+    height: 50px;
+    border: 0px solid #000;
+}
+
+.table-pagination {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 2px;
+    margin-bottom: 10px;
+}
+
+.img-catalog {
+    max-width: 40px;
+    max-height: 40px;
+    margin-top: 5px;
+}
+
+.img-product-order {
+    width: 50px;
+    max-width: 50px;
+}
+
+/* Loader */
+.loading-spinner {
+    position: absolute;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px #ddd solid;
+    border-top: 4px #2e93e6 solid;
+    border-radius: 50%;
+    animation: sp-anime 0.8s infinite linear;
+}
+
+@keyframes sp-anime {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Admin Menu */
+.admin-block-title {
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    width: 100%;
+    background: transparent;
+}
+
+.admin-block-menu-item {
+    padding: 2px 20px;
+    color: white;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-block-menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    padding-left: 25px;
+}
+
+.admin-block-menu-item.active {
+    background: rgba(255, 255, 255, 0.2);
+    border-left: 4px solid white;
+}

@@ -1,0 +1,102 @@
+/* Контейнер автокомплита */
+.autocomplete-dropdown {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  border-top: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+/* Элементы списка */
+.autocomplete-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.selected {
+  background-color: #f0f0f0;
+}
+
+/* Скроллбар */
+.autocomplete-dropdown::-webkit-scrollbar {
+  width: 8px;
+}
+
+.autocomplete-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.autocomplete-dropdown::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.autocomplete-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.product-in-order{
+    margin-bottom: 10px;
+}
+.gap-12{
+    gap: 12px;
+    display: grid;
+}
+.product-in-order .prod-name{
+    font-weight: 600;
+}
+.table.orders-table td{
+    max-width: 500px;
+    text-wrap: auto;
+}
+.small-input-padding .form-input{
+    padding: 10px 6px;
+}
+.small-input-padding input[type="number"]{
+    padding-right: 3px;
+}
+.small-input-padding input[type="date"]{
+    font-size: 12px;
+    padding: 10px 0px;
+}
+
+.current-shift-info{
+    display:grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 12px;
+}
+
+.mt-4 {
+    margin-top: 1.5rem; /* 24px */
+}
+
+.mb-3 {
+    margin-bottom: 1rem; /* 16px */
+}
+.card-body{
+    padding: 0px 20px;
+}
+
+#historyForm select{
+    height: unset;
+    max-height: 70px;
+    padding: 18px 15px;
+}
+
+
+.text-success { color: #28a745 !important; }
+.text-danger { color: #dc3545 !important; }
+.badge-light { background-color: #f8f9fa; color: #333; }
+.cursor-pointer {cursor: pointer;}

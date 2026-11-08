@@ -129,22 +129,7 @@ class ReportsWizard {
         };
     }
 
-    showLoading(show) {
-        this.isLoading = show;
-
-        const spinner = document.getElementById("loadingSpinner"); // Предполагаем, что спиннер существует, как в ShiftsWizard
-        const modalBody = document.getElementById("modalBody"); // Или адаптировать под reports
-
-        if (spinner && modalBody) {
-            if (show) {
-                spinner.style.display = "flex";
-                modalBody.style.opacity = "1";
-            } else {
-                spinner.style.display = "none";
-                modalBody.style.opacity = "1";
-            }
-        }
-    }
+    showLoading(show) { CRMFrontend.ui.loading(this, show); }
 
     showError(message) {
         // Можно добавить отображение ошибки, аналогично Shifts
