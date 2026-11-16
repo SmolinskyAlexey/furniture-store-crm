@@ -59,7 +59,7 @@ function environment({missingPage=false,missingSearch=false}={}) {
         fetch:async (url,options)=>{calls.push({url,options});return {ok:true,json:async()=>({list:[],total_num:25})};}});
     context.window=context;
     const load=file=>vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
-    for(const file of ['core/Frontend.js','core/Api.js','core/ListPage.js','queries.js']) load('assets/js/'+file);
+    for(const file of ['core/Frontend.js','core/Api.js','core/ListPage.js','ui/format.js','queries.js']) load('assets/js/'+file);
     return {context,load,page,search,pagination,controls,errors,calls};
 }
 
