@@ -611,7 +611,8 @@ function updatePaymentFields() {
         if (!totalInput) return;
 
         const total = Number(calculateFullTotalForSupplier()) || 0;
-        totalInput.innerHTML = total.toFixed(0) + " <small>₴</small>";
+        totalInput.innerHTML = formatFooterMoney(total);
+        setFooterTotal(total, 0);
 
     } else {
 
@@ -637,11 +638,27 @@ function updatePaymentFields() {
 
         totalInput.value = total.toFixed(0);
         if(totalInputLabel){
-            totalInputLabel.innerHTML = total.toFixed(0)+" <small>₴</small>";
+            totalInputLabel.innerHTML = formatFooterMoney(total);
         }
         totalDebt.value = debt.toFixed(0);
+        setFooterTotal(total, debt);
     }
 
+}
+
+// Итог и долг в нижней панели карточки (только отображение)
+function formatFooterMoney(value) {
+    return Math.round(value).toLocaleString('ru-RU') + '&nbsp;₴';
+}
+
+function setFooterTotal(total, debt) {
+    const totalEl = document.querySelector('#modalContainer [data-footer-total]');
+    if (totalEl) totalEl.innerHTML = formatFooterMoney(total);
+    const debtEl = document.querySelector('#modalContainer [data-footer-debt]');
+    if (debtEl) {
+        debtEl.innerHTML = formatFooterMoney(debt);
+        debtEl.parentElement.hidden = !(debt > 0);
+    }
 }
 
 
