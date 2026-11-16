@@ -152,8 +152,8 @@ div.modal-content.shift-modal.shift-history-modal { max-width: 1000px; min-heigh
 .shift-history-modal #historyForm + br { display: none; }
 #historyResult { margin-top: 14px; }
 @media (max-width: 700px) { .shift-history-modal .four-columns { grid-template-columns: 1fr 1fr; } }
-/* Фильтры — аккуратное окно справа сверху */
-#modal-filters .modal-content { max-width: 420px; height: auto; margin: 72px 24px 0 auto; }
+/* Фильтры — окно по центру */
+#modal-filters .modal-content { width: min(480px, calc(100vw - 32px)); max-width: 480px; height: auto; margin: 12vh auto 0; }
 #modal-filters .filter-item { align-items: center; gap: 12px; padding: 6px 0; }
 #modal-filters .filter-item label { flex: 0 0 130px; margin: 0; }
 #modal-filters .filter-item select, #modal-filters .filter-item .date-input { flex: 1; width: auto; min-width: 0; height: 36px; }
@@ -676,3 +676,35 @@ form.modal-content.shift-modal:has(.shift-view) { min-width: min(900px, calc(100
     .modal-footer > .footer-total { width: 100%; order: -3; margin: 0; }
     .modal-footer > .btn, .modal-footer > div > .btn { width: auto !important; }
 }
+
+/* ---------- U7b (16.11): замечания владельца ---------- */
+/* Страница целиком не уезжает вбок: широкие таблицы прокручиваются внутри своей карточки */
+html, body { overflow-x: clip; }
+.main-content { min-width: 0; }
+
+/* «Выход» — значок в шапке меню (раньше в самом низу) */
+.sidebar-header { position: relative; padding-right: 48px; }
+.sidebar-logout { position: absolute; top: 12px; right: 10px; display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--radius); color: var(--c-muted); text-decoration: none; }
+.sidebar-logout:hover { background: var(--c-danger-soft); color: var(--c-danger); }
+@media (max-width: 1024px) { .sidebar-footer { display: none; } }
+@media (min-width: 1025px) {
+    body.sidebar-collapsed .sidebar-header { padding: 12px 8px; }
+    body.sidebar-collapsed .sidebar-header::before { display: none; }
+    body.sidebar-collapsed .sidebar-logout { position: static; margin: 0 auto; }
+}
+
+/* Кнопки в строке — вместе (старое правило разносило их по краям), строка открывает запись */
+.content-area .actions-wrapper { justify-content: flex-start; }
+.content-area table.table > tbody > tr.row-open { cursor: pointer; }
+.content-area table.table > tbody > tr.row-open:hover > td { background-color: var(--c-hover); }
+.content-area table.table > tbody > tr.row-open:hover > td.cash-now { background-color: var(--c-success-soft); }
+/* Одиночная кнопка «Редактировать» под номером (заявки и др.) — компактная, рядом с номером */
+.content-area tbody td:first-child > .actions-wrapper:not(.order-actions) { display: inline-flex; margin: 0 0 0 6px; vertical-align: middle; }
+.content-area tbody td:first-child > .actions-wrapper:not(.order-actions) .btn-icon { width: 28px; min-width: 28px; height: 28px; font-size: 0; }
+.content-area tbody td:first-child > .actions-wrapper:not(.order-actions) .btn-icon::before { font: 900 12px/1 "Font Awesome 6 Free"; content: "303"; }
+.content-area tbody td:first-child > br + .actions-wrapper:not(.order-actions) { display: flex; margin: 6px 0 0; }
+
+/* Архив заказов: уже по ширине — комментарий не шире 180 px */
+.orders-table td.comment-cell, .orders-table .comment-cell { min-width: 0 !important; width: auto !important; max-width: 180px; }
+.stock-line { white-space: normal; }
+.stock-line .stock-badge { flex: none; }

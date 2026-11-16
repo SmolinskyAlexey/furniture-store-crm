@@ -33,6 +33,12 @@ window.ui = {
         }
         return lines.map(m => `<div class="stock-line">${badge(Number(m[2].replace(',', '.')))}<span class="stock-wh">${m[1].trim()}</span></div>`).join('');
     },
+    // Кнопка строки, которая открывает карточку записи («Открыть», «Редактировать», «Просмотр»)
+    rowOpenButton(tr) {
+        if (tr.dataset.orderId) return null; // главная: свой обработчик
+        return [...tr.querySelectorAll('button[onclick*="showUniversalModal"]')]
+            .find(b => /редакт|просмотр|открыть/i.test(`${b.title || ''} ${b.textContent || ''}`)) || null;
+    },
     // Телефон: строки таблиц становятся карточками; подпись каждой ячейки — из шапки таблицы
     labelTables(root = document) {
         root.querySelectorAll('.content-area table.table').forEach((table) => {
@@ -40,6 +46,7 @@ window.ui = {
             if (!heads.length) return;
             table.classList.add('is-cards');
             table.querySelectorAll(':scope > tbody > tr').forEach((tr) => {
+                tr.classList.toggle('row-open', !!window.ui.rowOpenButton(tr));
                 let col = 0;
                 [...tr.children].forEach((td) => {
                     const span = td.colSpan || 1;
@@ -50,6 +57,17 @@ window.ui = {
         });
     },
 };
+
+// Клик по строке таблицы открывает запись (как кнопка «Открыть»/«Редактировать» в этой строке).
+// Клики по ссылкам, кнопкам, полям и ячейкам со своим действием работают как раньше; выделение текста не открывает.
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    document.addEventListener('click', (event) => {
+        const tr = event.target.closest?.('.content-area table.table > tbody > tr.row-open');
+        if (!tr || event.target.closest('a, button, input, select, textarea, label, [onclick]')) return;
+        if (String(window.getSelection?.() || '').trim()) return;
+        window.ui.rowOpenButton(tr)?.click();
+    });
+}
 
 if (typeof document !== 'undefined' && typeof MutationObserver === 'function') {
     const startTableLabels = () => {
