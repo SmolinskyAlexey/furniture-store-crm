@@ -393,3 +393,31 @@ input[placeholder="..."]::placeholder, textarea[placeholder="..."]::placeholder 
 .modal-body :not(.photo-tile__pick) > input[type="file"] { height: auto; padding: 6px; border: 1px dashed var(--c-border-strong); border-radius: var(--radius); background: var(--c-surface-2); font-size: 13px; color: var(--c-text-2); }
 .modal-body :not(.photo-tile__pick) > input[type="file"]::file-selector-button { margin-right: 10px; padding: 6px 12px; border: 1px solid var(--c-border); border-radius: var(--radius-sm); background: var(--c-surface); color: var(--c-text); font: inherit; font-weight: 600; cursor: pointer; }
 .modal-body :not(.photo-tile__pick) > input[type="file"]::file-selector-button:hover { border-color: var(--c-primary); color: var(--c-primary); }
+
+/* ---------- U5: смена и главная ---------- */
+.ta-r { text-align: right !important; }
+.table__wrapper, .table-scroll { overflow-x: auto; }
+
+/* Касса на главной: колонка «Остаток сейчас» выделена */
+.cash-balances td.cash-now { background: var(--c-success-soft); font-weight: 700; color: #14532d; }
+.cash-balances th.cash-now { color: var(--c-text); }
+.cash-balances td.cash-now.muted { color: var(--c-muted); font-weight: 600; }
+.cash-balances td.cash-now.text-danger { color: var(--c-danger); }
+
+/* Ссылка на документ — компактный бейдж, а не синяя ссылка браузера */
+a.document-source-link { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--c-primary-soft); color: var(--c-primary-text) !important; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+a.document-source-link:hover { background: var(--c-primary); color: #fff !important; }
+
+/* Просмотр смены */
+.shift-view { display: flex; flex-direction: column; gap: 14px; }
+.shift-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.shift-kpi { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border: 1px solid var(--c-border); border-radius: var(--radius-lg); background: var(--c-surface); }
+.shift-kpi > span { font-size: 12px; color: var(--c-muted); }
+.shift-kpi > b { font-size: 20px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.shift-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 16px; margin: 0; padding: 12px 14px; border-radius: var(--radius-lg); background: var(--c-surface-2); }
+.shift-facts dt { font-size: 12px; font-weight: 500; color: var(--c-muted); }
+.shift-facts dd { margin: 2px 0 0; color: var(--c-text); }
+.shift-subtitle { display: flex; align-items: baseline; gap: 8px; margin: 4px 0 0; font-size: 15px; font-weight: 650; }
+.shift-subtitle .muted { font-size: 13px; font-weight: 500; }
+.shift-table { width: 100%; }
+.shift-table th, .shift-table td { padding: 8px 10px; }
