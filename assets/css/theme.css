@@ -711,3 +711,33 @@ html, body { overflow-x: clip; }
 .orders-table td.comment-cell, .orders-table .comment-cell { min-width: 0 !important; width: auto !important; max-width: 180px; }
 .stock-line { white-space: normal; }
 .stock-line .stock-badge { flex: none; }
+
+/* ---------- U7c (16.11): рабочая область как в Converter (компьютер) ----------
+   Страница сама не прокручивается: шапка сверху и подвал списка снизу стоят на месте,
+   таблица занимает всё оставшееся место и прокручивается внутри, её заголовок прилипает. */
+@media (min-width: 1025px) {
+    html:has(body > .sidebar), body:has(> .sidebar) { height: 100%; overflow: hidden; }
+    body:has(> .sidebar) > .main-content { height: 100vh; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+    body:has(> .sidebar) > .main-content > .top-bar { flex: none; }
+    body:has(> .sidebar) > .main-content > .content-area { flex: 1 1 auto; min-height: 0; overflow: auto; }
+    /* Страницы-списки (карточка с подвалом страниц): карточка во всю высоту, прокручивается только таблица; главная прокручивается целиком */
+    .content-area:has(> div > .card > .card-footer) { display: flex; flex-direction: column; overflow: hidden; }
+    .content-area:has(> div > .card > .card-footer) > br { display: none; }
+    .content-area > div:has(> .card > .card-footer) { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+    .content-area > div > .card:has(> .card-footer) { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; margin-bottom: 0; overflow: hidden; }
+    .content-area > div > .card > .card-header, .content-area > div > .card > .card-footer { flex: none; }
+    .content-area > div > .card:has(> .card-footer) > .table__wrapper { flex: 1 1 auto; min-height: 0; overflow: auto; }
+    .content-area > div > .card:has(> .card-footer) > .table__wrapper > .table > thead th { position: sticky; top: 0; z-index: 2; background: var(--c-surface-2); box-shadow: inset 0 -1px 0 var(--c-border); }
+}
+
+/* Таблицы сжимаются под ширину окна вместо прокрутки вбок (старое правило: min-width: max-content + nowrap) */
+.content-area .table__wrapper .table { min-width: 0; white-space: normal; }
+.content-area .table .num, .content-area .table .order-date, .content-area .table .stock-badge, .content-area .table .badge, .content-area .table .status-badge, .content-area .table .actions-cell, .content-area .table .btn { white-space: nowrap; }
+.content-area .table > thead th { white-space: normal; }
+
+/* Архив заказов: колонки товаров, оплат и статуса ужимаются (с 1440 px архив помещается без прокрутки вбок) */
+.orders-table .order-pay { min-width: 140px; }
+.orders-table .product-attributes { flex-wrap: wrap; white-space: normal; }
+.orders-table .product-in-order, .orders-table .product-in-order * { min-width: 0; white-space: normal; }
+.orders-table .order-actions .btn { padding: 4px 8px; }
+.orders-table td.total-status-cell { width: auto !important; min-width: 0 !important; }
