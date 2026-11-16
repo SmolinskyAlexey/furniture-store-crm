@@ -287,3 +287,71 @@ div.modal-content.shift-modal.shift-history-modal { max-width: 1000px; min-heigh
 .current-shift-info > .shift-info:not(.shift-open):not(.shift-closed) .quick-action-icon { margin: 0; flex: none; }
 .current-shift-info > .shift-info:not(.shift-open):not(.shift-closed) .quick-action-desc { font-size: 14px; font-weight: 600; color: var(--c-text); text-align: left; }
 .main-content td[style*="e6ffe6"] { background: var(--c-success-soft) !important; color: #14532d; }
+
+/* ---------- U3: рамка карточек (Tpl/cards/*) ---------- */
+/* Ширина: короткие карточки (клиент, поставщик, салон…) больше не сжимаются до ширины одного поля */
+form.modal-content:not(.shift-modal) { min-width: min(680px, calc(100vw - 32px)); }
+
+/* Заголовок: «Товар #871», дата создания — серой строкой ниже, удалённая запись — красной меткой */
+.modal-title .card-sub { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; color: var(--c-muted); }
+.modal-title .card-deleted { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; vertical-align: middle;
+    background: var(--c-danger-soft); color: #b91c1c; border: 1px solid #f6c5c5; }
+.modal-title-and-icon { display: flex; align-items: center; gap: 10px; }
+.modal-title-and-icon > i { color: var(--c-primary); }
+
+/* Подвал: «Удалить» и «Возврат» слева, справа «Отмена/Очистить» (второстепенные) и «Сохранить» (основная) */
+.modal-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; padding: 12px 20px; }
+.modal-footer > * { order: 1; }
+.modal-footer > div { display: flex !important; flex-wrap: wrap; gap: 8px !important; }
+.modal-footer > #delete_button { order: -2; margin-right: auto; }
+.modal-footer > #refunds_button { order: -1; margin-right: auto; }
+.modal-footer:has(> #refunds_button) > #delete_button { margin-right: 0; }
+.modal-footer > button[type="reset"] { order: -2; margin-right: auto; }
+.modal-footer .btn { height: 38px; display: inline-flex; align-items: center; gap: 6px; padding: 0 16px; }
+.modal-footer .btn-success { background: var(--c-primary); border-color: var(--c-primary); }
+.modal-footer .btn-success:hover:not(:disabled) { background: var(--c-primary-hover); border-color: var(--c-primary-hover); }
+.modal-footer button[type="reset"], .modal-footer .btn[onclick*="closeUniversalModal"], .modal-footer .btn-outline {
+    background: var(--c-surface); color: var(--c-text-2); border: 1px solid var(--c-border-strong); }
+.modal-footer button[type="reset"]:hover, .modal-footer .btn[onclick*="closeUniversalModal"]:hover, .modal-footer .btn-outline:hover { background: var(--c-hover); color: var(--c-text); }
+.modal-footer button[type="reset"] { border-color: transparent; }
+.modal-footer #refunds_button { color: var(--c-text-2); border-color: var(--c-border-strong); }
+.modal-footer #refunds_button:hover { background: var(--c-hover); color: var(--c-text); }
+
+/* Поля: подпись над полем, у input и select одна высота 40 px (раньше 40 / 48 / 56) */
+.modal-content .input:has(> .input__placeholder), .modal-content .textarea:has(> .textarea__placeholder) { display: flex; flex-direction: column; gap: 4px; }
+.modal-content .input__placeholder, .modal-content .textarea__placeholder {
+    position: static; order: -1; transform: none; max-width: 100%; font-size: 13px; font-weight: 500; color: var(--c-text-2);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: none; }
+.modal-content .has-value .input__placeholder, .modal-content .has-value .textarea__placeholder,
+.modal-content input:focus ~ .input__placeholder, .modal-content textarea:focus ~ .textarea__placeholder { font-size: 13px; top: auto; }
+.modal-body input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), .modal-body select {
+    height: 40px; padding: 0 12px; font-size: 14px; line-height: 1.3; border-radius: var(--radius); }
+.modal-body textarea { padding: 8px 12px; font-size: 14px; line-height: 1.45; border-radius: var(--radius); }
+.modal-body input:disabled, .modal-body textarea:disabled, .modal-body select:disabled { background: var(--c-surface-2); color: var(--c-muted); }
+.modal-body .form-label, .modal-body label.form-label { font-size: 13px; font-weight: 500; color: var(--c-text-2); margin-bottom: 4px; }
+.modal-body .input:has(> .input__placeholder), .modal-body .textarea:has(> .textarea__placeholder), .modal-body .form-group { margin-bottom: 12px; }
+
+/* Разделы карточки (fieldset): заголовок внутри рамки, а не поверх неё */
+.modal-body fieldset { position: relative; margin: 0 0 14px; padding: 12px 14px 14px; border: 1px solid var(--c-border); border-radius: var(--radius-lg); background: var(--c-surface); }
+.modal-body fieldset > legend { position: static; float: left; width: 100%; margin: 0 0 10px; padding: 0; font-size: 14px; font-weight: 650; color: var(--c-text); }
+.modal-body fieldset > legend + * { clear: both; }
+
+/* Фото товара: плитки с превью вместо пяти голых «Выберите файл» */
+.photo-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; clear: both; }
+.photo-tile { position: relative; display: flex; flex-direction: column; border: 1px dashed var(--c-border-strong); border-radius: var(--radius); background: var(--c-surface-2); overflow: hidden; }
+.photo-tile.has-img, .photo-tile.is-picked { border-style: solid; border-color: var(--c-border); background: var(--c-surface); }
+.photo-tile__img { display: block; aspect-ratio: 1; background: var(--c-surface-2); }
+.photo-tile .gallery__button { width: auto; height: auto; }
+.photo-tile.is-picked > a.photo-tile__img { display: none; }
+.photo-tile__img img, .photo-tile .preview-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-tile__pick { position: relative; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 32px; padding: 6px; margin: 0;
+    font-size: 12px; font-weight: 600; color: var(--c-primary); cursor: pointer; text-align: center; }
+.photo-tile:not(.has-img):not(.is-picked) .photo-tile__pick { aspect-ratio: 1; flex-direction: column; color: var(--c-muted); }
+.photo-tile:not(.has-img):not(.is-picked) .photo-tile__pick::before { font: 900 20px/1 "Font Awesome 6 Free"; content: "\f03e"; }
+.photo-tile__pick:hover { color: var(--c-primary-hover); background: var(--c-primary-soft); }
+.photo-tile__pick input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; padding: 0; border: 0; }
+.photo-tile__pick input[type="file"]:focus-visible + span { outline: 2px solid var(--c-primary); outline-offset: 2px; }
+.photo-tile__del { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; padding: 4px 6px 6px; font-size: 12px; color: var(--c-danger); cursor: pointer; }
+.photo-tile__del input { width: 14px; height: 14px; accent-color: var(--c-danger); margin: 0; }
+.photo-tile:has(.photo-tile__del input:checked) .photo-tile__img { opacity: .35; }
+.photo-tile__num { position: absolute; top: 4px; left: 4px; z-index: 1; min-width: 18px; padding: 0 5px; border-radius: 999px; background: rgba(16, 24, 40, .55); color: #fff; font-size: 11px; line-height: 18px; text-align: center; pointer-events: none; }

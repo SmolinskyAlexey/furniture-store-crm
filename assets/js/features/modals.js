@@ -186,3 +186,37 @@ function initializeRefundTypeSelector() {
     // });
 
 }
+
+// Карточки (U3): «Очистить» стирает всю форму — спрашиваем подтверждение; выбранное фото сразу видно в плитке.
+if (typeof document.addEventListener === 'function') {
+    document.addEventListener('reset', (event) => {
+        if (!event.target.closest('#modalContainer')) return;
+        if (!window.confirm('Очистить все поля формы?')) event.preventDefault();
+    }, true);
+
+    document.addEventListener('change', (event) => {
+        const input = event.target;
+        if (!input.matches?.('.photo-tile input[type="file"]')) return;
+        const tile = input.closest('.photo-tile');
+        const file = input.files && input.files[0];
+        let picked = tile.querySelector('.photo-tile__picked');
+        if (!file) {
+            picked?.remove();
+            tile.classList.remove('is-picked');
+            tile.querySelector('.photo-tile__pick span').textContent = tile.classList.contains('has-img') ? 'Заменить' : 'Добавить фото';
+            return;
+        }
+        if (!picked) {
+            picked = document.createElement('div');
+            picked.className = 'photo-tile__img photo-tile__picked';
+            picked.innerHTML = '<img alt="">';
+            tile.insertBefore(picked, tile.querySelector('.photo-tile__pick'));
+        }
+        const img = picked.querySelector('img');
+        if (img.src) URL.revokeObjectURL(img.src);
+        img.src = URL.createObjectURL(file);
+        img.alt = file.name;
+        tile.classList.add('is-picked');
+        tile.querySelector('.photo-tile__pick span').textContent = 'Заменить';
+    });
+}
