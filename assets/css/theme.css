@@ -450,3 +450,13 @@ form.modal-content.shift-modal:has(.shift-view) { min-width: min(900px, calc(100
     .modal-footer .fa-print + * , .modal-footer .btn-outline:has(.fa-print) { font-size: 0; gap: 0; }
     .modal-footer .btn-outline:has(.fa-print) .fa-print { font-size: 14px; }
 }
+
+/* Главная на телефоне: статус смены и кнопки смены — друг под другом */
+@media (max-width: 640px) {
+    .current-shift-info { display: flex !important; flex-direction: column; gap: 10px; }
+    .current-shift-info > .shift-info { width: 100%; min-width: 0; }
+    .current-shift-info > .shift-info:not(.shift-open):not(.shift-closed) .quick-action { min-width: 0; }
+}
+
+/* Пустые блоки поиска и действий в шапке (на главной) не рисуют рамку-точку */
+.top-bar .search-filter-group:not(:has(*)), .top-bar .top-actions:not(:has(*)) { display: none; }
