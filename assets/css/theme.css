@@ -701,7 +701,7 @@ html, body { overflow-x: clip; }
 /* Одиночная кнопка «Редактировать» под номером (заявки и др.) — компактная, рядом с номером */
 .content-area tbody td:first-child > .actions-wrapper:not(.order-actions) { display: inline-flex; margin: 0 0 0 6px; vertical-align: middle; }
 .content-area tbody td:first-child > .actions-wrapper:not(.order-actions) .btn-icon { width: 28px; min-width: 28px; height: 28px; font-size: 0; }
-.content-area tbody td:first-child > .actions-wrapper:not(.order-actions) .btn-icon::before { font: 900 12px/1 "Font Awesome 6 Free"; content: "303"; }
+.content-area tbody td:first-child > .actions-wrapper:not(.order-actions) .btn-icon::before { font: 900 12px/1 "Font Awesome 6 Free"; content: "\f303"; }
 .content-area tbody td:first-child > br + .actions-wrapper:not(.order-actions) { display: flex; margin: 6px 0 0; }
 
 /* Архив заказов: уже по ширине — комментарий не шире 180 px */
