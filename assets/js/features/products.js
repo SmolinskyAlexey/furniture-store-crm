@@ -596,6 +596,11 @@ function calculateFullTotalForSupplier() {
 
     });
 
+    // Доп. услуги входят в итог заявки так же, как при сохранении (SupplierRequests.php)
+    ['serv_assembly', 'serv_packaging', 'serv_lifting', 'serv_delivery'].forEach((name) => {
+        baseTotal += parseFloat(document.querySelector(`#modalContainer input[name="${name}"]`)?.value) || 0;
+    });
+
     // Возвращаем общую сумму
     return baseTotal;
 }

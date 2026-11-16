@@ -96,10 +96,12 @@ window.showUniversalModal = async (objectType, objectId, orderId = null) => {
                 // Извлекаем данные
                 const id = productCard.dataset.id;
                 const name = productCard.querySelector(".product-name").textContent.trim();
-                const priceText = productCard.querySelector(".product-price .product-sale-price").value.trim();
+                // В заказе цена — .product-price .product-sale-price (input или span в просмотре), в заявке — input.js-product-price
+                const priceEl = productCard.querySelector(".product-price .product-sale-price") || productCard.querySelector("input.js-product-price");
+                const priceText = priceEl ? String(priceEl.value ?? priceEl.textContent).trim() : '';
                 const price = parseFloat(priceText.replace(/[^\d.]/g, ''));
                 const quantityInput = productCard.querySelector(".quantity-input");
-                const quantity = parseInt(quantityInput.value);
+                const quantity = parseInt(quantityInput?.value);
 
                 //const productId = productCard.querySelector("[name=products["+id+"][product_id]]");
 
