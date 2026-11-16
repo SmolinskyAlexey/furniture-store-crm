@@ -3,9 +3,9 @@
 :root {
     --c-bg: #f3f4f6; --c-surface: #fff; --c-surface-2: #f8f9fb; --c-hover: #f1f3f6;
     --c-border: #e3e6eb; --c-border-strong: #c9ced6;
-    --c-text: #1c2230; --c-text-2: #4a5263; --c-muted: #7b8392;
+    --c-text: #1c2230; --c-text-2: #4a5263; --c-muted: #667085;
     --c-primary: #2563eb; --c-primary-hover: #1d4fd7; --c-primary-soft: #eaf1fe; --c-primary-text: #1e40af;
-    --c-success: #16a34a; --c-success-soft: #e9f7ee; --c-danger: #dc2626; --c-danger-soft: #fdeeee;
+    --c-success: #15803d; --c-success-soft: #e9f7ee; --c-danger: #dc2626; --c-danger-soft: #fdeeee;
     --c-warning: #b45309; --c-warning-soft: #fdf4e3; --c-focus: 0 0 0 3px rgba(37, 99, 235, .18);
     --c-overlay: rgba(16, 24, 40, .45);
     --radius-sm: 6px; --radius: 8px; --radius-lg: 12px;
@@ -224,7 +224,7 @@ div.modal-content.shift-modal.shift-history-modal { max-width: 1000px; min-heigh
 #historyResult h5.mt-4 { font-size: 14px; margin: 16px 0 8px; }
 #historyResult .table { width: 100%; }
 #historyResult .table td, #historyResult .table th { padding: 8px 10px; }
-.text-success { color: #15803d; }
+.text-success { color: #15803d !important; }
 .text-danger { color: var(--c-danger); }
 .text-muted, .small.text-muted { color: var(--c-muted); }
 .text-end { text-align: right; font-variant-numeric: tabular-nums; }
