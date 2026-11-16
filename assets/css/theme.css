@@ -548,7 +548,7 @@ form.modal-content.shift-modal:has(.shift-view) { min-width: min(900px, calc(100
 .status-badge.is-done { background: var(--c-success-soft); color: var(--c-success); }
 .status-badge.is-hold { background: var(--c-warning-soft); color: var(--c-warning); }
 .status-badge.is-cancel { background: var(--c-danger-soft); color: var(--c-danger); }
-.table-empty { padding: 28px 16px !important; text-align: center; color: var(--c-muted); }
+.table td.table-empty { padding: 28px 16px !important; text-align: center; color: var(--c-muted); }
 .table-empty i { display: block; margin-bottom: 6px; font-size: 22px; color: var(--c-border-strong); }
 
 /* Витрина: остаток бейджами, закупка серым с наценкой */
@@ -560,7 +560,8 @@ form.modal-content.shift-modal:has(.shift-view) { min-width: min(900px, calc(100
 .p-name { font-weight: 600; color: var(--c-text); }
 .p-cat { font-size: 12px; color: var(--c-muted); }
 .p-sub { font-size: 12px; color: var(--c-muted); }
-.content-area .actions-cell { width: 1%; white-space: nowrap; }
+.content-area .actions-cell { white-space: nowrap; }
+.actions-cell .btn-icon[title="Продать"] { width: auto; }
 
 /* Меню: свернуть до значков (компьютер), состояние помнится в браузере */
 .sidebar-collapse-btn { width: 100%; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; color: var(--c-muted); }
@@ -599,10 +600,15 @@ form.modal-content.shift-modal:has(.shift-view) { min-width: min(900px, calc(100
     .content-area table.table.is-cards > tbody > tr { display: block; padding: 10px 12px; border: 1px solid var(--c-border); border-radius: var(--radius-lg); background: var(--c-surface); box-shadow: var(--shadow-sm); }
     .content-area table.table.is-cards > tbody > tr > td { display: grid; grid-template-columns: minmax(0, 36%) minmax(0, 1fr); gap: 10px; align-items: baseline; padding: 5px 0 !important; border: 0 !important; background: none !important; text-align: left !important; white-space: normal; min-width: 0; }
     .content-area table.table.is-cards > tbody > tr > td::before { content: attr(data-label); font-size: 12px; color: var(--c-muted); }
+    .content-area table.table.is-cards > tbody > tr > td { row-gap: 2px; width: auto !important; max-width: none !important; }
+    .content-area table.table.is-cards > tbody > tr > td > * { grid-column: 2; min-width: 0; }
+    .content-area table.table.is-cards > tbody > tr > td:not([data-label]) > *, .content-area table.table.is-cards > tbody > tr > td[data-label=""] > * { grid-column: 1; }
+    .content-area table.table.is-cards .product-attributes { flex-wrap: wrap; white-space: normal; }
     .content-area table.table.is-cards > tbody > tr > td:not([data-label]), .content-area table.table.is-cards > tbody > tr > td[data-label=""] { grid-template-columns: minmax(0, 1fr); }
     .content-area table.table.is-cards > tbody > tr > td:not([data-label])::before, .content-area table.table.is-cards > tbody > tr > td[data-label=""]::before { display: none; }
     .content-area table.table.is-cards > tbody > tr > td.actions-cell { display: flex; justify-content: flex-end; width: auto; margin-top: 6px; padding-top: 10px !important; border-top: 1px solid var(--c-border) !important; }
     .content-area table.table.is-cards > tbody > tr > td.actions-cell::before { display: none; }
+    .content-area table.table.is-cards > tbody > tr > td.actions-cell > * { grid-column: auto; }
     .content-area table.table.is-cards > tbody > tr > td.cash-now { padding: 6px 8px !important; border-radius: var(--radius-sm); background: var(--c-success-soft) !important; }
     .content-area table.table.is-cards img { max-width: 64px; height: auto; }
     .content-area .table__wrapper:has(> table.is-cards) { overflow: visible; }
