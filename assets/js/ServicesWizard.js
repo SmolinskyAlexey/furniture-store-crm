@@ -15,7 +15,7 @@ class ServicesWizard extends CRMListPage {
         const table = this.root.querySelector(".default-table tbody");
         const totalLabel = this.root.querySelector(".total-count");
         table.innerHTML = html;
-        totalLabel.innerHTML = "Всего " + services.total_num + " услуг";
+        totalLabel.innerHTML = ui.count(services.total_num,'услуга','услуги','услуг');
         this.servicesPagination();
     }
 

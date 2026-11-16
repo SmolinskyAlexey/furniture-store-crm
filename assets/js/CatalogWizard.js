@@ -57,7 +57,7 @@ class CatalogWizard extends CRMListPage {
 
         table.innerHTML = html;
 
-        totalLabel.innerHTML = `Всего ${products.total_num}&nbsp;товаров`;
+        totalLabel.innerHTML = ui.count(products.total_num,'товар','товара','товаров');
 
 		this.productsPagination();
 

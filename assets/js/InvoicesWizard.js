@@ -15,7 +15,7 @@ class InvoicesWizard extends CRMListPage {
         const table = this.root.querySelector(".default-table tbody");
         const totalLabel = this.root.querySelector(".total-count");
         table.innerHTML = html;
-        totalLabel.innerHTML = "Всего " + invoices.total_num + " счетов";
+        totalLabel.innerHTML = ui.count(invoices.total_num,'счёт','счёта','счетов');
         this.invoicesPagination();
     }
 

@@ -17,7 +17,7 @@ class SuppliersWizard extends CRMListPage {
 
         table.innerHTML = html;
 
-        totalLabel.innerHTML = "Всего "+suppliers.total_num+" поставщиков";
+        totalLabel.innerHTML = ui.count(suppliers.total_num,'поставщик','поставщика','поставщиков');
         this.suppliersPagination();
     }
 

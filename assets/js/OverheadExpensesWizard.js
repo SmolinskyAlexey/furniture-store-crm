@@ -17,7 +17,7 @@ class OverheadExpenses extends CRMListPage {
 
         table.innerHTML = html;
 
-        totalLabel.innerHTML = "Всего "+overhead_expenses.total_num+" записей";
+        totalLabel.innerHTML = ui.count(overhead_expenses.total_num,'запись','записи','записей');
         this.overhead_expensesPagination();
     }
 

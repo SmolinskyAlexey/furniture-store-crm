@@ -15,7 +15,7 @@ class StockTransfersWizard extends CRMListPage {
         const table = this.root.querySelector(".default-table tbody");
         const totalLabel = this.root.querySelector(".total-count");
         table.innerHTML = html;
-        totalLabel.innerHTML = "Всего " + stockTransfers.total_num + " перемещений";
+        totalLabel.innerHTML = ui.count(stockTransfers.total_num,'перемещение','перемещения','перемещений');
         this.stockTransfersPagination();
     }
 

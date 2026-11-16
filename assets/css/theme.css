@@ -279,3 +279,11 @@ div.modal-content.shift-modal.shift-history-modal { max-width: 1000px; min-heigh
 #modalProductSelect .product-search-bar .search-btn::before { font: 900 14px/1 "Font Awesome 6 Free"; content: "\f002"; }
 #modalProductSelect .product-search-bar .clear-btn { right: 36px; top: 50%; transform: translateY(-50%); }
 #modalProductSelect .category-tab .tab-icon { display: none; }
+
+/* ---------- Главная продавца: смена и быстрые действия ---------- */
+.quick-actions { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.current-shift-info > .shift-info:not(.shift-open):not(.shift-closed) { display: flex; gap: 10px; align-items: stretch; padding: 10px; }
+.current-shift-info > .shift-info:not(.shift-open):not(.shift-closed) .quick-action { display: flex; flex: 1; flex-direction: row; align-items: center; gap: 10px; padding: 10px 12px; min-height: 0; }
+.current-shift-info > .shift-info:not(.shift-open):not(.shift-closed) .quick-action-icon { margin: 0; flex: none; }
+.current-shift-info > .shift-info:not(.shift-open):not(.shift-closed) .quick-action-desc { font-size: 14px; font-weight: 600; color: var(--c-text); text-align: left; }
+.main-content td[style*="e6ffe6"] { background: var(--c-success-soft) !important; color: #14532d; }

@@ -17,7 +17,7 @@ class SupplierRequestsWizard extends CRMListPage {
 
         table.innerHTML = html;
 
-        totalLabel.innerHTML = "Всего "+supplierRequests.total_num+" запросов";
+        totalLabel.innerHTML = ui.count(supplierRequests.total_num,'заявка','заявки','заявок');
         this.supplierRequestsPagination();
     }
 

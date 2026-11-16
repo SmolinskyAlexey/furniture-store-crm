@@ -15,7 +15,7 @@ class CategoriesWizard extends CRMListPage {
         const table = this.root.querySelector(".default-table tbody");
         const totalLabel = this.root.querySelector(".total-count");
         table.innerHTML = html;
-        totalLabel.innerHTML = "Всего " + categories.total_num + " категорий";
+        totalLabel.innerHTML = ui.count(categories.total_num,'категория','категории','категорий');
         this.categoriesPagination();
     }
 

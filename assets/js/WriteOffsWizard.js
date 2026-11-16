@@ -15,7 +15,7 @@ class WriteOffsWizard extends CRMListPage {
         const table = this.root.querySelector(".default-table tbody");
         const totalLabel = this.root.querySelector(".total-count");
         table.innerHTML = html;
-        totalLabel.innerHTML = "Всего " + writeOffs.total_num + " списаний";
+        totalLabel.innerHTML = ui.count(writeOffs.total_num,'списание','списания','списаний');
         this.writeOffsPagination();
     }
 
