@@ -156,6 +156,18 @@ window.queries = {
             if(filters.date){
                 formData.append("created_at", filters.date);
             }
+            if(filters.date_from){
+                formData.append("created_from", filters.date_from);
+            }
+            if(filters.date_to){
+                formData.append("created_to", filters.date_to);
+            }
+            if(filters.delivery_date){
+                formData.append("delivery_date", filters.delivery_date);
+            }
+            if(filters.only_debt){
+                formData.append("only_debt", "1");
+            }
             if(filters.warehouse_id && filters.warehouse_id != 'all'){
                 formData.append('warehouse_id', filters.warehouse_id);
             }

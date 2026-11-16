@@ -82,9 +82,18 @@ class OrdersWizard extends CRMListPage {
             this.preloadData();
         });
 
-        const dateSelector = document.querySelector("#date");
-        dateSelector?.addEventListener('change', () => {
-            this.cache.filter.date = dateSelector.value;
+        // Период создания, дата доставки, долг: id поля = ключ в cache.filter
+        [["#date", "date_from"], ["#date_to", "date_to"], ["#delivery_date", "delivery_date"]].forEach(([selector, key]) => {
+            const input = document.querySelector(selector);
+            input?.addEventListener('change', () => {
+                this.cache.filter[key] = input.value;
+                this.currentOrdersPage = 1;
+                this.preloadData();
+            });
+        });
+        const onlyDebtFilter = document.querySelector("#only-debt");
+        onlyDebtFilter?.addEventListener('change', () => {
+            this.cache.filter.only_debt = onlyDebtFilter.checked;
             this.currentOrdersPage = 1;
             this.preloadData();
         });

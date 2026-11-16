@@ -98,7 +98,7 @@ function updateActiveFilters() {
             const label = document.querySelector(`label[for="${dateInput.id}"]`);
             const title = label ? label.textContent.trim() : dateInput.id;
 
-            const chip = createFilterChip(title, dateInput.value, () => {
+            const chip = createFilterChip(title, formatDate(dateInput.value), () => {
                 dateInput.value = '';
                 dateInput.dispatchEvent(new Event('change', { bubbles: true }));
                 updateActiveFilters();

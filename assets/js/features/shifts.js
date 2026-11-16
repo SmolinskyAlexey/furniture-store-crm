@@ -179,7 +179,7 @@ function openShiftHistoryModal() {
         if(json.ok == '1'){
             let htmlWarehouses = '';
             if(json.list){
-                htmlWarehouses += '<option value="all">Выберите склад</option>';
+                htmlWarehouses += '<option value="all">Все склады</option>';
                 for (var i = 0; i < json.list.length; i++) {
                     htmlWarehouses+= '<option value="'+json.list[i].id+'">'+json.list[i].name+'</option>';
                 }
@@ -194,12 +194,12 @@ function openShiftHistoryModal() {
     }).catch(console.error);
 
     // Устанавливаем удобные даты по умолчанию (последние 7 дней)
-    const to = new Date().toISOString().split('T')[0];
-    const from = new Date();
-    from.setDate(from.getDate() - 0);
+    // Сегодня по местному времени (toISOString дал бы вчерашнюю дату ночью по UTC)
+    const now = new Date();
+    const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
 
-    document.getElementById('dateFrom').value = from.toISOString().split('T')[0];
-    document.getElementById('dateTo').value = to;
+    document.getElementById('dateFrom').value = today;
+    document.getElementById('dateTo').value = today;
 }
 
 // Закрытие
@@ -286,6 +286,11 @@ async function loadPeriodReport() {
     formData.append('action', 'load_today_cash_movements');   //'load_period_report'
     formData.append('date_from', dateFrom);
     formData.append('date_to', dateTo);
+    // Склад из окна: раньше не отправлялся, и отчёт всегда был по всем складам
+    const whSelect = document.querySelector('.shift-history-modal select[name="warehouse_id"]');
+    if (whSelect && whSelect.value && whSelect.value !== 'all') {
+        formData.append('warehouse_id', whSelect.value);
+    }
 
     try {
         const response = await fetch('/ajax/shifts/', {
@@ -344,7 +349,7 @@ function getShiftHistoryModal() {
                                 <div class="form-group">
                                     <br>
                                     <button class="btn btn-primary btn-block" onclick="loadPeriodReport()">
-                                        Показать движение средств
+                                        Показать
                                     </button>
                                 </div>
                             </div>
