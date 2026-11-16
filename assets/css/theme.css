@@ -544,7 +544,9 @@ form.modal-content.shift-modal:has(.shift-view) { min-width: min(900px, calc(100
 #current_shift_orders_table .order-no { font-weight: 700; }
 #current_shift_orders_table .order-debt { display: block; margin-top: 2px; font-size: 12px; font-weight: 600; color: var(--c-danger); }
 #current_shift_orders_table .total-status-wrapper { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
-.status-badge { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; background: var(--c-primary-soft); color: var(--c-primary-text); }
+#current_shift_orders_table th, #current_shift_orders_table td { padding: 10px; }
+#current_shift_orders_table .comment-cell { min-width: 0 !important; width: auto !important; max-width: 200px; }
+.status-badge { text-transform: none; letter-spacing: 0; display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; background: var(--c-primary-soft); color: var(--c-primary-text); }
 .status-badge.is-done { background: var(--c-success-soft); color: var(--c-success); }
 .status-badge.is-hold { background: var(--c-warning-soft); color: var(--c-warning); }
 .status-badge.is-cancel { background: var(--c-danger-soft); color: var(--c-danger); }
@@ -616,3 +618,61 @@ form.modal-content.shift-modal:has(.shift-view) { min-width: min(900px, calc(100
 }
 .actions-cell .btn-icon[title="Печать"]::before { content: "\f02f"; }
 .badge-count { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 20px; margin-left: 6px; padding: 0 7px; border-radius: 999px; border: 1px solid var(--c-border); background: var(--c-surface-2); font-size: 12px; font-weight: 600; color: var(--c-text-2); vertical-align: 2px; }
+
+/* Телефон: первая ячейка карточки — заголовок (без подписи), быстрые действия — плитки в две колонки */
+@media (max-width: 640px) {
+    .content-area table.table.is-cards > tbody > tr > td:first-child { grid-template-columns: minmax(0, 1fr); margin-bottom: 4px; padding-bottom: 8px !important; border-bottom: 1px solid var(--c-border) !important; font-weight: 600; }
+    .content-area table.table.is-cards > tbody > tr > td:first-child::before { display: none; }
+    .content-area table.table.is-cards > tbody > tr > td:first-child > * { grid-column: 1; }
+    .content-area table.table.is-cards > tbody > tr > td.table-empty { margin: 0; padding: 20px 0 !important; border: 0 !important; font-weight: 400; }
+    .quick-actions { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 8px; }
+    .quick-actions .quick-action { padding: 12px; }
+    .quick-actions .quick-action-desc { display: none; }
+    .quick-actions .quick-action-title { font-size: 13px; line-height: 1.3; }
+}
+
+/* Оплата на планшете и телефоне: платёж = «сумма и дата» + «способ» рядом (≤900) или друг под другом (≤640), скидка/долг/комментарий ниже */
+@media (max-width: 900px) {
+    .payment-summary > .three-columns { display: grid !important; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); column-gap: 10px; row-gap: 0; align-items: end; }
+    .payment-summary > .three-columns > .column { display: contents; }
+    .payment-summary > .three-columns > .column > * { margin: 0 0 10px; min-width: 0; }
+    .payment-summary > .three-columns > .column:nth-child(1) > .payment-item { grid-column: 1; }
+    .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(2) { grid-row: 1; }
+    .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(3) { grid-row: 2; }
+    .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(4) { grid-row: 3; }
+    .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(5) { grid-row: 4; }
+    .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(6) { grid-row: 5; }
+    .payment-summary > .three-columns > .column:nth-child(2) > .payment-item { grid-column: 2; }
+    .payment-summary > .three-columns > .column:nth-child(2) > .payment-item:nth-child(1) { grid-row: 1; }
+    .payment-summary > .three-columns > .column:nth-child(2) > .payment-item:nth-child(2) { grid-row: 2; }
+    .payment-summary > .three-columns > .column:nth-child(2) > .payment-item:nth-child(3) { grid-row: 3; }
+    .payment-summary > .three-columns > .column:nth-child(2) > .payment-item:nth-child(4) { grid-row: 4; }
+    .payment-summary > .three-columns > .column:nth-child(2) > .payment-item:nth-child(5) { grid-row: 5; }
+    .payment-summary > .three-columns > .column:nth-child(3) > * { grid-column: 1 / -1; }
+    .payment-summary > .three-columns > .column:nth-child(3) > :nth-child(1) { grid-row: 11; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .payment-summary > .three-columns > .column:nth-child(3) > :nth-child(2) { grid-row: 12; }
+    .payment-summary .two-columns.small-input-padding { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
+}
+@media (max-width: 640px) {
+    .payment-summary > .three-columns { grid-template-columns: minmax(0, 1fr); }
+    .payment-summary > .three-columns > .column:nth-child(2) > .payment-item { grid-column: 1; }
+    .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(2) { grid-row: 1; }
+    .payment-summary > .three-columns > .column:nth-child(2) > .payment-item:nth-child(1) { grid-row: 2; }
+    .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(3) { grid-row: 3; }
+    .payment-summary > .three-columns > .column:nth-child(2) > .payment-item:nth-child(2) { grid-row: 4; }
+    .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(4) { grid-row: 5; }
+    .payment-summary > .three-columns > .column:nth-child(2) > .payment-item:nth-child(3) { grid-row: 6; }
+    .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(5) { grid-row: 7; }
+    .payment-summary > .three-columns > .column:nth-child(2) > .payment-item:nth-child(4) { grid-row: 8; }
+    .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(6) { grid-row: 9; }
+    .payment-summary > .three-columns > .column:nth-child(2) > .payment-item:nth-child(5) { grid-row: 10; }
+    .payment-summary > .three-columns > .column:nth-child(2) > .payment-item { margin-top: -4px; padding-bottom: 10px; border-bottom: 1px dashed var(--c-border); }
+}
+
+/* Планшет: нижняя панель карточки — как на телефоне (итог сверху, кнопки в ряд), а не столбик по центру */
+@media (max-width: 1024px) {
+    .modal-footer { flex-direction: row !important; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px !important; }
+    .modal-footer > div { flex-wrap: nowrap !important; gap: 8px !important; margin-left: auto; }
+    .modal-footer > .footer-total { width: 100%; order: -3; margin: 0; }
+    .modal-footer > .btn, .modal-footer > div > .btn { width: auto !important; }
+}

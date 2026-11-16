@@ -7,6 +7,10 @@ window.showProductSelectModal = async () => {
 
     document.getElementById("modalProductSelect").style.display = 'flex';
     document.querySelector("#modalProductSelect .modal").style.display = 'flex';
+    // Сразу в поиск: продавец обычно начинает с названия (на телефоне не открываем клавиатуру сами)
+    if (window.matchMedia?.('(hover: hover)').matches) {
+        setTimeout(() => document.querySelector('#modalProductSelect .product-search-bar .search-input')?.focus(), 50);
+    }
 
     updateProductListForSelectModal();
     if(document.getElementById("modalProductSelect").getAttribute("listeners-atached") != 'true'){
@@ -137,7 +141,7 @@ async function updateProductListForSelectModal() {
                         </div>
                         </div>
 
-                        <div class="product-details">В наличии:<br>${product.stock}</div>
+                        <div class="product-details">В наличии: ${product.stock}&nbsp;шт</div>
 
                     </div>
 
