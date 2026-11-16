@@ -62,7 +62,7 @@
 }
 
 .step-item.active .step-number {
-    background: #667eea;
+    background: #2563eb;
     color: white;
 }
 
@@ -79,7 +79,7 @@
 }
 
 .step-item.active .step-label {
-    color: #667eea;
+    color: #2563eb;
     font-weight: 600;
 }
 
@@ -192,13 +192,13 @@
 }
 
 .category-tab:hover {
-    border-color: #667eea;
+    border-color: #2563eb;
 }
 
 .category-tab.active {
-    background: #667eea;
+    background: #2563eb;
     color: white;
-    border-color: #667eea;
+    border-color: #2563eb;
 }
 
 /* Карточки товаров */
@@ -223,8 +223,8 @@
 }
 
 .product-card:hover {
-    border-color: #667eea;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+    border-color: #2563eb;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.1);
 }
 
 .product-card.selected {
@@ -298,7 +298,7 @@
     height: 30px;
     border: none;
     border-radius: 50%;
-    background: #667eea;
+    background: #2563eb;
     color: white;
     cursor: pointer;
     display: flex;
@@ -360,13 +360,13 @@
 }
 
 .type-btn:hover {
-    border-color: #667eea;
+    border-color: #2563eb;
 }
 
 .type-btn.active {
-    background: #667eea;
+    background: #2563eb;
     color: white;
-    border-color: #667eea;
+    border-color: #2563eb;
 }
 
 .customer-type-tabs {
@@ -408,7 +408,7 @@
 }
 
 .search-input:focus {
-    border-color: #667eea;
+    border-color: #2563eb;
     outline: none;
 }
 
@@ -441,8 +441,8 @@
 }
 
 .customer-item:hover {
-    border-color: #667eea;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+    border-color: #2563eb;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.1);
 }
 
 .customer-item.selected {
@@ -471,10 +471,10 @@
 .secondary-button {
     width: 100%;
     padding: 12px;
-    border: 2px dashed #667eea;
+    border: 2px dashed #2563eb;
     border-radius: 8px;
     background: white;
-    color: #667eea;
+    color: #2563eb;
     cursor: pointer;
     transition: all 0.3s ease;
     margin-top: 15px;

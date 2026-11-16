@@ -221,3 +221,7 @@ input[type="checkbox"] { accent-color: var(--c-primary); }
 .text-danger { color: var(--c-danger); }
 .text-muted, .small.text-muted { color: var(--c-muted); }
 .text-end { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------- Карточка заказа: блок оплаты без насыщенной зелёной заливки ---------- */
+.payment-summary { background: var(--c-surface-2); color: var(--c-text); border: 1px solid var(--c-border); border-radius: var(--radius-lg); }
+.payment-summary label, .payment-summary .form-label { color: var(--c-text-2); }

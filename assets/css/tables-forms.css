@@ -139,7 +139,7 @@
 
 .form-control:focus,
 .input-field:focus {
-    border-color: #667eea;
+    border-color: #2563eb;
     outline: none;
 }
 

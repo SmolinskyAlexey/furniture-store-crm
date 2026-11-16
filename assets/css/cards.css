@@ -39,7 +39,7 @@
 }
 
 .section-title i {
-    color: #4f46e5;
+    color: #2563eb;
 }
 
 .form-input {
@@ -54,7 +54,7 @@
 
 .form-input:focus {
     outline: none;
-    border-color: #4f46e5;
+    border-color: #2563eb;
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
@@ -110,13 +110,13 @@
 }
 
 .delivery-option:hover {
-    border-color: #4f46e5;
+    border-color: #2563eb;
 }
 
 .delivery-option.active {
-    border-color: #4f46e5;
+    border-color: #2563eb;
     background: #f0f4ff;
-    color: #4f46e5;
+    color: #2563eb;
 }
 
 .products-section {
@@ -148,7 +148,7 @@
 }
 
 .add-product-btn {
-    background: #4f46e5;
+    background: #2563eb;
     color: white;
     border: none;
     padding: 10px 16px;
@@ -333,7 +333,7 @@
 }
 
 .file-upload-area:hover {
-    border-color: #4f46e5;
+    border-color: #2563eb;
     background: #f8fafc;
 }
 

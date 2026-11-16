@@ -1,7 +1,7 @@
 /* Боковое меню */
 .sidebar {
     width: 260px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4fd7 100%);
     color: white;
     padding: 0;
     position: fixed;
@@ -118,24 +118,24 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4fd7 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
 }
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 }
 
 .btn-secondary {
     background: white;
-    color: #667eea;
-    border: 2px solid #667eea;
+    color: #2563eb;
+    border: 2px solid #2563eb;
 }
 
 .btn-secondary:hover {
-    background: #667eea;
+    background: #2563eb;
     color: white;
 }
 
@@ -158,13 +158,13 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: #667eea;
-    color: #667eea;
-    border: 2px solid #667eea;
+    background: #2563eb;
+    color: #2563eb;
+    border: 2px solid #2563eb;
 }
 
 .btn-search-client:hover {
-    background: #566edc;
+    background: #1d4fd7;
     color: white;
 }
 
@@ -199,13 +199,13 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4fd7 100%);
 }
 
 .stat-number {
     font-size: 32px;
     font-weight: bold;
-    color: #667eea;
+    color: #2563eb;
     margin-bottom: 8px;
 }
 

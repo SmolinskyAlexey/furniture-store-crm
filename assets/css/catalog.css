@@ -3,7 +3,7 @@
     display: inline-block;
     background-color: #e3e3e3;
     border-radius: 999px;
-    border: 1px solid #4f46e5;
+    border: 1px solid #2563eb;
     overflow: visible;
 }
 
@@ -26,10 +26,10 @@
     /* ← это ключевой момент для скролла */
     padding: 9px 10px;
     border: none;
-    border-right: 1px solid #4f46e5;
+    border-right: 1px solid #2563eb;
     font-size: 14px;
     font-weight: 500;
-    color: #4f46e5;
+    color: #2563eb;
     text-align: center;
     cursor: pointer;
     outline: none;
@@ -56,7 +56,7 @@
 /* Активная кнопка */
 .filter-tab.active {
     background-color: #eef0ff;
-    color: #4f46e5;
+    color: #2563eb;
 }
 
 /* При клике */
@@ -73,7 +73,7 @@
     height: 37px;
     max-height: 37px;
     padding: 6px 12px;
-    border: 1px solid #4f46e5;
+    border: 1px solid #2563eb;
     border-radius: 8px;
     font-size: 14px;
     background-color: white;
@@ -89,7 +89,7 @@
 
 .dropdown-filter:focus {
     outline: none;
-    border-color: #4f46e5;
+    border-color: #2563eb;
     box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
 }
 
@@ -101,7 +101,7 @@
     height: 37px;
     max-height: 37px;
     padding: 6px 12px;
-    border: 1px solid #4f46e5;
+    border: 1px solid #2563eb;
     border-radius: 8px;
     font-size: 14px;
     background-color: white;
@@ -119,7 +119,7 @@
 /* При фокусе (клик или Tab) */
 .date-input:focus {
     outline: none;
-    border-color: #4f46e5;
+    border-color: #2563eb;
     box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
 }
 
