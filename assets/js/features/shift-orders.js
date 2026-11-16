@@ -187,7 +187,7 @@ function loadCurrentShiftOrders() {
                 const postpay = (Number(order.postpay) || 0) + (Number(order.postpay2) || 0);
                 const editTitle = order.isEditable ? 'Редактировать' : 'Просмотр';
                 return `<tr data-order-id="${Number(order.id)}">
-                <td><span class="order-no">#${Number(order.id)}</span><div class="p-sub num">${shiftOrdersEsc(order.created_at)}</div></td>
+                <td><span class="order-no row-link" title="Открыть заказ">#${Number(order.id)}</span><div class="p-sub num">${shiftOrdersEsc(order.created_at)}</div></td>
                 <td>${shiftOrdersEsc(order.client?.name || '—')}<div class="p-sub">${shiftOrdersEsc(order.client_info || '')}</div></td>
                 <td><div class="p-name">${shiftOrdersEsc(products.map(product => product.name).join(', ') || '—')}</div>${photos ? `<div class="photos-preview">${photos}</div>` : ''}</td>
                 <td class="num">${shiftOrdersMoney(prepay)}</td>
@@ -213,8 +213,12 @@ function loadCurrentShiftOrders() {
 
 }
 
-// Клик по строке заказа на главной открывает заказ (кнопки в строке работают как раньше)
+// Заказы дня на главной: номер заказа или двойной клик по строке открывают заказ (клик по строке — выделение, общий обработчик)
 document.addEventListener('click', (event) => {
+    const no = event.target.closest('#current_shift_orders_table .order-no');
+    if (no) window.showUniversalModal('orders', Number(no.closest('tr').dataset.orderId));
+});
+document.addEventListener('dblclick', (event) => {
     const row = event.target.closest('#current_shift_orders_table tbody tr[data-order-id]');
     if (!row || event.target.closest('button, a, input, select, textarea')) return;
     window.showUniversalModal('orders', Number(row.dataset.orderId));

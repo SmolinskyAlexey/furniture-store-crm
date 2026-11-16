@@ -189,7 +189,8 @@ div.modal-content.shift-modal.shift-history-modal { max-width: 1000px; min-heigh
 .shift-info .quick-action { min-width: 150px; }
 
 /* ---------- Архив заказов (OrdersTemplates.js) ---------- */
-.order-head { white-space: nowrap; }
+.order-head { white-space: normal; }
+.order-head strong, .order-date { white-space: nowrap; }
 .order-head strong { font-size: 15px; }
 .order-date { display: block; color: var(--c-muted); font-size: 12px; margin-top: 2px; }
 .order-actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
@@ -539,8 +540,6 @@ form.modal-content.shift-modal:has(.shift-view) { min-width: min(900px, calc(100
 .cash-balances tr.cash-idle td { padding-top: 8px; padding-bottom: 8px; font-size: 13px; color: var(--c-muted); background: var(--c-surface-2); }
 
 /* Главная: заказы смены — строка открывает заказ, долг под суммой, статус цветом */
-#current_shift_orders_table tbody tr[data-order-id] { cursor: pointer; }
-#current_shift_orders_table tbody tr[data-order-id]:hover { background: var(--c-hover); }
 #current_shift_orders_table .order-no { font-weight: 700; }
 #current_shift_orders_table .order-debt { display: block; margin-top: 2px; font-size: 12px; font-weight: 600; color: var(--c-danger); }
 #current_shift_orders_table .total-status-wrapper { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
@@ -693,11 +692,15 @@ html, body { overflow-x: clip; }
     body.sidebar-collapsed .sidebar-logout { position: static; margin: 0 auto; }
 }
 
-/* Кнопки в строке — вместе (старое правило разносило их по краям), строка открывает запись */
+/* Кнопки в строке — вместе (старое правило разносило их по краям) */
 .content-area .actions-wrapper { justify-content: flex-start; }
-.content-area table.table > tbody > tr.row-open { cursor: pointer; }
-.content-area table.table > tbody > tr.row-open:hover > td { background-color: var(--c-hover); }
-.content-area table.table > tbody > tr.row-open:hover > td.cash-now { background-color: var(--c-success-soft); }
+.content-area table.table > tbody > tr:hover > td { background-color: var(--c-hover); }
+.content-area table.table > tbody > tr:hover > td.cash-now { background-color: var(--c-success-soft); }
+/* Выделение строки кликом (как в Converter); открыть — номер записи или двойной клик */
+.content-area table.table > tbody > tr.is-selected > td { background-color: var(--c-primary-soft) !important; }
+.content-area table.table > tbody > tr.is-selected > td:first-child { box-shadow: inset 3px 0 0 var(--c-primary); }
+.row-link { color: var(--c-primary) !important; cursor: pointer; font-weight: 700; }
+.row-link:hover { text-decoration: underline; }
 /* Одиночная кнопка «Редактировать» под номером (заявки и др.) — компактная, рядом с номером */
 .content-area tbody td:first-child > .actions-wrapper:not(.order-actions) { display: inline-flex; margin: 0 0 0 6px; vertical-align: middle; }
 .content-area tbody td:first-child > .actions-wrapper:not(.order-actions) .btn-icon { width: 28px; min-width: 28px; height: 28px; font-size: 0; }

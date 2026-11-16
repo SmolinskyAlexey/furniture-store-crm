@@ -46,7 +46,14 @@ window.ui = {
             if (!heads.length) return;
             table.classList.add('is-cards');
             table.querySelectorAll(':scope > tbody > tr').forEach((tr) => {
-                tr.classList.toggle('row-open', !!window.ui.rowOpenButton(tr));
+                const canOpen = !!window.ui.rowOpenButton(tr);
+                tr.classList.toggle('row-open', canOpen);
+                // Номер записи («#804», «№ 12») в первой ячейке — ссылка на запись
+                const first = tr.children[0];
+                if (canOpen && first && !first.querySelector('.row-link')) {
+                    const num = [...first.querySelectorAll('strong, b, span')].find(el => /^\s*(#|№)\s*\d+/.test(el.textContent));
+                    if (num) { num.classList.add('row-link'); num.title = 'Открыть'; }
+                }
                 let col = 0;
                 [...tr.children].forEach((td) => {
                     const span = td.colSpan || 1;
@@ -58,13 +65,27 @@ window.ui = {
     },
 };
 
-// Клик по строке таблицы открывает запись (как кнопка «Открыть»/«Редактировать» в этой строке).
-// Клики по ссылкам, кнопкам, полям и ячейкам со своим действием работают как раньше; выделение текста не открывает.
+// Строки таблиц: клик — выделить строку, двойной клик или клик по номеру записи — открыть
+// (открытие = та же кнопка «Открыть»/«Редактировать» этой строки). Ссылки, кнопки, поля и ячейки со своим действием — как раньше.
 if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    const rowOf = (event) => event.target.closest?.('.content-area table.table > tbody > tr');
+    const ownAction = (event) => event.target.closest('a, button, input, select, textarea, label, [onclick]:not(.row-link)');
     document.addEventListener('click', (event) => {
-        const tr = event.target.closest?.('.content-area table.table > tbody > tr.row-open');
-        if (!tr || event.target.closest('a, button, input, select, textarea, label, [onclick]')) return;
+        const tr = rowOf(event);
+        if (!tr || ownAction(event)) return;
+        if (event.target.closest('.row-link') && tr.classList.contains('row-open')) {
+            window.ui.rowOpenButton(tr)?.click();
+            return;
+        }
         if (String(window.getSelection?.() || '').trim()) return;
+        const was = tr.classList.contains('is-selected');
+        tr.closest('tbody').querySelectorAll(':scope > tr.is-selected').forEach(row => row.classList.remove('is-selected'));
+        if (!was) tr.classList.add('is-selected');
+    });
+    document.addEventListener('dblclick', (event) => {
+        const tr = rowOf(event);
+        if (!tr || !tr.classList.contains('row-open') || ownAction(event)) return;
+        window.getSelection?.()?.removeAllRanges?.();
         window.ui.rowOpenButton(tr)?.click();
     });
 }
