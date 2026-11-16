@@ -421,3 +421,32 @@ a.document-source-link:hover { background: var(--c-primary); color: #fff !import
 .shift-subtitle .muted { font-size: 13px; font-weight: 500; }
 .shift-table { width: 100%; }
 .shift-table th, .shift-table td { padding: 8px 10px; }
+
+/* ---------- U6: телефон и планшет ---------- */
+form.modal-content.shift-modal:has(.shift-view) { min-width: min(900px, calc(100vw - 32px)); }
+
+/* Меню на узких экранах: кнопка ☰ и затемнение (раньше меню было скрыто без способа открыть) */
+.mobile-menu-btn, .mobile-menu-backdrop { display: none; }
+@media (max-width: 1024px) {
+    .mobile-menu-btn { display: inline-flex; align-items: center; justify-content: center; position: fixed; top: 12px; left: 12px; z-index: 102; width: 40px; height: 40px; border: 1px solid var(--c-border); border-radius: var(--radius); background: var(--c-surface); color: var(--c-text); box-shadow: var(--shadow-sm); font-size: 18px; cursor: pointer; }
+    body.menu-open .sidebar { transform: translateX(0); box-shadow: var(--shadow-lg); }
+    body.menu-open .mobile-menu-backdrop { display: block; position: fixed; inset: 0; z-index: 99; background: var(--c-overlay); }
+    body.menu-open .mobile-menu-btn { left: 272px; }
+    .top-bar { padding-left: 64px !important; }
+}
+
+/* Телефон: карточка на весь экран, кнопки компактно в два ряда */
+@media (max-width: 640px) {
+    #modalContainer .modal { padding: 0 !important; align-items: stretch; }
+    #modalContainer .modal-dialog { margin: 0 !important; width: 100% !important; max-width: none !important; }
+    #modalContainer .modal-content { width: 100% !important; min-width: 0 !important; max-width: none !important; height: 100dvh !important; max-height: none !important; margin: 0 !important; border-radius: 0 !important; }
+    #modalContainer .modal-body { padding: 12px !important; }
+    #modalContainer .modal-header { padding: 12px 14px; }
+    .modal-footer { flex-direction: row !important; flex-wrap: wrap; justify-content: flex-end; gap: 6px !important; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)) !important; }
+    .modal-footer .btn { height: 36px; padding: 0 12px; font-size: 13px; }
+    .modal-footer > div { flex-wrap: nowrap !important; gap: 6px !important; margin-left: auto; }
+    .modal-footer > .footer-total { width: 100%; order: -3; margin: 0; }
+    .modal-footer > .footer-total b { font-size: 15px; }
+    .modal-footer .fa-print + * , .modal-footer .btn-outline:has(.fa-print) { font-size: 0; gap: 0; }
+    .modal-footer .btn-outline:has(.fa-print) .fa-print { font-size: 14px; }
+}
