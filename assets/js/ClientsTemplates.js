@@ -16,19 +16,19 @@ window.ClientsTemplates = class {
 
                 <td><strong>#${client.id}</strong></td>
 
-                <td>${client.name}</td>
+                <td>${ui.v(client.name)}</td>
 
-                <td>${client.phone}</td>
+                <td>${ui.v(client.phone)}</td>
 
-                <td>${client.email}</td>
+                <td>${ui.v(client.email)}</td>
 
-                <td>${client.addressFull}</td>
+                <td>${ui.v(client.addressFull)}</td>
 
-                <td>${client.comment}</td>
+                <td>${ui.v(client.comment)}</td>
 
-                <td>${client.last_order}</td>
+                <td>${ui.v(client.last_order)}</td>
 
-                <td>${client.created_at}</td>
+                <td>${ui.v(client.created_at)}</td>
 
                 <td class="actions-cell">
                     

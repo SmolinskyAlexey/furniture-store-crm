@@ -135,9 +135,16 @@ input[type="checkbox"] { accent-color: var(--c-primary); }
 .modal-body { padding: 16px 20px; }
 .modal-footer { background: var(--c-surface); border-top: 1px solid var(--c-border); }
 /* Короткие окна (касса, смена) — по содержимому, а не на весь экран */
-.modal-content.shift-modal { height: auto; max-height: 92vh; max-width: 520px; width: calc(100% - 32px); }
-.modal-content.shift-modal .modal-body { max-height: none; overflow-y: auto; }
-.modal-content.shift-modal.shift-history-modal { max-width: 1000px; min-height: 0; }
+div.modal-content.shift-modal { height: auto; max-height: 92vh; max-width: 520px; width: calc(100% - 32px); }
+div.modal-content.shift-modal .modal-body { max-height: none; overflow-y: auto; }
+/* Формы-карточки (заявка, перемещение, возврат, смена) — широкие, колонки не вылезают за окно */
+form.modal-content.shift-modal { width: calc(100% - 32px); max-width: 1200px; height: auto; max-height: 94vh; }
+form.modal-content.shift-modal .modal-body { overflow-x: hidden; }
+#refund_form.modal-content.shift-modal:not(:has(.content-grid)) { max-width: 760px; }
+.content-grid > *, .two-columns > *, .three-columns > *, .four-columns > * { min-width: 0; }
+.content-grid .form-input, .content-grid select, .content-grid input:not([type="checkbox"]):not([type="radio"]) { width: 100%; max-width: 100%; box-sizing: border-box; }
+@media (max-width: 900px) { .content-grid, .fist-col-large-grid, .second-col-large, .first-col-wide { grid-template-columns: minmax(0, 1fr); } }
+div.modal-content.shift-modal.shift-history-modal { max-width: 1000px; min-height: 0; }
 .shift-history-modal .four-columns { display: grid; grid-template-columns: 1fr 1fr 1.2fr auto; gap: 12px; align-items: end; }
 .shift-history-modal .four-columns .form-group { margin: 0; }
 .shift-history-modal .four-columns br { display: none; }
@@ -225,3 +232,50 @@ input[type="checkbox"] { accent-color: var(--c-primary); }
 /* ---------- Карточка заказа: блок оплаты без насыщенной зелёной заливки ---------- */
 .payment-summary { background: var(--c-surface-2); color: var(--c-text); border: 1px solid var(--c-border); border-radius: var(--radius-lg); }
 .payment-summary label, .payment-summary .form-label { color: var(--c-text-2); }
+
+/* ---------- Кнопки-иконки в строках таблиц: значки FA вместо эмодзи (onclick не трогаем) ---------- */
+.actions-cell .btn-icon, .order-actions .btn { display: inline-flex; align-items: center; gap: 6px; }
+.actions-cell .btn-icon { font-size: 0; height: 32px; min-width: 32px; padding: 0 9px; color: var(--c-text-2); }
+.actions-cell .btn-icon::before { font: 900 13px/1 "Font Awesome 6 Free"; content: "\f303"; }
+.actions-cell .btn-icon[title="Просмотр"]::before { content: "\f06e"; }
+.actions-cell .btn-icon[title="Продать"] { background: var(--c-primary-soft, #eff4ff); border-color: #c7d7fe; color: var(--c-primary); }
+.actions-cell .btn-icon[title="Продать"]::before { content: "\f07a"; }
+.actions-cell .btn-icon[title="Продать"]::after { content: "Продать"; font-size: 13px; font-weight: 600; line-height: 1; }
+.actions-cell .btn-icon:hover { color: var(--c-primary); border-color: var(--c-primary); }
+.actions-cell .actions-wrapper { gap: 6px; flex-wrap: nowrap; }
+
+/* ---------- Карточка заказа: оплата строками «сумма · дата · способ» ---------- */
+@media (min-width: 901px) {
+  .payment-summary > .three-columns { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr); column-gap: 16px; row-gap: 10px; align-items: end; }
+  .payment-summary > .three-columns > .column { display: contents; }
+  .payment-summary > .three-columns > .column > .payment-item { margin: 0; grid-column: 1; }
+  .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(2) { grid-row: 1; }
+  .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(3) { grid-row: 2; }
+  .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(4) { grid-row: 3; }
+  .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(5) { grid-row: 4; }
+  .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(6) { grid-row: 5; }
+  .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(1) { grid-column: 3; grid-row: 4; }
+  .payment-summary > .three-columns > .column:nth-child(2) > .payment-item { grid-column: 2; }
+  .payment-summary > .three-columns > .column:nth-child(2) > .payment-item:nth-child(1) { grid-row: 1; }
+  .payment-summary > .three-columns > .column:nth-child(2) > .payment-item:nth-child(2) { grid-row: 2; }
+  .payment-summary > .three-columns > .column:nth-child(2) > .payment-item:nth-child(3) { grid-row: 3; }
+  .payment-summary > .three-columns > .column:nth-child(2) > .payment-item:nth-child(4) { grid-row: 4; }
+  .payment-summary > .three-columns > .column:nth-child(2) > .payment-item:nth-child(5) { grid-row: 5; }
+  .payment-summary > .three-columns > .column:nth-child(3) > .payment-item { grid-column: 3; align-self: start; }
+  .payment-summary > .three-columns > .column:nth-child(3) > .payment-item:nth-child(1) { grid-row: 1 / span 2; }
+  .payment-summary > .three-columns > .column:nth-child(3) > .payment-item:nth-child(2) { grid-row: 3 / span 2; }
+}
+.payment-summary .payment-item { display: block; }
+.payment-summary .payment-item .flex-shrink { display: block; font-size: 13px; color: var(--c-text-2); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.payment-summary .two-columns.small-input-padding { grid-template-columns: minmax(80px, 1fr) minmax(130px, 1fr); gap: 8px; }
+.payment-summary input[type="date"] { min-width: 0; padding-left: 8px; padding-right: 4px; }
+
+/* ---------- Окно выбора товара ---------- */
+#modalProductSelect .category-bar { gap: 10px; }
+#modalProductSelect .search-container { max-width: 420px; }
+#modalProductSelect .product-search-bar { display: flex; align-items: center; position: relative; }
+#modalProductSelect .product-search-bar .search-input { flex: 1; height: 38px; padding-right: 64px; border-radius: var(--radius); }
+#modalProductSelect .product-search-bar .search-btn { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 0; background: none; border: 0; width: 28px; height: 28px; color: var(--c-muted); }
+#modalProductSelect .product-search-bar .search-btn::before { font: 900 14px/1 "Font Awesome 6 Free"; content: "\f002"; }
+#modalProductSelect .product-search-bar .clear-btn { right: 36px; top: 50%; transform: translateY(-50%); }
+#modalProductSelect .category-tab .tab-icon { display: none; }

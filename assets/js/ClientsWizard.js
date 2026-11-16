@@ -17,7 +17,7 @@ class ClientsWizard extends CRMListPage {
 
         table.innerHTML = html;
 
-        totalLabel.innerHTML = "Всего "+clients.total_num+" клиентов";
+        totalLabel.innerHTML = ui.count(clients.total_num,'клиент','клиента','клиентов');
         this.clientsPagination();
     }
 

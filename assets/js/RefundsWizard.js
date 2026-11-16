@@ -17,7 +17,7 @@ class RefundsWizard extends CRMListPage {
 
         table.innerHTML = html;
 
-        totalLabel.innerHTML = "Всего "+refunds.total_num+" заказов";
+        totalLabel.innerHTML = ui.count(refunds.total_num,'возврат','возврата','возвратов');
         this.refundsPagination();
     }
 

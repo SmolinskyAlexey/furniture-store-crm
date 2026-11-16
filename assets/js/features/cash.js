@@ -22,7 +22,7 @@ function getCashOperationModal(type) {
                     </div>
                     <div class="form-group">
                         <label class="form-label">Сумма</label>
-                        <input type="number" class="form-control" id="cashAmount" placeholder="Введите сумму">
+                        <input type="number" class="form-control" id="cashAmount" min="0.01" step="0.01" inputmode="decimal" placeholder="Введите сумму">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Комментарий</label>

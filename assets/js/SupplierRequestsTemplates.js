@@ -61,9 +61,9 @@ window.SupplierRequestsTemplates = class {
 
                 <td>${sRequest.supplier_id}</td>
 
-                <td><span class="badge badge-${sRequest.status}">${sRequest.status}</span><br>\n${sRequest.received_date}</td>
+                <td><span class="badge badge-${sRequest.status}">${ui.name(sRequest.status)}</span><br>\n${ui.v(sRequest.received_date)}</td>
 
-                <td>${sRequest.comment}</td>
+                <td>${ui.v(sRequest.comment)}</td>
 
             </tr>
 

@@ -16,17 +16,17 @@ window.OverheadExpensesTemplates = class {
 
                 <td><strong>#${ovhexp.id}</strong></td>
 
-                <td>${ovhexp.warehouse_id}</td>
+                <td>${ui.v(ovhexp.warehouse_id)}</td>
 
-                <td>${ovhexp.date}</td>
+                <td>${ui.v(ovhexp.date)}</td>
 
-                <td>${ovhexp.service_id}</td>
+                <td>${ui.v(ovhexp.service_id)}</td>
 
-                <td>${ovhexp.amount}</td>
+                <td>${ui.money(ovhexp.amount)}</td>
 
-                <td>${ovhexp.comment}</td>
+                <td>${ui.v(ovhexp.comment)}</td>
 
-                <td>${ovhexp.created_at}</td>
+                <td>${ui.v(ovhexp.created_at)}</td>
 
                 <td class="actions-cell">
                     

@@ -15,7 +15,7 @@ class ContractorsWizard extends CRMListPage {
         const table = this.root.querySelector(".default-table tbody");
         const totalLabel = this.root.querySelector(".total-count");
         table.innerHTML = html;
-        totalLabel.innerHTML = "Всего " + contractors.total_num + " подрядчиков";
+        totalLabel.innerHTML = "Всего " + contractors.total_num + " контрагентов";
         this.contractorsPagination();
     }
 

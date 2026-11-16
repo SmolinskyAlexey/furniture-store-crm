@@ -17,7 +17,7 @@ class ShiftsWizard extends CRMListPage {
 
         table.innerHTML = html;
 
-        totalLabel.innerHTML = "Всего "+shifts.total_num+" заказов";
+        totalLabel.innerHTML = ui.count(shifts.total_num,'смена','смены','смен');
         this.shiftsPagination();
     }
 

@@ -5,7 +5,7 @@ window.CategoriesTemplates = class {
             return `
             <tr>
                 <td><strong>#${category.id}</strong></td>
-                <td>${category.name}</td>
+                <td>${ui.v(category.name)}</td>
                 <td>${category.parent_id || '-'}</td>
                 <td>${category.prefix || '-'}</td>
                 <td>${category.attributes_ids || '-'}</td>

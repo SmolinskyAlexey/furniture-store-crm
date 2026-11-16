@@ -4,14 +4,14 @@ window.InvoicesTemplates = class {
             return `
             <tr>
                 <td><strong>#${invoice.id}</strong></td>
-                <td>${invoice.supplier_id}</td>
-                <td>${invoice.warehouse_id}</td>
-                <td>${invoice.date_received}</td>
-                <td>${invoice.total_sum}</td>
+                <td>${ui.v(invoice.supplier_id)}</td>
+                <td>${ui.v(invoice.warehouse_id)}</td>
+                <td>${ui.v(invoice.date_received)}</td>
+                <td>${ui.money(invoice.total_sum)}</td>
                 <td>${invoice.is_paid ? 'Оплачен' : 'Не оплачен'}</td>
-                <td>${invoice.comment}</td>
-                <td>${invoice.manager_id}</td>
-                <td>${invoice.created_at}</td>
+                <td>${ui.v(invoice.comment)}</td>
+                <td>${ui.v(invoice.manager_id)}</td>
+                <td>${ui.v(invoice.created_at)}</td>
                 <td class="actions-cell">
                     <div class="actions-wrapper">
                         <button class="btn btn-icon btn-secondary" onclick="window.showUniversalModal('invoices',${invoice.id})" title="Редактировать">✏️</button>

@@ -23,7 +23,7 @@ class OrdersWizard extends CRMListPage {
 
         table.innerHTML = html;
 
-        totalLabel.innerHTML = "Всего "+orders.total_num+" заказов";
+        totalLabel.innerHTML = ui.count(orders.total_num,'заказ','заказа','заказов');
         this.ordersPagination();
     }
 

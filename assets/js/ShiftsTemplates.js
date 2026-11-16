@@ -16,21 +16,21 @@ window.ShiftsTemplates = class {
 
                 <td><strong>#${shift.id}</strong></td>
 
-                <td>${shift.warehouse_id}</td>
+                <td>${ui.v(shift.warehouse_id)}</td>
 
-                <td>${shift.closed_at}</td>
+                <td>${shift.closed_at && shift.closed_at !== 'null' ? shift.closed_at : '<span class="badge badge-in_work">Открыта</span>'}</td>
 
-                <td>${shift.start_cash}</td>
+                <td>${ui.money(shift.start_cash)}</td>
 
-                <td>${shift.end_cash}</td>
+                <td>${ui.money(shift.end_cash)}</td>
 
-                <td>${shift.start_comment}</td>
+                <td>${ui.v(shift.start_comment)}</td>
 
-                <td>${shift.end_comment}</td>
+                <td>${ui.v(shift.end_comment)}</td>
 
-                <td>${shift.created_at}</td>
+                <td>${ui.v(shift.created_at)}</td>
 
-                <td>${shift.updated_at}</td>
+                <td>${ui.v(shift.updated_at)}</td>
 
                 <td class="actions-cell">
                     

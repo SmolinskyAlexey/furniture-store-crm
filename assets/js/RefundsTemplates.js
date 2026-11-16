@@ -16,21 +16,21 @@ window.RefundsTemplates = class {
 
                 <td><strong>#${refund.id}</strong></td>
 
-                <td>${refund.order_id}</td>
+                <td>${ui.v(refund.order_id)}</td>
 
-                <td>${refund.product_ids}</td>
+                <td>${ui.v(refund.product_ids)}</td>
 
-                <td>${refund.reason}</td>
+                <td>${ui.v(refund.reason)}</td>
 
-                <td>${refund.type}</td>
+                <td>${ui.name(refund.type)}</td>
 
-                <td>${refund.comment}</td>
+                <td>${ui.v(refund.comment)}</td>
 
-                <td>${refund.warehouse_id}</td>
+                <td>${ui.v(refund.warehouse_id)}</td>
 
-                 <td>${refund.total_refund_amount}</td>
+                 <td>${ui.money(refund.total_refund_amount)}</td>
 
-                <td>${refund.created_at}</td>
+                <td>${ui.v(refund.created_at)}</td>
 
 
                 <td class="actions-cell">

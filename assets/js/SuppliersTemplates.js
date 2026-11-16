@@ -16,17 +16,17 @@ window.SuppliersTemplates = class {
 
                 <td><strong>#${supplier.id}</strong></td>
 
-                <td>${supplier.name}</td>
+                <td>${ui.v(supplier.name)}</td>
 
-                <td>${supplier.phone}</td>
+                <td>${ui.v(supplier.phone)}</td>
 
-                <td>${supplier.email}</td>
+                <td>${ui.v(supplier.email)}</td>
 
-                <td>${supplier.comment}</td>
+                <td>${ui.v(supplier.comment)}</td>
 
-                <td>${supplier.group_id}</td>
+                <td>${ui.v(supplier.group_id)}</td>
 
-                <td>${supplier.created_at}</td>
+                <td>${ui.v(supplier.created_at)}</td>
 
                 <td class="actions-cell">
                     

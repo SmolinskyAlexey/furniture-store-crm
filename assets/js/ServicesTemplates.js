@@ -6,8 +6,8 @@ window.ServicesTemplates = class {
             <tr>
                 <td><strong>#${service.id}</strong></td>
                 <td>${service.service_type || '-'}</td>
-                <td>${service.name}</td>
-                <td>${service.created_at}</td>
+                <td>${ui.v(service.name)}</td>
+                <td>${ui.v(service.created_at)}</td>
                 <td>${service.updated_at || '-'}</td>
                 <td class="actions-cell">
                     <div class="actions-wrapper">

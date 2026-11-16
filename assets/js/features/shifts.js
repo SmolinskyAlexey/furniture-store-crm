@@ -383,6 +383,8 @@ function getShiftHistoryModal() {
                             **/
 }
 function closeShiftModal() {
+    const pageTitle = document.getElementById('pageTitle');
+    if (pageTitle && pageTitle.textContent === 'Управление сменой') pageTitle.textContent = document.title.split(' | ')[0];
     document.querySelector('#modalContainer').innerHTML = '';
     document.querySelector('#modalContainer').style.display = 'none';
 
