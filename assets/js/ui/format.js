@@ -5,13 +5,13 @@ window.ui = {
     },
     money(value) {
         if (value === null || value === undefined || value === '' || value === 'null') return '<span class="muted">—</span>';
-        const n = Number(value);
+        const n = Number(String(value).replace(/[\s ]/g, '').replace(',', '.'));
         if (!Number.isFinite(n)) return value;
         return `<span class="num">${(n < 0 ? '−' : '') + Math.abs(Math.round(n)).toLocaleString('ru-RU')}&nbsp;₴</span>`;
     },
     names: {
-        money: 'Деньги', exchange: 'Обмен',
-        pending: 'В обработке', received: 'Принят', new: 'Новая', canceled: 'Отменена', cancelled: 'Отменена',
+        money: 'Деньги', exchange: 'Обмен', warehouse: 'На склад', delivered: 'Доставлен',
+        pending: 'В обработке', 'automatic open': 'Автоматически', 'automatic close': 'Автоматически', received: 'Принят', new: 'Новая', canceled: 'Отменена', cancelled: 'Отменена',
     },
     name(code) {
         return this.names[code] || this.v(code);

@@ -24,9 +24,9 @@ window.ShiftsTemplates = class {
 
                 <td>${ui.money(shift.end_cash)}</td>
 
-                <td>${ui.v(shift.start_comment)}</td>
+                <td>${ui.name(shift.start_comment)}</td>
 
-                <td>${ui.v(shift.end_comment)}</td>
+                <td>${ui.name(shift.end_comment)}</td>
 
                 <td>${ui.v(shift.created_at)}</td>
 
