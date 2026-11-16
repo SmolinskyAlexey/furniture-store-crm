@@ -247,7 +247,7 @@ div.modal-content.shift-modal.shift-history-modal { max-width: 1000px; min-heigh
 
 /* ---------- Карточка заказа: оплата строками «сумма · дата · способ» ---------- */
 @media (min-width: 901px) {
-  .payment-summary > .three-columns { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr); column-gap: 16px; row-gap: 10px; align-items: end; }
+  .payment-summary > .three-columns { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.2fr) minmax(0, 1fr); column-gap: 16px; row-gap: 10px; align-items: end; }
   .payment-summary > .three-columns > .column { display: contents; }
   .payment-summary > .three-columns > .column > .payment-item { margin: 0; grid-column: 1; }
   .payment-summary > .three-columns > .column:nth-child(1) > .payment-item:nth-child(2) { grid-row: 1; }
@@ -741,3 +741,59 @@ html, body { overflow-x: clip; }
 .orders-table .product-in-order, .orders-table .product-in-order * { min-width: 0; white-space: normal; }
 .orders-table .order-actions .btn { padding: 4px 8px; }
 .orders-table td.total-status-cell { width: auto !important; min-width: 0 !important; }
+
+/* ---------- U7d (16.11): меньше пустых полей, кнопки строки — у номера, главная компактнее ---------- */
+@media (min-width: 1025px) {
+    body:has(> .sidebar) > .main-content { padding-right: 0; }
+    /* Шапка: заголовок слева, поиск всегда по центру, кнопки справа (даже если кнопок нет) */
+    .top-bar > div:first-child { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; padding-top: 10px; padding-bottom: 10px; }
+    .top-bar > div:first-child > .page-title { grid-column: 1; }
+    .top-bar > div:first-child > .search-filter-group { grid-column: 2; }
+    .top-bar > div:first-child > .top-actions { grid-column: 3; justify-self: end; }
+    .top-bar .active-filters { padding-top: 0; padding-bottom: 10px; }
+    .content-area { padding: 14px 16px; }
+    .content-area > div > .card > .card-footer { padding: 8px 16px; }
+}
+
+/* Колонка «Действия» из одних значков перенесена к номеру записи (format.js) */
+.col-merged { display: none !important; }
+.content-area tbody td:first-child > .actions-wrapper:not(.order-actions) .btn-icon[title="Просмотр"]::before { content: "\f06e"; }
+.content-area tbody td:first-child > .actions-wrapper:not(.order-actions) .btn-icon[title="Печать"]::before { content: "\f02f"; }
+
+/* Архив: возврат и накладная — значки рядом с номером; открыть — номер или двойной клик */
+.order-head .order-actions { display: inline-flex; flex-wrap: nowrap; gap: 4px; margin: 0 0 0 6px; vertical-align: middle; }
+.order-actions .btn[hidden] { display: none; }
+.orders-table .order-actions .btn { width: 28px; height: 28px; padding: 0; justify-content: center; color: var(--c-text-2); }
+.orders-table .order-actions .btn:hover { color: var(--c-primary); border-color: var(--c-primary); }
+.order-actions .btn i { font-size: 12px; }
+.client-contact { margin-top: 2px; color: var(--c-muted); font-size: 12px; white-space: nowrap; }
+
+/* Возврат: сумма с ₴ рядом с полем */
+.refund-summary .summary-item { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.refund-summary .summary-item > span:first-child { flex-basis: 100%; }
+.refund-summary #refund-amount { max-width: 220px; }
+.sum-suffix { font-weight: 600; color: var(--c-text-2); }
+
+/* Заказ: поля оплаты в одну линию */
+#modalContainer .payment-summary .three-columns .payment-item { margin-top: 0 !important; margin-bottom: 0 !important; }
+#modalContainer .payment-summary .three-columns .payment-item .form-group { margin-bottom: 0 !important; }
+
+/* Главная: статус смены в верхней панели; смена и касса — плашки с двумя кнопками */
+.shift-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid var(--c-border); border-radius: 999px; font-size: 13px; white-space: nowrap; }
+.shift-pill.shift-open { background: var(--c-success-soft); border-color: #bfe5cc; color: #14532d; }
+.shift-pill.shift-closed { background: var(--c-danger-soft); border-color: #f6c5c5; color: #7f1d1d; }
+.shift-pill .shift-dot { width: 8px; height: 8px; }
+.shift-pill .shift-sub { margin: 0; font-size: 12px; }
+#homePage > .shift-pill { margin-bottom: 12px; }
+.quick-action.qa-group { cursor: default; }
+.qa-group .qa-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.qa-group .qa-buttons .btn { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; font-size: 12px; font-weight: 600; }
+.qa-group .qa-buttons .btn i { font-size: 11px; }
+.qa-group .qa-in { color: var(--c-success); }
+.qa-group .qa-out { color: var(--c-danger); }
+.qa-group[data-kind="shift"] .quick-action-icon::before { content: "\f017"; }
+.qa-group[data-kind="cash"] .quick-action-icon { background: var(--c-success-soft); color: var(--c-success); }
+.qa-group[data-kind="cash"] .quick-action-icon::before { content: "\f555"; }
+@media (max-width: 640px) {
+    .shift-pill .shift-sub { display: none; }
+}

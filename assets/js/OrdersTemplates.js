@@ -30,13 +30,19 @@ window.OrdersTemplates = class {
         }
         if (debt > 0) html += `<div class="order-pay-debt">Долг <span class="num">${this.money(debt)}</span></div>`;
         else if (debt < 0) html += `<div class="order-pay-debt">Переплата <span class="num">${this.money(-debt)}</span></div>`;
-        else if (base > 0) html += `<div class="order-pay-ok">Оплачен полностью</div>`;
 
         (order.payment_errors || []).forEach(message => {
             const safe = String(message).replace(/[&<>"']/g, ch => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[ch]));
             html += `<div role="alert" style="color:#b91c1c;background:#fef2f2;font-weight:700;padding:4px;margin-top:4px;border-radius:6px">${safe}</div>`;
         });
         return html + `</div>`;
+    }
+
+    // «Имя, телефон» → имя, ниже телефон
+    static client(info) {
+        const text = String(info ?? '');
+        const at = text.indexOf(',');
+        return at < 0 ? text : `${text.slice(0, at)}<div class="client-contact">${text.slice(at + 1).trim()}</div>`;
     }
 
     static renderOrders(orders = []) {
@@ -47,15 +53,15 @@ window.OrdersTemplates = class {
             <tr>
                 <td class="order-head">
                     <strong>#${order.id}</strong>
-                    <span class="order-date">${order.created_at}</span>
                     <div class="actions-wrapper order-actions">
-                        <button class="btn btn-secondary" onclick="window.showUniversalModal('orders',${order.id})"
+                        <button class="btn btn-secondary" hidden onclick="window.showUniversalModal('orders',${order.id})"
                          title="${order.isEditable ? 'Редактировать заказ' : 'Просмотр заказа'}">${order.isEditable ? 'Открыть' : 'Просмотр'}</button>
-                        <button class="btn btn-secondary" onclick="window.showUniversalModal('refunds', 0, ${order.id})" title="Оформить возврат по заказу"><i class="fa-solid fa-rotate-left"></i>Возврат</button>
-                        <button class="btn btn-secondary" onclick="window.generateUniversalPDF('orders', ${order.id})" title="Печать накладной (PDF)"><i class="fa-solid fa-print"></i>Накладная</button>
+                        <button class="btn btn-secondary" onclick="window.showUniversalModal('refunds', 0, ${order.id})" title="Возврат по заказу"><i class="fa-solid fa-rotate-left"></i></button>
+                        <button class="btn btn-secondary" onclick="window.generateUniversalPDF('orders', ${order.id})" title="Накладная (PDF)"><i class="fa-solid fa-print"></i></button>
                     </div>
+                    <span class="order-date">${order.created_at}</span>
                 </td>
-                <td>${order.client_info}</td>
+                <td>${this.client(order.client_info)}</td>
                 <td>
                     ${order.products?.map(product => {
                             let prodHTML = '<div class=\'product-in-order\'>';

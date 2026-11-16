@@ -54,6 +54,7 @@ window.ui = {
                     const num = [...first.querySelectorAll('strong, b, span')].find(el => /^\s*(#|№)\s*\d+/.test(el.textContent));
                     if (num) { num.classList.add('row-link'); num.title = 'Открыть'; }
                 }
+                window.ui.mergeActions(tr);
                 let col = 0;
                 [...tr.children].forEach((td) => {
                     const span = td.colSpan || 1;
@@ -61,7 +62,20 @@ window.ui = {
                     col += span;
                 });
             });
+            const merged = table.querySelector(':scope > tbody > tr > td.col-merged');
+            table.querySelector(':scope > thead tr > th:last-child')?.classList.toggle('col-merged', !!merged);
         });
+    },
+    // Последняя колонка «Действия» с одной-двумя кнопками-значками → значки рядом с номером записи
+    mergeActions(tr) {
+        const cell = tr.lastElementChild;
+        const link = tr.children[0]?.querySelector('.row-link');
+        if (!cell || cell === tr.children[0] || !cell.classList.contains('actions-cell') || !link) return;
+        const box = cell.querySelector(':scope > .actions-wrapper');
+        const buttons = box ? box.querySelectorAll('button, a') : [];
+        if (!box || !buttons.length || buttons.length > 2 || [...buttons].some(b => /[A-Za-zА-Яа-яЁё]/.test(b.textContent) || /продать/i.test(b.title))) return; // «Продать» в витрине — своя колонка
+        link.after(box);
+        cell.classList.add('col-merged');
     },
 };
 
