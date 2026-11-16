@@ -438,8 +438,8 @@ form.modal-content.shift-modal:has(.shift-view) { min-width: min(900px, calc(100
 /* Телефон: карточка на весь экран, кнопки компактно в два ряда */
 @media (max-width: 640px) {
     #modalContainer .modal { padding: 0 !important; align-items: stretch; }
-    #modalContainer .modal-dialog { margin: 0 !important; width: 100% !important; max-width: none !important; }
-    #modalContainer .modal-content { width: 100% !important; min-width: 0 !important; max-width: none !important; height: 100dvh !important; max-height: none !important; margin: 0 !important; border-radius: 0 !important; }
+    #modalContainer .modal-dialog { margin: 0 !important; width: 100% !important; max-width: none !important; height: 100% !important; max-height: none !important; transform: none !important; }
+    #modalContainer .modal-content { width: 100% !important; min-width: 0 !important; max-width: none !important; height: 100% !important; max-height: none !important; margin: 0 !important; border-radius: 0 !important; }
     #modalContainer .modal-body { padding: 12px !important; }
     #modalContainer .modal-header { padding: 12px 14px; }
     .modal-footer { flex-direction: row !important; flex-wrap: wrap; justify-content: flex-end; gap: 6px !important; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)) !important; }
