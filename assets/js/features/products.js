@@ -646,7 +646,7 @@ function updatePaymentFields() {
             totalInputLabel.innerHTML = formatFooterMoney(total);
         }
         totalDebt.value = debt.toFixed(0);
-        setFooterTotal(total, debt);
+        setFooterTotal(total, debt, prepay + prepay2 + postpay + postpay2, discount);
     }
 
 }
@@ -656,13 +656,30 @@ function formatFooterMoney(value) {
     return Math.round(value).toLocaleString('ru-RU') + '&nbsp;₴';
 }
 
-function setFooterTotal(total, debt) {
+function setFooterTotal(total, debt, paid = null, discount = 0) {
     const totalEl = document.querySelector('#modalContainer [data-footer-total]');
     if (totalEl) totalEl.innerHTML = formatFooterMoney(total);
     const debtEl = document.querySelector('#modalContainer [data-footer-debt]');
     if (debtEl) {
         debtEl.innerHTML = formatFooterMoney(debt);
         debtEl.parentElement.hidden = !(debt > 0);
+    }
+    // Плитки оплаты в заказе: Сумма / Оплачено (полоса) / Долг, переплата или «Оплачен полностью»
+    const tiles = document.querySelector('#modalContainer [data-pay-tiles]');
+    if (!tiles || paid === null) return;
+    const set = (sel, html) => { const el = tiles.querySelector(sel); if (el) el.innerHTML = html; };
+    set('[data-pay-total]', formatFooterMoney(total));
+    set('[data-pay-paid]', formatFooterMoney(paid));
+    set('[data-pay-paid-label]', 'Оплачено' + (discount > 0 ? ' · скидка ' + formatFooterMoney(discount) : ''));
+    set('[data-pay-debt]', formatFooterMoney(Math.abs(debt)));
+    const bar = tiles.querySelector('[data-pay-bar]');
+    if (bar) bar.style.width = (total > 0 ? Math.max(0, Math.min(100, Math.round((paid + discount) / total * 100))) : 0) + '%';
+    const debtTile = tiles.querySelector('[data-pay-debt-tile]');
+    if (debtTile) {
+        const state = debt > 0 ? 'is-debt' : (debt < 0 ? 'is-over' : (total > 0 ? 'is-ok' : ''));
+        debtTile.classList.remove('is-debt', 'is-over', 'is-ok');
+        if (state) debtTile.classList.add(state);
+        set('[data-pay-debt-label]', debt > 0 ? 'Долг клиента' : (debt < 0 ? 'Переплата' : (total > 0 ? 'Оплачен полностью' : 'Долг клиента')));
     }
 }
 

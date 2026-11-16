@@ -112,92 +112,113 @@ function saveOrder(orderData) {
 
 
 
+// Заказы сегодняшних смен на главной + плитки дня (только отображение; данные — те же, что и раньше)
+const shiftOrdersEsc = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const shiftOrdersMoney = (value) => (Number(value) || 0) === 0 ? '<span class="muted">—</span>' : `<span class="num">${Math.round(Number(value)).toLocaleString('ru-RU')}&nbsp;₴</span>`;
+const shiftOrdersStatusClass = (name) => {
+    const s = String(name || '').toLowerCase();
+    if (/отмен|удал/.test(s)) return ' is-cancel';
+    if (/заверш|оплач|выполн|выдан|достав/.test(s)) return ' is-done';
+    if (/брон|ожид|предоплат/.test(s)) return ' is-hold';
+    return '';
+};
+
+function renderShiftKpis(list) {
+    const box = document.querySelector('#home_kpis');
+    if (!box) return;
+    const num = (v) => Number(v) || 0;
+    const fmt = (v) => Math.round(v).toLocaleString('ru-RU') + '&nbsp;₴';
+    let sales = 0, paid = 0, debt = 0, debtors = 0, delivery = 0;
+    list.forEach((o) => {
+        sales += num(o.total_amount_income ?? o.total);
+        paid += num(o.prepay) + num(o.prepay_2) + num(o.postpay) + num(o.postpay2);
+        if (num(o.total_amount_debt) > 0) { debt += num(o.total_amount_debt); debtors++; }
+        if (o.delivery_date) delivery++;
+    });
+    const n = list.length;
+    const ordersWord = (k) => { const a = k % 100, b = k % 10; return (a > 10 && a < 20) ? 'заказам' : (b === 1 ? 'заказу' : 'заказам'); };
+    box.innerHTML = `
+        <div class="home-kpi"><small>Заказов за сегодня</small><b>${n}</b><span>${delivery ? `${delivery} с доставкой` : 'по всем салонам'}</span></div>
+        <div class="home-kpi"><small>Продажи</small><b>${fmt(sales)}</b><span>сумма заказов</span></div>
+        <div class="home-kpi"><small>Внесено клиентами</small><b>${fmt(paid)}</b><span>предоплаты и доплаты</span></div>
+        <div class="home-kpi${debt > 0 ? ' is-debt' : ''}"><small>Долг клиентов</small><b>${fmt(debt)}</b><span>${debtors ? `по ${debtors} ${ordersWord(debtors)}` : 'долгов нет'}</span></div>`;
+    box.hidden = false;
+}
+
 function loadCurrentShiftOrders() {
-    let warehouse_select = document.querySelector("#select-warehouse");
+    const warehouse_select = document.querySelector("#select-warehouse");
     let warehouse_id = 'all';
     if (warehouse_select) {
-        //Обновление листа при выборе салона
-        warehouse_select.addEventListener('change', function (e) {
-            loadCurrentShiftOrders();
-        });
-        warehouse_id = 0;//warehouse_select.value;
+        // Обновление списка при выборе салона (обработчик — один раз)
+        if (!warehouse_select.dataset.bound) {
+            warehouse_select.dataset.bound = '1';
+            warehouse_select.addEventListener('change', () => loadCurrentShiftOrders());
+        }
+        warehouse_id = warehouse_select.value || 'all';
     }
     fetch('/ajax/shifts/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'action=get_orders_for_current_shift&warehouse_id=' + warehouse_id
+        body: 'action=get_orders_for_current_shift&warehouse_id=' + encodeURIComponent(warehouse_id)
     })
 
         .then(r => r.json())
         .then(data => {
             const tbody = document.querySelector('#current_shift_orders_table tbody');
-            tbody.innerHTML = ''; // очистка
+            if (!tbody) return;
+            const cols = document.querySelectorAll('#current_shift_orders_table thead th').length || 9;
+            const list = Array.isArray(data.list) ? data.list : Object.values(data.list || {});
+            const title = document.querySelector('#current_shift_orders_count');
+            if (title) title.innerHTML = `Заказы за сегодня <span class="badge-count">${list.length}</span>`;
+            renderShiftKpis(list);
 
-            if (!data.list || !data.list.length) {
-                tbody.innerHTML = '<tr><td colspan="5">Нет заказов</td></tr>';
+            if (!list.length) {
+                tbody.innerHTML = `<tr><td colspan="${cols}" class="table-empty"><i class="fas fa-receipt"></i>Сегодня заказов пока нет</td></tr>`;
                 return;
             }
 
-            const title = document.querySelector('#current_shift_orders_count');
-
-            title.innerHTML = `Текущие заказы смены (` + data.total_num + `)`;
-
-            data.list.forEach(order => {
-
-                const row = document.createElement('tr');
-
-                row.innerHTML = `
-            <tr>
-                <td><strong>#${order.id}</strong>  |  ${order.created_at}</td>
-                <td>${order.client.name}<br><small>${order.client_info}</small></td>
-                <td>
-                    ${order.products?.map(product => product.name).join(", ")}
-                    <br/>
-                    <div class="photos-preview">
-                        ${order.products?.map(product => {
-
-                    if (!product.images || product.images.length === 0) { return ''; }
-
-                    return product.images.map(image => {
-                        // Используем preview если есть, иначе full
-                        const imageUrl = image.preview || image.full || '';
-                        return imageUrl ? `<img src="${imageUrl}" />` : '';
-                    }).join('');
-
-                }).join("")}
-                    </div>
-                </td>
-
-                <td>${order.prepay === 0 ? '-' : order.prepay + '&nbsp;<small>₴</small>'}</td>
-                <td>${order.postpay === 0 ? '-' : order.postpay + '&nbsp;<small>₴</small>'}</td>
-                <td class="comment-cell">${order.comment}</td>
-
+            tbody.innerHTML = list.map(order => {
+                const products = Array.isArray(order.products) ? order.products : Object.values(order.products || {});
+                const photos = products.flatMap(product => (Array.isArray(product.images) ? product.images : Object.values(product.images || {})))
+                    .map(image => image && (image.preview || image.full)).filter(Boolean)
+                    .map(url => `<img src="${shiftOrdersEsc(url)}" alt="" loading="lazy">`).join('');
+                const debt = Number(order.total_amount_debt) || 0;
+                const prepay = (Number(order.prepay) || 0) + (Number(order.prepay_2) || 0);
+                const postpay = (Number(order.postpay) || 0) + (Number(order.postpay2) || 0);
+                const editTitle = order.isEditable ? 'Редактировать' : 'Просмотр';
+                return `<tr data-order-id="${Number(order.id)}">
+                <td><span class="order-no">#${Number(order.id)}</span><div class="p-sub num">${shiftOrdersEsc(order.created_at)}</div></td>
+                <td>${shiftOrdersEsc(order.client?.name || '—')}<div class="p-sub">${shiftOrdersEsc(order.client_info || '')}</div></td>
+                <td><div class="p-name">${shiftOrdersEsc(products.map(product => product.name).join(', ') || '—')}</div>${photos ? `<div class="photos-preview">${photos}</div>` : ''}</td>
+                <td class="num">${shiftOrdersMoney(prepay)}</td>
+                <td class="num">${shiftOrdersMoney(postpay)}</td>
+                <td class="comment-cell">${order.comment ? shiftOrdersEsc(order.comment) : '<span class="muted">—</span>'}</td>
                 <td class="total-status-cell">
                     <div class="total-status-wrapper">
-                        <strong>${order.total}&nbsp;<small>₴</small></strong>
-                        <span class="badge badge-success">${order.status}</span>
+                        <strong class="num">${Math.round(Number(order.total) || 0).toLocaleString('ru-RU')}&nbsp;₴</strong>
+                        ${debt > 0 ? `<span class="order-debt">долг ${Math.round(debt).toLocaleString('ru-RU')}&nbsp;₴</span>` : ''}
+                        <span class="status-badge${shiftOrdersStatusClass(order.status)}">${shiftOrdersEsc(order.status)}</span>
                     </div>
                 </td>
-                `+ (order.shift ? ("<td>" + order.warehouse_name + "</td>") : "") + `
+                ${order.shift ? `<td>${shiftOrdersEsc(order.warehouse_name)}</td>` : ''}
                 <td class="actions-cell">
                     <div class="actions-wrapper">
-
-                        <button class="btn btn-icon btn-secondary" onclick="window.showUniversalModal('orders',${order.id})"
-                         ${order.isEditable ? `title="Редактировать">✏️` : `title="Просмотр">👁️`}
-                        </button>
-
-                        <button class="btn btn-icon btn-secondary" onclick="window.generateUniversalPDF('orders', ${order.id})" title="Печать">📠</button>
-
+                        <button class="btn btn-icon btn-secondary" onclick="window.showUniversalModal('orders',${Number(order.id)})" title="${editTitle}"></button>
+                        <button class="btn btn-icon btn-secondary" onclick="window.generateUniversalPDF('orders', ${Number(order.id)})" title="Печать"></button>
                     </div>
                 </td>
             </tr>`;
-
-                tbody.appendChild(row);
-
-            });
+            }).join('');
         });
 
 }
+
+// Клик по строке заказа на главной открывает заказ (кнопки в строке работают как раньше)
+document.addEventListener('click', (event) => {
+    const row = event.target.closest('#current_shift_orders_table tbody tr[data-order-id]');
+    if (!row || event.target.closest('button, a, input, select, textarea')) return;
+    window.showUniversalModal('orders', Number(row.dataset.orderId));
+});
 
 window.loadCurrentShiftOrders = loadCurrentShiftOrders;
 

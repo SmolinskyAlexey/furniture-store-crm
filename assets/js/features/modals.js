@@ -75,7 +75,9 @@ window.showUniversalModal = async (objectType, objectId, orderId = null) => {
         paymentForm.addEventListener('change', validate);
         paymentForm.addEventListener('submit', event => event.preventDefault());
         validate();
+        initPaymentSlots(paymentForm);
     }
+    addQuantitySteppers(document.querySelector('#modalContainer'));
 
     if (objectType === "orders" || objectType === "supplier_requests") {
         attachListenersForOrderModal();
@@ -220,5 +222,90 @@ if (typeof document.addEventListener === 'function') {
         img.alt = file.name;
         tile.classList.add('is-picked');
         tile.querySelector('.photo-tile__pick span').textContent = 'Заменить';
+    });
+}
+
+// Оплата в заказе (U7): пустые слоты (сумма 0 и нет даты) прячутся, вместо них — кнопки «+ Предоплата 2» и т. д.
+// Поля остаются в форме с прежними именами и значениями: на сохранение и проверки это не влияет.
+function initPaymentSlots(form) {
+    const summary = form?.querySelector('.payment-summary');
+    if (!summary || summary.querySelector('.pay-add')) return;
+    const slots = [
+        ['prepay_2', 'payment_method_2_id', 'Предоплата 2'],
+        ['postpay', 'payment_method_postpay_id', 'Доплата'],
+        ['postpay2', 'payment_method_postpay2_id', 'Доплата 2'],
+        ['services_pay', 'payment_method_services_id', 'Оплата доставки'],
+    ];
+    const bar = document.createElement('div');
+    bar.className = 'pay-add';
+    bar.innerHTML = '<span>Добавить платёж:</span>';
+    slots.forEach(([amountName, methodName, label]) => {
+        const amount = summary.querySelector(`input[name="${amountName}"]`);
+        const date = summary.querySelector(`input[name="${amountName}_date"]`);
+        const method = summary.querySelector(`select[name="${methodName}"]`);
+        if (!amount || amount.disabled || amount.readOnly) return;
+        if ((Number(amount.value) || 0) !== 0 || (date && date.value)) return;
+        const items = [amount.closest('.payment-item'), method?.closest('.payment-item')].filter(Boolean);
+        items.forEach(item => item.classList.add('pay-slot-empty'));
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.innerHTML = `<i class="fas fa-plus"></i> ${label}`;
+        button.addEventListener('click', () => {
+            items.forEach(item => item.classList.remove('pay-slot-empty'));
+            button.remove();
+            if (!bar.querySelector('button')) bar.remove();
+            amount.focus();
+            amount.select?.();
+        });
+        bar.appendChild(button);
+    });
+    if (bar.querySelector('button')) summary.appendChild(bar);
+}
+
+// Количество в строках заказа (U7): кнопки − / + рядом с полем; меняют значение и вызывают обычный change
+function addQuantitySteppers(root) {
+    root?.querySelectorAll('.quantity-control').forEach((box) => {
+        const input = box.querySelector('input.quantity-input');
+        if (!input || input.disabled || input.readOnly || box.querySelector('.quantity-btn')) return;
+        const make = (delta, text, title) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'quantity-btn qty-step';
+            button.textContent = text;
+            button.title = title;
+            button.addEventListener('click', () => {
+                const min = Math.max(1, Number(input.min) || 0);
+                const max = input.max !== '' && Number.isFinite(Number(input.max)) ? Number(input.max) : Infinity;
+                const next = Math.min(max, Math.max(min, (parseInt(input.value, 10) || 0) + delta));
+                if (String(next) === input.value) return;
+                input.value = next;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+            return button;
+        };
+        box.insertBefore(make(-1, '−', 'Уменьшить количество'), input);
+        input.after(make(1, '+', 'Увеличить количество'));
+    });
+}
+
+// «/» — переход в поиск раздела (если не печатаем в поле и не открыта карточка)
+if (typeof document.addEventListener === 'function') {
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey) return;
+        const active = document.activeElement;
+        if (active && (active.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName))) return;
+        const modal = document.querySelector('#modalContainer');
+        if (modal && modal.style.display === 'block' && modal.innerHTML.trim() !== '') return;
+        const search = document.querySelector('.top-bar .search-input');
+        if (!search) return;
+        event.preventDefault();
+        search.focus();
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+        const search = document.querySelector('.top-bar .search-input');
+        if (search && window.matchMedia?.('(hover: hover) and (min-width: 1025px)').matches) {
+            search.placeholder = 'Поиск… (нажмите /)';
+        }
     });
 }
