@@ -3,7 +3,7 @@ class CRMListPage {
     constructor(config) {
         this.listConfig = config;
         this.isLoading = false;
-        this.cardsPerPage = 10;
+        this.cardsPerPage = 20;
         this[config.pageKey] = 1;
         this.state = {};
         this.cache = { filter: {} };
@@ -114,6 +114,18 @@ class CRMListPage {
         if (!container) return;
         const total = Number(this.cache[this.listConfig.cacheKey]?.total_num) || 0;
         this._totalPages = Math.ceil(total / this.cardsPerPage);
+        const totalLabel = this.root?.querySelector('.total-count');
+        if (totalLabel) {
+            const list = this.cache[this.listConfig.cacheKey]?.list;
+            const shown = Array.isArray(list) ? list.length : Math.min(this.cardsPerPage, total);
+            const from = total && shown ? (this.currentPage - 1) * this.cardsPerPage + 1 : 0;
+            const to = total && shown ? Math.min(from + shown - 1, total) : 0;
+            const format = window.LANGS?.get?.('showing_range') || 'Showing {from}–{to} of {total}';
+            totalLabel.textContent = format
+                .replaceAll('{from}', String(from))
+                .replaceAll('{to}', String(to))
+                .replaceAll('{total}', String(total));
+        }
         const previous = container.querySelector('.prev-arrow');
         const next = container.querySelector('.next-arrow');
         const indicator = container.querySelector('.page-indicator');

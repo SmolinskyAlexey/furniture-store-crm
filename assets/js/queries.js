@@ -50,7 +50,7 @@ window.queries = {
         }, "Ошибка загрузки данных");
     },
 
-    searchRefundsQuery: async (offset = 0, limit = 10, filters = {}) => { 
+    searchRefundsQuery: async (offset = 0, limit = 20, filters = {}) => {
 
         const formData = CRMFrontend.api.listBody(offset, limit);
 

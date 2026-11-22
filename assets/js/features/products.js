@@ -1,5 +1,5 @@
 let currentProductsPage = 1;
-const cardsPerPage = 5;
+const cardsPerPage = 20;
 let totalProducts = 0;
 let selectedProducts = [];
 
@@ -135,7 +135,7 @@ async function updateProductListForSelectModal() {
                                     title="Добавить в заказ"
                                     onclick="selectProductFromPopup(${product.id}, '${product.price}', '${product.name}', '${imageUrls}')">
                                 <span class="btn-icon">+</span>
-                                <span class="btn-text">Выбрать</span>
+                                <span class="btn-text">${LANGS.get('choose')}</span>
                             </button>
                         `}
                         </div>
@@ -659,6 +659,47 @@ function updatePaymentFields() {
 function formatFooterMoney(value) {
     return Math.round(value).toLocaleString('ru-RU') + '&nbsp;₴';
 }
+
+window.validateOrderPaymentDates = (form, showErrors = false) => {
+    const fields = [
+        ['prepay', 'prepay_date', 'payment_method_id', 'Предоплата'],
+        ['prepay_2', 'prepay_2_date', 'payment_method_2_id', 'Предоплата 2'],
+        ['postpay', 'postpay_date', 'payment_method_postpay_id', 'Доплата'],
+        ['postpay2', 'postpay2_date', 'payment_method_postpay2_id', 'Доплата 2'],
+        ['services_pay', 'services_pay_date', 'payment_method_services_id', 'Оплата доставки'],
+    ];
+    let valid = true;
+    for (const [amountName, dateName, methodName, label] of fields) {
+        const amount = form.querySelector(`[name="${amountName}"]`);
+        const date = form.querySelector(`[name="${dateName}"]`);
+        const method = form.querySelector(`[name="${methodName}"]`);
+        const hasAmount = Number(amount?.value || 0) !== 0;
+        const dateOk = !date || (!hasAmount && !date.value) || (!!date.value && date.validity?.valid !== false);
+        const methodOk = !method || !hasAmount || Number(method.value || 0) > 0;
+        if (date) date.setAttribute('aria-invalid', String(!dateOk));
+        if (method) method.setAttribute('aria-invalid', String(!methodOk));
+        if (showErrors) {
+            for (const [field, ok, message] of [
+                [date, dateOk, `${label}: укажите корректную дату оплаты.`],
+                [method, methodOk, `${label}: выберите способ оплаты.`],
+            ]) {
+                if (!field) continue;
+                let error = field.parentElement?.querySelector('.payment-field-error');
+                if (!ok && !error) {
+                    error = document.createElement('small');
+                    error.className = 'payment-field-error';
+                    field.parentElement?.append(error);
+                }
+                if (error) {
+                    error.textContent = ok ? '' : message;
+                    error.hidden = ok;
+                }
+            }
+        }
+        valid = dateOk && methodOk && valid;
+    }
+    return valid;
+};
 
 function setFooterTotal(total, debt, paid = null, discount = 0) {
     const totalEl = document.querySelector('#modalContainer [data-footer-total]');

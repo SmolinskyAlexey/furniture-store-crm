@@ -89,13 +89,13 @@ for(const [name,entity,query,pageKey] of pages) {
         const controller=new c[name](); await controller.ready;
         assert.equal(calls.length,1,'one initial query');
         assert.equal(controller[pageKey],1);
-        assert.match(pagination.querySelector('.page-indicator').innerHTML,/1.*3/);
+        assert.match(pagination.querySelector('.page-indicator').innerHTML,/1.*2/);
         // Re-rendering pagination must not install duplicate listeners.
         controller.updatePagination(); controller.updatePagination();
         await pagination.querySelector('.next-arrow').fire('click');
         assert.equal(calls.length,2);
         assert.equal(controller[pageKey],2);
-        assert.equal(calls.at(-1).options.body.get('offset'),'10');
+        assert.equal(calls.at(-1).options.body.get('offset'),'20');
         await pagination.querySelector('.prev-arrow').fire('click');
         assert.equal(controller[pageKey],1);
         const input=search.querySelector('.search-input');

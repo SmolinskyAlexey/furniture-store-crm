@@ -183,11 +183,12 @@ function openShiftHistoryModal() {
                 for (var i = 0; i < json.list.length; i++) {
                     htmlWarehouses+= '<option value="'+json.list[i].id+'">'+json.list[i].name+'</option>';
                 }
-                let needSelectFillWarehouse = document.querySelectorAll(".new-row-whSelect");
+                let needSelectFillWarehouse = document.querySelectorAll(".shift-history-modal .new-row-whSelect");
                 for (var i = 0; i < needSelectFillWarehouse.length; i++) {
-                    if(needSelectFillWarehouse[i].value == "" || needSelectFillWarehouse[i].value == null){
-                        needSelectFillWarehouse[i].innerHTML = htmlWarehouses;
-                    }
+                    const select = needSelectFillWarehouse[i];
+                    const previousValue = select.value;
+                    select.innerHTML = htmlWarehouses;
+                    select.value = [...select.options].some(option => option.value === previousValue) ? previousValue : 'all';
                 }
             }
         }
@@ -339,15 +340,12 @@ function getShiftHistoryModal() {
                                     <input type="date" id="dateTo" class="form-control">
                                 </div>
                                 <div class="form-group">
-                                    <div class="select-warehouse">
-                                        <label class="form-label">Склад:</label><br>
-                                        <select name='warehouse_id' class="dropdown-filter new-row-whSelect">
-                                        <option disabled>Загрузка...</option>
-                                        </select>
-                                    </div>
+                                    <label class="form-label">Склад:</label>
+                                    <select name='warehouse_id' class="dropdown-filter new-row-whSelect">
+                                    <option value="all" selected>Все склады</option>
+                                    </select>
                                 </div>
                                 <div class="form-group">
-                                    <br>
                                     <button class="btn btn-primary btn-block" onclick="loadPeriodReport()">
                                         Показать
                                     </button>

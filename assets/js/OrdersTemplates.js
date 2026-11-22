@@ -65,14 +65,11 @@ window.OrdersTemplates = class {
                 <td>
                     ${order.products?.map(product => {
                             let prodHTML = '<div class=\'product-in-order\'>';
-                            let attributesHTML = '';
-                            if(product.attributes){
-                                for (var i = 0; i < product.attributes.length; i++) {
-                                    attributesHTML += '<div class="attr_row"><div class="attr_name">'+product.attributes[i].attribute_name+':&nbsp;</div><div class="attr_value">'+product.attributes[i].attribute_value+'</div></div>\n';
-                                }
-                            }
+                            const attributesHTML = (product.attributes || [])
+                                .map(attribute => '<span class="attr_name">'+attribute.attribute_name+':&nbsp;</span><span class="attr_value">'+attribute.attribute_value+'</span>')
+                                .join(' | ');
 
-                            prodHTML+='<span class="prod-name">'+product.name+'</span><div class="product-attributes">'+attributesHTML+'</div>';
+                            prodHTML+='<span class="prod-name">'+product.name+'</span>'+(attributesHTML ? '<div class="order-attributes">'+attributesHTML+'</div>' : '');
                             prodHTML+='</div>';
                             return prodHTML;
                         }).join(" ")}
