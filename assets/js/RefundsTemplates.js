@@ -16,7 +16,7 @@ window.RefundsTemplates = class {
 
                 <td><strong>#${refund.id}</strong></td>
 
-                <td>${ui.v(refund.order_id)}</td>
+                <td>${Number(refund.order_id) > 0 ? `<a href="#" class="row-link" title="${LANGS.get('open_order')}" onclick="event.preventDefault();event.stopPropagation();window.showUniversalModal('orders',${Number(refund.order_id)})">${Number(refund.order_id)}</a>` : '—'}${refund.order_created_date ? `<div>${String(refund.order_created_date).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</div>` : ''}${refund.order_status ? `<div>${String(refund.order_status).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</div>` : ''}</td>
 
                 <td>${ui.v(refund.product_ids)}</td>
 

@@ -18,7 +18,7 @@ window.OverheadExpensesTemplates = class {
 
                 <td>${ui.v(ovhexp.warehouse_id)}</td>
 
-                <td>${ui.v(ovhexp.date)}</td>
+                <td>${ui.v(ovhexp.actual_expense_date)}</td>
 
                 <td>${ui.v(ovhexp.service_id)}</td>
 

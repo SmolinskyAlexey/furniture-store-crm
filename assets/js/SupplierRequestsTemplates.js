@@ -20,7 +20,7 @@ window.SupplierRequestsTemplates = class {
                     </div>
                 </td>
 
-                <td title="Просмотр заказа" onclick="window.showUniversalModal('orders',${sRequest.order_id})">${sRequest.order_html_info}</td>
+                <td>${Number(sRequest.order_id) > 0 ? `<a href="#" class="row-link" title="Просмотр заказа" onclick="event.preventDefault();event.stopPropagation();window.showUniversalModal('orders',${Number(sRequest.order_id)})">${sRequest.order_html_info}</a>` : '—'}</td>
 
                 <td>${sRequest.manager_id}<br>\n${sRequest.warehouse_dest_id}</td>
 

@@ -11,6 +11,9 @@ window.universalHandleObjectDelete = async (objectType, objectId) => {
     const formData = new FormData();
     formData.append('action', 'delete');
     formData.append('item_id', objectId);
+    if (objectType === 'overhead_expenses') {
+        formData.append('cash_version', document.querySelector('#overhead_form [name="cash_version"]').value);
+    }
 
     const response = await fetch('/ajax/' + objectType + '/', {
         method: 'POST',
@@ -19,6 +22,14 @@ window.universalHandleObjectDelete = async (objectType, objectId) => {
 
     if (!response.ok) {
         throw new Error('Ошибка при загрузке клиента');
+    }
+
+    if (objectType === 'overhead_expenses') {
+        const result = await response.json();
+        if (result.status !== 'ok') {
+            this.showNotification(result.error || 'Не удалось удалить расход', 'error');
+            return;
+        }
     }
 
     window.closeUniversalModal();
@@ -117,6 +128,16 @@ window.universalHandleObjectCreateOrUpdate = async (objectType, objectId, event)
         } catch (error) {
             alert('Ответ сервера не в формате JSON:\n\n' + text ?? '');
             throw new Error('Ответ сервера не JSON');
+        }
+
+        if (objectType === 'overhead_expenses' && result.code === 'cash_date_mismatch' && /^\d{4}-\d{2}-\d{2}$/.test(result.cash_date || '')) {
+            const accepted = window.confirm(`Выбранная дата не совпадает с датой текущей смены. Изменить фактическую дату на ${result.cash_date} и списать деньги в текущей смене? Если отменить, можно выбрать «Без списания из кассы».`);
+            if (!accepted) return;
+            form.querySelector('[name="actual_expense_date"]').value = result.cash_date;
+            formData.set('actual_expense_date', result.cash_date);
+            const retry = await fetch('/ajax/' + objectType + '/', {method: 'POST', body: formData});
+            result = await retry.json();
+            if (!retry.ok) throw new Error(result.error || 'Ошибка при сохранении данных');
         }
 
         if (!response.ok || result.status === 'error') {
